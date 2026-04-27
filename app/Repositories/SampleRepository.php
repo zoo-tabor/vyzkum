@@ -102,55 +102,152 @@ final class SampleRepository
         $stmt->execute(['status' => $status, 'sample_id' => $sampleId]);
     }
 
-    /** @return array<int, array{sample_id:string, vet_url:string, owner_url:string}> */
-    public function createBatch(int $count, ?int $vetId, string $appUrl): array
+    /** @return array{batch:array<string, mixed>, rows:array<int, array<string, string>>} */
+    public function createBatch(int $count, ?int $vetId, string $appUrl, ?string $label = null): array
     {
-        $insert = $this->pdo->prepare("
-            INSERT INTO samples (sample_id, vet_id, status, vet_token_hash, owner_token_hash)
-            VALUES (:sample_id, :vet_id, :status, :vet_token_hash, :owner_token_hash)
+        $batchInsert = $this->pdo->prepare("
+            INSERT INTO sample_batches (vet_id, label, sample_count)
+            VALUES (:vet_id, :label, :sample_count)
+        ");
+        $sampleInsert = $this->pdo->prepare("
+            INSERT INTO samples (
+                sample_id, batch_id, batch_sequence, vet_id, status,
+                vet_token_hash, owner_token_hash, vet_token, owner_token
+            )
+            VALUES (
+                :sample_id, :batch_id, :batch_sequence, :vet_id, :status,
+                :vet_token_hash, :owner_token_hash, :vet_token, :owner_token
+            )
         ");
 
         $rows = [];
         $year = date('Y');
         $appUrl = rtrim($appUrl, '/');
 
-        for ($i = 0; $i < $count; $i++) {
-            $created = null;
+        $this->pdo->beginTransaction();
+        try {
+            $batchInsert->execute([
+                'vet_id' => $vetId,
+                'label' => self::nullable($label),
+                'sample_count' => $count,
+            ]);
+            $batchId = (int) $this->pdo->lastInsertId();
 
-            for ($attempt = 0; $attempt < 10; $attempt++) {
-                $candidate = 'SMP-' . $year . '-' . strtoupper(bin2hex(random_bytes(4)));
-                $vetToken = rtrim(strtr(base64_encode(random_bytes(24)), '+/', '-_'), '=');
-                $ownerToken = rtrim(strtr(base64_encode(random_bytes(24)), '+/', '-_'), '=');
+            for ($i = 0; $i < $count; $i++) {
+                $created = null;
 
-                try {
-                    $insert->execute([
-                        'sample_id' => $candidate,
-                        'vet_id' => $vetId,
-                        'status' => $vetId ? 'assigned_to_vet' : 'created',
-                        'vet_token_hash' => hash('sha256', $vetToken),
-                        'owner_token_hash' => hash('sha256', $ownerToken),
-                    ]);
+                for ($attempt = 0; $attempt < 10; $attempt++) {
+                    $candidate = 'SMP-' . $year . '-' . strtoupper(bin2hex(random_bytes(4)));
+                    $vetToken = rtrim(strtr(base64_encode(random_bytes(24)), '+/', '-_'), '=');
+                    $ownerToken = rtrim(strtr(base64_encode(random_bytes(24)), '+/', '-_'), '=');
 
-                    $created = [
-                        'sample_id' => $candidate,
-                        'vet_url' => $appUrl . '/vet/' . rawurlencode($candidate) . '/' . rawurlencode($vetToken),
-                        'owner_url' => $appUrl . '/dog/' . rawurlencode($candidate) . '/' . rawurlencode($ownerToken),
-                    ];
-                    break;
-                } catch (\PDOException $e) {
-                    if ($e->getCode() !== '23000') {
-                        throw $e;
+                    try {
+                        $sampleInsert->execute([
+                            'sample_id' => $candidate,
+                            'batch_id' => $batchId,
+                            'batch_sequence' => $i + 1,
+                            'vet_id' => $vetId,
+                            'status' => $vetId ? 'assigned_to_vet' : 'created',
+                            'vet_token_hash' => hash('sha256', $vetToken),
+                            'owner_token_hash' => hash('sha256', $ownerToken),
+                            'vet_token' => $vetToken,
+                            'owner_token' => $ownerToken,
+                        ]);
+
+                        $created = [
+                            'sample_id' => $candidate,
+                            'vet_url' => $this->vetUrl($appUrl, $candidate, $vetToken),
+                            'owner_url' => $this->ownerUrl($appUrl, $candidate, $ownerToken),
+                        ];
+                        break;
+                    } catch (\PDOException $e) {
+                        if ($e->getCode() !== '23000') {
+                            throw $e;
+                        }
                     }
                 }
+
+                if ($created === null) {
+                    throw new \RuntimeException('Nepodarilo se vytvorit unikatni sample_id.');
+                }
+
+                $rows[] = $created;
             }
 
-            if ($created === null) {
-                throw new \RuntimeException('Nepodarilo se vytvorit unikatni sample_id.');
-            }
+            $this->pdo->commit();
 
-            $rows[] = $created;
+            return [
+                'batch' => ['id' => $batchId, 'label' => self::nullable($label), 'sample_count' => $count],
+                'rows' => $rows,
+            ];
+        } catch (\Throwable $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    public function batches(): array
+    {
+        return $this->pdo->query("
+            SELECT b.id, b.label, b.sample_count, b.created_at, v.name AS vet_name, v.clinic_name
+            FROM sample_batches b
+            LEFT JOIN vets v ON v.id = b.vet_id
+            ORDER BY b.created_at DESC, b.id DESC
+            LIMIT 200
+        ")->fetchAll();
+    }
+
+    /** @return array{batch:array<string, mixed>, rows:array<int, array<string, ?string>>}|null */
+    public function batchLabels(int $batchId, string $appUrl): ?array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT b.id, b.label, b.sample_count, b.created_at, v.name AS vet_name, v.clinic_name
+            FROM sample_batches b
+            LEFT JOIN vets v ON v.id = b.vet_id
+            WHERE b.id = :id
+            LIMIT 1
+        ");
+        $stmt->execute(['id' => $batchId]);
+        $batch = $stmt->fetch();
+        if (!$batch) {
+            return null;
         }
 
-        return $rows;
+        $sampleStmt = $this->pdo->prepare("
+            SELECT sample_id, vet_token, owner_token
+            FROM samples
+            WHERE batch_id = :batch_id
+            ORDER BY batch_sequence ASC, id ASC
+        ");
+        $sampleStmt->execute(['batch_id' => $batchId]);
+
+        $appUrl = rtrim($appUrl, '/');
+        $rows = [];
+        foreach ($sampleStmt->fetchAll() as $sample) {
+            $rows[] = [
+                'sample_id' => $sample['sample_id'],
+                'vet_url' => $sample['vet_token'] ? $this->vetUrl($appUrl, $sample['sample_id'], $sample['vet_token']) : null,
+                'owner_url' => $sample['owner_token'] ? $this->ownerUrl($appUrl, $sample['sample_id'], $sample['owner_token']) : null,
+            ];
+        }
+
+        return ['batch' => $batch, 'rows' => $rows];
+    }
+
+    private function vetUrl(string $appUrl, string $sampleId, string $token): string
+    {
+        return $appUrl . '/vet/' . rawurlencode($sampleId) . '/' . rawurlencode($token);
+    }
+
+    private function ownerUrl(string $appUrl, string $sampleId, string $token): string
+    {
+        return $appUrl . '/dog/' . rawurlencode($sampleId) . '/' . rawurlencode($token);
+    }
+
+    private static function nullable(mixed $value): ?string
+    {
+        $value = trim((string) $value);
+        return $value === '' ? null : $value;
     }
 }

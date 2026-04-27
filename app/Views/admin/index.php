@@ -7,6 +7,7 @@
     <div class="actions compact">
       <a class="button secondary" href="/admin/vets">Veterináři</a>
       <a class="button secondary" href="/admin/migrate">Migrace DB</a>
+      <a class="button secondary" href="/admin/batches">Dávky</a>
       <a class="button secondary" href="/admin/samples/new-batch">Nová dávka</a>
       <a class="button" href="/admin/export/samples.csv">Export CSV</a>
     </div>

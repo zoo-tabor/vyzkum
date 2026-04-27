@@ -236,10 +236,23 @@ th {
   min-width: 0;
   text-align: center;
 }
+.qr-code {
+  width: 160px;
+  max-width: 100%;
+  aspect-ratio: 1;
+  margin: 0 auto;
+}
+.qr-code canvas,
+.qr-code img,
+.qr-code svg,
 .qr-box img {
   width: 100%;
   max-width: 160px;
   aspect-ratio: 1;
+}
+.compact-button {
+  min-height: 34px;
+  padding: 7px 10px;
 }
 .qr-box strong {
   display: block;
@@ -266,7 +279,14 @@ th {
     border-radius: 0;
     padding: 5mm;
   }
-  .qr-box img { max-width: 34mm; }
+  .qr-code,
+  .qr-code canvas,
+  .qr-code img,
+  .qr-code svg,
+  .qr-box img {
+    width: 34mm;
+    max-width: 34mm;
+  }
 }
 @media (max-width: 640px) {
   .shell,

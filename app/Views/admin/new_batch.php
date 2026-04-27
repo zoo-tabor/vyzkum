@@ -27,9 +27,13 @@
           <?php endforeach; ?>
         </select>
       </div>
+      <div>
+        <label for="label">Popis dávky</label>
+        <input id="label" name="label" placeholder="např. duben 2026 / klinika Praha">
+      </div>
     </div>
     <div class="notice">
-      QR odkazy se z bezpečnostních důvodů zobrazí jen hned po vygenerování. Později už z databáze nelze zpětně získat původní tokeny.
+      QR odkazy se uloží k dávce, aby štítky šly později znovu vytisknout.
     </div>
     <div class="actions">
       <button type="submit">Vygenerovat dávku</button>

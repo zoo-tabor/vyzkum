@@ -79,6 +79,10 @@ final class AdminController
     public function newBatch(): string
     {
         $this->auth->requireAdmin();
+        if ($this->missingBatchStorageObjects() !== []) {
+            redirect('/admin/migrate');
+        }
+
         return view('admin/new_batch', [
             'title' => 'Nova davka vzorku',
             'vets' => $this->vetRepo()->all(),
@@ -90,18 +94,63 @@ final class AdminController
     {
         $this->auth->requireAdmin();
         Csrf::verify();
+        if ($this->missingBatchStorageObjects() !== []) {
+            redirect('/admin/migrate');
+        }
 
         $count = max(1, min(200, (int) input('count', 20)));
         $vetId = (int) input('vet_id', 0);
-        $rows = $this->sampleRepo()->createBatch(
+        $result = $this->sampleRepo()->createBatch(
             $count,
             $vetId > 0 ? $vetId : null,
-            (string) $this->config->get('APP_URL', 'http://localhost:8000')
+            (string) $this->config->get('APP_URL', 'http://localhost:8000'),
+            (string) input('label', '')
         );
 
         return view('admin/print_labels', [
             'title' => 'Tisk stitku',
-            'rows' => $rows,
+            'batch' => $result['batch'],
+            'rows' => $result['rows'],
+            'qrLabels' => true,
+            'admin' => true,
+        ]);
+    }
+
+    public function batches(): string
+    {
+        $this->auth->requireAdmin();
+        if ($this->missingBatchStorageObjects() !== []) {
+            redirect('/admin/migrate');
+        }
+
+        return view('admin/batches', [
+            'title' => 'Davky vzorku',
+            'batches' => $this->sampleRepo()->batches(),
+            'admin' => true,
+        ]);
+    }
+
+    public function batchLabels(string $batchId): string
+    {
+        $this->auth->requireAdmin();
+        if ($this->missingBatchStorageObjects() !== []) {
+            redirect('/admin/migrate');
+        }
+
+        $result = $this->sampleRepo()->batchLabels(
+            (int) $batchId,
+            (string) $this->config->get('APP_URL', 'http://localhost:8000')
+        );
+        if (!$result) {
+            http_response_code(404);
+            return view('errors/404', ['title' => 'Davka nenalezena', 'admin' => true]);
+        }
+
+        return view('admin/print_labels', [
+            'title' => 'Tisk stitku',
+            'batch' => $result['batch'],
+            'rows' => $result['rows'],
+            'qrLabels' => true,
             'admin' => true,
         ]);
     }
@@ -124,6 +173,7 @@ final class AdminController
             'error' => $error,
             'migrated' => false,
             'vetChamberNumberExists' => $this->vetChamberNumberExists(),
+            'missingBatchStorageObjects' => $this->missingBatchStorageObjects(),
             'admin' => true,
         ]);
     }
@@ -155,6 +205,41 @@ final class AdminController
             'error' => $error,
             'migrated' => $migrated,
             'vetChamberNumberExists' => $this->vetChamberNumberExists(),
+            'missingBatchStorageObjects' => $this->missingBatchStorageObjects(),
+            'admin' => true,
+        ]);
+    }
+
+    public function installBatchStorage(): string
+    {
+        $this->auth->requireAdmin();
+        Csrf::verify();
+
+        $error = null;
+        $tables = [];
+        $batchStorageInstalled = false;
+
+        try {
+            $this->migrationService()->installBatchStorage();
+            $batchStorageInstalled = true;
+            $tables = $this->migrationService()->tables();
+        } catch (\Throwable $e) {
+            $error = $e->getMessage();
+            try {
+                $tables = $this->migrationService()->tables();
+            } catch (\Throwable) {
+                $tables = [];
+            }
+        }
+
+        return view('admin/migration', [
+            'title' => 'Migrace databáze',
+            'tables' => $tables,
+            'error' => $error,
+            'migrated' => false,
+            'batchStorageInstalled' => $batchStorageInstalled,
+            'vetChamberNumberExists' => $this->vetChamberNumberExists(),
+            'missingBatchStorageObjects' => $this->missingBatchStorageObjects(),
             'admin' => true,
         ]);
     }
@@ -188,6 +273,7 @@ final class AdminController
             'migrated' => false,
             'columnDropped' => $columnDropped,
             'vetChamberNumberExists' => $this->vetChamberNumberExists(),
+            'missingBatchStorageObjects' => $this->missingBatchStorageObjects(),
             'admin' => true,
         ]);
     }
@@ -265,6 +351,16 @@ final class AdminController
             return $this->migrationService()->vetChamberNumberExists();
         } catch (\Throwable) {
             return false;
+        }
+    }
+
+    /** @return array<int, string> */
+    private function missingBatchStorageObjects(): array
+    {
+        try {
+            return $this->migrationService()->missingBatchStorageObjects();
+        } catch (\Throwable) {
+            return [];
         }
     }
 }

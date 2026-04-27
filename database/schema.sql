@@ -8,13 +8,26 @@ CREATE TABLE vets (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE sample_batches (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  vet_id INT UNSIGNED NULL,
+  label VARCHAR(160) NULL,
+  sample_count INT UNSIGNED NOT NULL DEFAULT 0,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT sample_batches_vet_fk FOREIGN KEY (vet_id) REFERENCES vets(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE samples (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   sample_id VARCHAR(40) NOT NULL UNIQUE,
+  batch_id INT UNSIGNED NULL,
+  batch_sequence INT UNSIGNED NULL,
   vet_id INT UNSIGNED NULL,
   status VARCHAR(40) NOT NULL DEFAULT 'created',
   vet_token_hash CHAR(64) NOT NULL,
   owner_token_hash CHAR(64) NOT NULL,
+  vet_token VARCHAR(128) NULL,
+  owner_token VARCHAR(128) NULL,
   vet_submitted_at DATETIME NULL,
   owner_submitted_at DATETIME NULL,
   sample_type VARCHAR(80) NULL,
@@ -25,6 +38,7 @@ CREATE TABLE samples (
   received_at DATETIME NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NULL,
+  CONSTRAINT samples_batch_fk FOREIGN KEY (batch_id) REFERENCES sample_batches(id) ON DELETE SET NULL,
   CONSTRAINT samples_vet_fk FOREIGN KEY (vet_id) REFERENCES vets(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

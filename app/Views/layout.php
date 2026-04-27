@@ -69,5 +69,18 @@
       show(0);
     });
   </script>
+  <?php if (!empty($qrLabels)): ?>
+    <script src="<?= e(asset('assets/vendor/qrcode.min.js')) ?>"></script>
+    <script>
+      document.querySelectorAll('[data-qr-code]').forEach((target) => {
+        new QRCode(target, {
+          text: target.dataset.qrCode,
+          width: 220,
+          height: 220,
+          correctLevel: QRCode.CorrectLevel.M,
+        });
+      });
+    </script>
+  <?php endif; ?>
 </body>
 </html>

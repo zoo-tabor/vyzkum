@@ -20,6 +20,10 @@
     <div class="notice ok">Sloupec <code>vets.chamber_number</code> byl odstraněn.</div>
   <?php endif; ?>
 
+  <?php if (!empty($batchStorageInstalled)): ?>
+    <div class="notice ok">Ukládání dávek a QR tokenů bylo doplněno.</div>
+  <?php endif; ?>
+
   <div class="panel">
     <h2>Aktuální stav</h2>
     <?php if ($tables): ?>
@@ -54,6 +58,22 @@
         <?= Csrf::field() ?>
         <div class="actions">
           <button type="submit">Odstranit číslo komory z databáze</button>
+        </div>
+      </form>
+    </div>
+  <?php endif; ?>
+
+  <?php if (!empty($missingBatchStorageObjects)): ?>
+    <div class="panel">
+      <h2>Údržba dávek</h2>
+      <div class="notice">
+        Pro opakovaný tisk QR štítků je potřeba doplnit databázi o:
+        <strong><?= e(implode(', ', $missingBatchStorageObjects)) ?></strong>.
+      </div>
+      <form method="post" action="/admin/migrate/install-batch-storage">
+        <?= Csrf::field() ?>
+        <div class="actions">
+          <button type="submit">Doplnit ukládání dávek</button>
         </div>
       </form>
     </div>
