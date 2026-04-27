@@ -23,6 +23,14 @@ define('ROOT_PATH', dirname(__DIR__));
 define('STORAGE_PATH', ROOT_PATH . '/storage');
 
 $config = Config::load(ROOT_PATH . '/.env');
+$debug = (bool) $config->get('APP_DEBUG', false);
+
+error_reporting(E_ALL);
+ini_set('log_errors', '1');
+ini_set('error_log', STORAGE_PATH . '/logs/php-error.log');
+ini_set('display_errors', $debug ? '1' : '0');
+ini_set('display_startup_errors', $debug ? '1' : '0');
+
 Session::start((bool) $config->get('APP_DEBUG', false));
 Database::configure($config);
 

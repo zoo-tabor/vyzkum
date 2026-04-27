@@ -33,4 +33,19 @@ $router->get('/admin/samples/{sampleId}', [$admin, 'detail']);
 $router->post('/admin/samples/{sampleId}/status', [$admin, 'updateStatus']);
 $router->get('/admin/export/samples.csv', [$admin, 'exportSamples']);
 
-echo $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
+try {
+    echo $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
+} catch (Throwable $e) {
+    http_response_code(500);
+    if ((bool) $config->get('APP_DEBUG', false)) {
+        header('Content-Type: text/plain; charset=utf-8');
+        echo "Application error\n";
+        echo "=================\n";
+        echo $e::class . ': ' . $e->getMessage() . "\n";
+        echo $e->getFile() . ':' . $e->getLine() . "\n\n";
+        echo $e->getTraceAsString();
+        exit;
+    }
+
+    echo 'Doslo k vnitrni chybe aplikace.';
+}
