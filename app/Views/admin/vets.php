@@ -2,19 +2,19 @@
 <section>
   <div class="topbar">
     <div>
-      <h1>Veterinari</h1>
-      <p class="muted">Evidence veterinaru a klinik pro prirazovani odberovych sad.</p>
+      <h1>Veterináři</h1>
+      <p class="muted">Evidence veterinářů a klinik pro přiřazování odběrových sad.</p>
     </div>
-    <a class="button secondary" href="/admin">Zpet na vzorky</a>
+    <a class="button secondary" href="/admin">Zpět na vzorky</a>
   </div>
 
   <div class="panel">
-    <h2>Novy veterinar nebo klinika</h2>
+    <h2>Nový veterinář nebo klinika</h2>
     <form method="post" action="/admin/vets">
       <?= Csrf::field() ?>
       <div class="grid two">
         <div>
-          <label for="name">Jmeno veterinare / kontaktni osoby</label>
+          <label for="name">Jméno veterináře / kontaktní osoby</label>
           <input id="name" name="name" required>
         </div>
         <div>
@@ -22,7 +22,7 @@
           <input id="clinic_name" name="clinic_name">
         </div>
         <div>
-          <label for="chamber_number">Cislo komory</label>
+          <label for="chamber_number">Číslo komory</label>
           <input id="chamber_number" name="chamber_number">
         </div>
         <div>
@@ -39,17 +39,17 @@
         </div>
       </div>
       <div class="actions">
-        <button type="submit">Ulozit veterinare</button>
+        <button type="submit">Uložit veterináře</button>
       </div>
     </form>
   </div>
 
-  <h2>Ulozeni veterinari</h2>
+  <h2>Uložení veterináři</h2>
   <table>
     <thead>
       <tr>
         <th>ID</th>
-        <th>Jmeno</th>
+        <th>Jméno</th>
         <th>Klinika</th>
         <th>Kontakt</th>
         <th>Adresa</th>
@@ -70,7 +70,7 @@
         </tr>
       <?php endforeach; ?>
       <?php if (!$vets): ?>
-        <tr><td colspan="5" class="muted">Zatim neni ulozen zadny veterinar.</td></tr>
+        <tr><td colspan="5" class="muted">Zatím není uložen žádný veterinář.</td></tr>
       <?php endif; ?>
     </tbody>
   </table>

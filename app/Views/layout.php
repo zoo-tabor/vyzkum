@@ -7,12 +7,12 @@
   <meta name="theme-color" content="#146c5f">
   <link rel="manifest" href="<?= e(asset('manifest.webmanifest')) ?>">
   <link rel="stylesheet" href="<?= e(asset('assets/app.css')) ?>">
-  <title><?= e($title ?? 'Evidence vzorku psu') ?></title>
+  <title><?= e($title ?? 'Evidence vzorků psů') ?></title>
 </head>
 <body>
   <main class="<?= !empty($admin) ? 'admin-shell' : 'shell' ?>">
     <div class="topbar">
-      <div class="brand">Studie dlouhovekosti psu</div>
+      <div class="brand">Studie dlouhověkosti psů</div>
       <?php if (!empty($admin)): ?>
         <a href="/admin">Administrace</a>
       <?php endif; ?>

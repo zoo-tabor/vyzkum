@@ -11,7 +11,7 @@ use App\Core\Router;
 
 $router = new Router();
 
-$router->get('/', fn () => view('home', ['title' => 'Evidence vzorku psu']));
+$router->get('/', fn () => view('home', ['title' => 'Evidence vzorků psů']));
 
 $vet = new VetController();
 $router->get('/vet/{sampleId}/{token}', [$vet, 'show']);

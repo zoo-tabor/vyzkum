@@ -27,10 +27,27 @@ final class AdminController
     public function index(): string
     {
         $this->auth->requireAdmin();
+        try {
+            if ($this->migrationService()->tables() === []) {
+                redirect('/admin/migrate');
+            }
+
+            $samples = $this->sampleRepo()->all();
+            $vets = $this->vetRepo()->all();
+        } catch (\Throwable $e) {
+            return view('admin/migration', [
+                'title' => 'Migrace databáze',
+                'tables' => [],
+                'error' => $e->getMessage(),
+                'migrated' => false,
+                'admin' => true,
+            ]);
+        }
+
         return view('admin/index', [
             'title' => 'Administrace',
-            'samples' => $this->sampleRepo()->all(),
-            'vets' => $this->vetRepo()->all(),
+            'samples' => $samples,
+            'vets' => $vets,
             'admin' => true,
         ]);
     }
@@ -101,7 +118,7 @@ final class AdminController
         }
 
         return view('admin/migration', [
-            'title' => 'Migrace databaze',
+            'title' => 'Migrace databáze',
             'tables' => $tables,
             'error' => $error,
             'migrated' => false,
@@ -131,7 +148,7 @@ final class AdminController
         }
 
         return view('admin/migration', [
-            'title' => 'Migrace databaze',
+            'title' => 'Migrace databáze',
             'tables' => $tables,
             'error' => $error,
             'migrated' => $migrated,

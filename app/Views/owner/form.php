@@ -8,7 +8,7 @@
   </div>
 
   <?php if ($sample['owner_submitted_at'] !== null): ?>
-    <div class="notice ok">Majitelska registrace uz byla odeslana. Odkaz je jednorazovy.</div>
+    <div class="notice ok">Majitelská registrace už byla odeslána. Odkaz je jednorázový.</div>
   <?php else: ?>
     <?php if ($errors): ?>
       <div class="notice danger"><?= e(implode(' ', $errors)) ?></div>
@@ -20,11 +20,11 @@
       <h2>Pes</h2>
       <div class="grid two">
         <div>
-          <label for="chip_number">Cislo cipu psa</label>
+          <label for="chip_number">Číslo čipu psa</label>
           <input id="chip_number" name="chip_number" inputmode="numeric" maxlength="15" pattern="[0-9]{15}" required value="<?= e($sample['chip_number'] ?? $sample['chip_number_vet'] ?? '') ?>" <?= !empty($sample['chip_number_vet']) ? 'readonly' : '' ?>>
         </div>
         <div>
-          <label for="dog_name">Jmeno psa</label>
+          <label for="dog_name">Jméno psa</label>
           <input id="dog_name" name="dog_name" required value="<?= e($sample['dog_name'] ?? '') ?>">
         </div>
         <div>
@@ -32,7 +32,7 @@
           <input id="breed" name="breed" required value="<?= e($sample['breed'] ?? '') ?>">
         </div>
         <div>
-          <label for="sex">Pohlavi</label>
+          <label for="sex">Pohlaví</label>
           <select id="sex" name="sex" required>
             <?php $sex = $sample['sex'] ?? 'unknown'; ?>
             <option value="unknown" <?= $sex === 'unknown' ? 'selected' : '' ?>>Neuvedeno</option>
@@ -41,11 +41,11 @@
           </select>
         </div>
         <div>
-          <label for="birth_date">Datum narozeni</label>
+          <label for="birth_date">Datum narození</label>
           <input id="birth_date" name="birth_date" type="date" required value="<?= e($sample['birth_date'] ?? '') ?>">
         </div>
         <div>
-          <label for="pedigree_number">Cislo zapisu / pedigree</label>
+          <label for="pedigree_number">Číslo zápisu / pedigree</label>
           <input id="pedigree_number" name="pedigree_number" required value="<?= e($sample['pedigree_number'] ?? '') ?>">
         </div>
         <div>
@@ -54,36 +54,36 @@
         </div>
       </div>
 
-      <h2>Stav psa v dobe odberu</h2>
+      <h2>Stav psa v době odběru</h2>
       <div class="grid">
         <div>
           <label for="health_status">Stav</label>
           <select id="health_status" name="health_status" required>
             <?php $health = $sample['health_status'] ?? ''; ?>
             <option value="">Vyberte</option>
-            <option value="healthy" <?= $health === 'healthy' ? 'selected' : '' ?>>Zdravy</option>
-            <option value="chronic" <?= $health === 'chronic' ? 'selected' : '' ?>>Ma chronicke onemocneni</option>
-            <option value="serious_history" <?= $health === 'serious_history' ? 'selected' : '' ?>>Prodelal zavazne onemocneni</option>
-            <option value="unknown" <?= $health === 'unknown' ? 'selected' : '' ?>>Jine / nevim</option>
+            <option value="healthy" <?= $health === 'healthy' ? 'selected' : '' ?>>Zdravý</option>
+            <option value="chronic" <?= $health === 'chronic' ? 'selected' : '' ?>>Má chronické onemocnění</option>
+            <option value="serious_history" <?= $health === 'serious_history' ? 'selected' : '' ?>>Prodělal závažné onemocnění</option>
+            <option value="unknown" <?= $health === 'unknown' ? 'selected' : '' ?>>Jiné / nevím</option>
           </select>
         </div>
         <div>
-          <label for="health_note">Poznamka ke zdravotnimu stavu</label>
+          <label for="health_note">Poznámka ke zdravotnímu stavu</label>
           <textarea id="health_note" name="health_note"><?= e($sample['health_note'] ?? '') ?></textarea>
         </div>
       </div>
 
       <h2>Rodokmen</h2>
       <div>
-        <label for="pedigree">Fotografie nebo sken prukazu puvodu</label>
+        <label for="pedigree">Fotografie nebo sken průkazu původu</label>
         <input id="pedigree" name="pedigree" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" required>
-        <div class="field-note">Podporovany je JPG, PNG, WEBP nebo PDF do 10 MB.</div>
+        <div class="field-note">Podporovaný je JPG, PNG, WEBP nebo PDF do 10 MB.</div>
       </div>
 
       <h2>Kontakt</h2>
       <div class="grid two">
         <div>
-          <label for="owner_name">Jmeno a prijmeni majitele</label>
+          <label for="owner_name">Jméno a příjmení majitele</label>
           <input id="owner_name" name="owner_name" required value="<?= e($sample['owner_name'] ?? '') ?>">
         </div>
         <div>
@@ -98,15 +98,15 @@
 
       <h2>Souhlas</h2>
       <div class="notice">
-        Souhlasim se zarazenim vzorku psa do vyzkumne studie dlouhovekosti, se zpracovanim osobnich udaju a se zpracovanim genetickych dat psa pro vyzkumne ucely.
+        Souhlasím se zařazením vzorku psa do výzkumné studie dlouhověkosti, se zpracováním osobních údajů a se zpracováním genetických dat psa pro výzkumné účely.
         <details>
-          <summary>Zobrazit podminky</summary>
-          <p>Data budou pouzita pro vyzkumnou evidenci vzorku, validaci puvodu psa, kontaktovani majitele v souvislosti se studii a pripadny budouci follow-up. Pristup k datum ma pouze opravneny vyzkumny tym.</p>
+          <summary>Zobrazit podmínky</summary>
+          <p>Data budou použita pro výzkumnou evidenci vzorku, validaci původu psa, kontaktování majitele v souvislosti se studií a případný budoucí follow-up. Přístup k datům má pouze oprávněný výzkumný tým.</p>
         </details>
       </div>
-      <p><label><input type="checkbox" name="main_consent" value="1" required> Potvrzuji souhlas a opravneni psa do studie prihlasit.</label></p>
-      <p><label><input type="checkbox" name="future_contact_consent" value="1"> Souhlasim s budoucim kontaktovanim kvuli datu a pricine umrti psa.</label></p>
-      <p><label><input type="checkbox" name="results_consent" value="1"> Chci byt informovan/a o pripadnych vysledcich.</label></p>
+      <p><label><input type="checkbox" name="main_consent" value="1" required> Potvrzuji souhlas a oprávnění psa do studie přihlásit.</label></p>
+      <p><label><input type="checkbox" name="future_contact_consent" value="1"> Souhlasím s budoucím kontaktováním kvůli datu a příčině úmrtí psa.</label></p>
+      <p><label><input type="checkbox" name="results_consent" value="1"> Chci být informován/a o případných výsledcích.</label></p>
       <p><label><input type="checkbox" name="newsletter_consent" value="1"> Chci dostavat novinky k projektu.</label></p>
 
       <div class="actions">

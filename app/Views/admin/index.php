@@ -2,12 +2,12 @@
   <div class="topbar">
     <div>
       <h1>Vzorky</h1>
-      <p class="muted">Prehled poslednich zaznamu.</p>
+      <p class="muted">Přehled posledních záznamů.</p>
     </div>
     <div class="actions compact">
-      <a class="button secondary" href="/admin/vets">Veterinari</a>
+      <a class="button secondary" href="/admin/vets">Veterináři</a>
       <a class="button secondary" href="/admin/migrate">Migrace DB</a>
-      <a class="button secondary" href="/admin/samples/new-batch">Nova davka</a>
+      <a class="button secondary" href="/admin/samples/new-batch">Nová dávka</a>
       <a class="button" href="/admin/export/samples.csv">Export CSV</a>
     </div>
   </div>
@@ -17,10 +17,10 @@
       <tr>
         <th>Vzorek</th>
         <th>Stav</th>
-        <th>Cip</th>
+        <th>Čip</th>
         <th>Pes</th>
         <th>Majitel</th>
-        <th>Odber</th>
+        <th>Odběr</th>
       </tr>
     </thead>
     <tbody>
