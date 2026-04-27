@@ -6,6 +6,7 @@
     </div>
     <div class="actions compact">
       <a class="button secondary" href="/admin/vets">Veterinari</a>
+      <a class="button secondary" href="/admin/migrate">Migrace DB</a>
       <a class="button secondary" href="/admin/samples/new-batch">Nova davka</a>
       <a class="button" href="/admin/export/samples.csv">Export CSV</a>
     </div>

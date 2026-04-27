@@ -8,11 +8,13 @@ use App\Core\Csrf;
 use App\Repositories\SampleRepository;
 use App\Repositories\VetRepository;
 use App\Services\AdminAuth;
+use App\Services\DatabaseMigrationService;
 
 final class AdminController
 {
     private ?SampleRepository $samples = null;
     private ?VetRepository $vets = null;
+    private ?DatabaseMigrationService $migration = null;
     private AdminAuth $auth;
     private Config $config;
 
@@ -86,6 +88,57 @@ final class AdminController
         ]);
     }
 
+    public function migration(): string
+    {
+        $this->auth->requireAdmin();
+
+        $error = null;
+        $tables = [];
+        try {
+            $tables = $this->migrationService()->tables();
+        } catch (\Throwable $e) {
+            $error = $e->getMessage();
+        }
+
+        return view('admin/migration', [
+            'title' => 'Migrace databaze',
+            'tables' => $tables,
+            'error' => $error,
+            'migrated' => false,
+            'admin' => true,
+        ]);
+    }
+
+    public function runMigration(): string
+    {
+        $this->auth->requireAdmin();
+        Csrf::verify();
+
+        $error = null;
+        $tables = [];
+        $migrated = false;
+
+        try {
+            $tables = $this->migrationService()->migrate(ROOT_PATH . '/database/schema.sql');
+            $migrated = true;
+        } catch (\Throwable $e) {
+            $error = $e->getMessage();
+            try {
+                $tables = $this->migrationService()->tables();
+            } catch (\Throwable) {
+                $tables = [];
+            }
+        }
+
+        return view('admin/migration', [
+            'title' => 'Migrace databaze',
+            'tables' => $tables,
+            'error' => $error,
+            'migrated' => $migrated,
+            'admin' => true,
+        ]);
+    }
+
     public function detail(string $sampleId): string
     {
         $this->auth->requireAdmin();
@@ -146,5 +199,10 @@ final class AdminController
     private function vetRepo(): VetRepository
     {
         return $this->vets ??= new VetRepository();
+    }
+
+    private function migrationService(): DatabaseMigrationService
+    {
+        return $this->migration ??= new DatabaseMigrationService();
     }
 }

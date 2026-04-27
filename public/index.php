@@ -25,6 +25,8 @@ $admin = new AdminController($config);
 $router->get('/admin', [$admin, 'index']);
 $router->get('/admin/vets', [$admin, 'vets']);
 $router->post('/admin/vets', [$admin, 'createVet']);
+$router->get('/admin/migrate', [$admin, 'migration']);
+$router->post('/admin/migrate', [$admin, 'runMigration']);
 $router->get('/admin/samples/new-batch', [$admin, 'newBatch']);
 $router->post('/admin/samples/new-batch', [$admin, 'createBatch']);
 $router->get('/admin/samples/{sampleId}', [$admin, 'detail']);
