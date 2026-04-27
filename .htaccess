@@ -1,39 +1,16 @@
-<IfModule mod_rewrite.c>
-  RewriteEngine On
+RewriteEngine On
 
-  RewriteCond %{HTTPS} off
-  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
 
-  RewriteRule ^(?:app|database|docs|scripts|storage|vendor)(?:/|$) - [F,L]
-  RewriteRule ^(?:\.env|\.env\.example|README\.md|composer\.(?:json|lock))$ - [F,L]
+RewriteRule ^assets/(.*)$ public/assets/$1 [L]
+RewriteRule ^manifest\.webmanifest$ public/manifest.webmanifest [L]
+RewriteRule ^sw\.js$ public/sw.js [L]
 
-  RewriteRule ^assets/(.*)$ public/assets/$1 [L]
-  RewriteRule ^manifest\.webmanifest$ public/manifest.webmanifest [L]
-  RewriteRule ^sw\.js$ public/sw.js [L]
-  RewriteRule ^favicon\.ico$ public/favicon.ico [L]
+RewriteRule ^(app|database|docs|scripts|storage|vendor)(/.*)?$ - [F,L]
+RewriteRule ^\.env$ - [F,L]
+RewriteRule ^\.env\.example$ - [F,L]
 
-  RewriteRule ^public/(?:index\.php)?$ public/index.php [L]
-  RewriteRule ^public/assets/(.*)$ public/assets/$1 [L]
-
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^(.*)$ public/index.php [QSA,L]
-</IfModule>
-
-Options -Indexes
-
-<IfModule mod_headers.c>
-  Header set Content-Security-Policy "upgrade-insecure-requests;"
-  Header set X-Frame-Options "SAMEORIGIN"
-  Header set X-XSS-Protection "1; mode=block"
-  Header set X-Content-Type-Options "nosniff"
-  Header set Referrer-Policy "strict-origin-when-cross-origin"
-</IfModule>
-
-<FilesMatch "\.(env|htaccess|htpasswd|ini|log|sh|inc|bak|sql|md|txt)$">
-  Require all denied
-</FilesMatch>
-
-<FilesMatch "^\.">
-  Require all denied
-</FilesMatch>
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ public/index.php [QSA,L]
