@@ -18,36 +18,41 @@
 
   <div class="notice no-print">
     QR kódy se generují lokálně v prohlížeči z uložených odkazů. Žádná externí QR služba se při tisku nevolá.
+    V tiskovém dialogu použijte formát A4, měřítko 100 % a vypnuté okraje / tisk bez přizpůsobení stránce.
   </div>
 
-  <div class="labels">
-    <?php foreach ($rows as $row): ?>
-      <article class="label-sheet">
-        <header>
-          <strong><?= e($row['sample_id']) ?></strong>
-          <span>GWAS dlouhověkost psů</span>
-        </header>
-        <div class="qr-grid">
-          <div class="qr-box">
-            <?php if (!empty($row['vet_url'])): ?>
-              <div class="qr-code" data-qr-code="<?= e($row['vet_url']) ?>"></div>
-              <strong>Veterinář</strong>
-              <small><?= e($row['vet_url']) ?></small>
-            <?php else: ?>
-              <div class="notice danger">QR odkaz už není dostupný.</div>
-            <?php endif; ?>
-          </div>
-          <div class="qr-box">
-            <?php if (!empty($row['owner_url'])): ?>
-              <div class="qr-code" data-qr-code="<?= e($row['owner_url']) ?>"></div>
-              <strong>Majitel</strong>
-              <small><?= e($row['owner_url']) ?></small>
-            <?php else: ?>
-              <div class="notice danger">QR odkaz už není dostupný.</div>
-            <?php endif; ?>
-          </div>
-        </div>
-      </article>
-    <?php endforeach; ?>
-  </div>
+  <?php foreach (array_chunk($rows, 65) as $pageRows): ?>
+    <div class="label-page">
+      <div class="labels">
+        <?php foreach ($pageRows as $row): ?>
+          <article class="label-sheet">
+            <header>
+              <strong><?= e($row['sample_id']) ?></strong>
+              <span>GWAS dlouhověkost psů</span>
+            </header>
+            <div class="qr-grid">
+              <div class="qr-box">
+                <?php if (!empty($row['vet_url'])): ?>
+                  <div class="qr-code" data-qr-code="<?= e($row['vet_url']) ?>"></div>
+                  <strong>Veterinář</strong>
+                  <small><?= e($row['vet_url']) ?></small>
+                <?php else: ?>
+                  <div class="notice danger">QR odkaz už není dostupný.</div>
+                <?php endif; ?>
+              </div>
+              <div class="qr-box">
+                <?php if (!empty($row['owner_url'])): ?>
+                  <div class="qr-code" data-qr-code="<?= e($row['owner_url']) ?>"></div>
+                  <strong>Majitel</strong>
+                  <small><?= e($row['owner_url']) ?></small>
+                <?php else: ?>
+                  <div class="notice danger">QR odkaz už není dostupný.</div>
+                <?php endif; ?>
+              </div>
+            </div>
+          </article>
+        <?php endforeach; ?>
+      </div>
+    </div>
+  <?php endforeach; ?>
 </section>

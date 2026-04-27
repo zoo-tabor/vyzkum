@@ -267,25 +267,73 @@ th {
   text-align: left;
 }
 @media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
   body { background: #fff; }
   .admin-shell { width: 100%; padding: 0; }
   .no-print, .brand, main > .topbar { display: none !important; }
+  .label-page {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 10.7mm 3.75mm;
+    break-after: page;
+    page-break-after: always;
+  }
+  .label-page:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
   .labels {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8mm;
+    grid-template-columns: repeat(5, 38.1mm);
+    grid-auto-rows: 21.2mm;
+    gap: 0 3mm;
   }
   .label-sheet {
-    border: 1px solid #999;
+    width: 38.1mm;
+    height: 21.2mm;
+    border: 0;
     border-radius: 0;
-    padding: 5mm;
+    padding: 1.2mm;
+    overflow: hidden;
+  }
+  .label-sheet header {
+    display: block;
+    border-bottom: 0;
+    padding-bottom: 0;
+    margin-bottom: 0.8mm;
+    text-align: center;
+    line-height: 1;
+  }
+  .label-sheet header strong {
+    display: block;
+    font-size: 6.5pt;
+    line-height: 1.05;
+  }
+  .label-sheet header span {
+    display: none;
+  }
+  .qr-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 1mm;
+  }
+  .qr-box strong {
+    margin: 0.4mm 0 0;
+    font-size: 5pt;
+    line-height: 1;
+  }
+  .qr-box small {
+    display: none;
   }
   .qr-code,
   .qr-code canvas,
   .qr-code img,
   .qr-code svg,
   .qr-box img {
-    width: 34mm;
-    max-width: 34mm;
+    width: 13.8mm;
+    max-width: 13.8mm;
+    height: 13.8mm;
   }
 }
 @media (max-width: 640px) {
