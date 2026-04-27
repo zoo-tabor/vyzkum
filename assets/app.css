@@ -295,45 +295,46 @@ th {
     height: 21.2mm;
     border: 0;
     border-radius: 0;
-    padding: 1.2mm;
+    padding: 1.4mm;
     overflow: hidden;
+    display: grid;
+    grid-template-columns: 17mm 1fr;
+    gap: 1.2mm;
+    align-items: center;
   }
-  .label-sheet header {
-    display: block;
-    border-bottom: 0;
-    padding-bottom: 0;
-    margin-bottom: 0.8mm;
-    text-align: center;
-    line-height: 1;
+  .label-copy {
+    min-width: 0;
+    line-height: 1.1;
   }
-  .label-sheet header strong {
+  .label-copy strong {
     display: block;
-    font-size: 6.5pt;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 6.2pt;
     line-height: 1.05;
+    overflow-wrap: anywhere;
   }
-  .label-sheet header span {
-    display: none;
-  }
-  .qr-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 1mm;
-  }
-  .qr-box strong {
-    margin: 0.4mm 0 0;
-    font-size: 5pt;
+  .label-copy span {
+    display: block;
+    margin-top: 1.2mm;
+    font-size: 6pt;
+    font-weight: 700;
     line-height: 1;
   }
-  .qr-box small {
-    display: none;
+  .label-copy small {
+    display: block;
+    margin-top: 1mm;
+    font-size: 4.7pt;
+    color: #333;
+    line-height: 1.1;
   }
   .qr-code,
   .qr-code canvas,
   .qr-code img,
   .qr-code svg,
   .qr-box img {
-    width: 13.8mm;
-    max-width: 13.8mm;
-    height: 13.8mm;
+    width: 16.5mm;
+    max-width: 16.5mm;
+    height: 16.5mm;
   }
 }
 @media (max-width: 640px) {
