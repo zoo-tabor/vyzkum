@@ -33,5 +33,3 @@ jobs:
             **/.git*/**
             .github/**
             .env
-            storage/logs/**
-            storage/uploads/**
