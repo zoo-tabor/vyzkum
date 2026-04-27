@@ -18,6 +18,31 @@ Mobilne optimalizovana PHP 8.2 aplikace pro evidenci odberovych sad, veterinarni
 
 Citlive soubory, zejmena rodokmeny a vysledky, se ukladaji do `storage/uploads`, mimo verejnou webovou slozku.
 
+## Nasazeni na Wedos
+
+Testovaci prostredi:
+
+```text
+https://vyzkum.sachovaskola.eu
+```
+
+Produkce:
+
+```text
+https://vyzkum.zootabor.eu
+```
+
+Preferovane nastaveni je smerovat document root subdomeny primo do `public/`. Pokud to na hostingu nepujde a aplikace bude muset lezet v koreni napr. `www/subdom/vyzkum`, je pripraveny korenovy `.htaccess`, ktery routuje pozadavky do `public/index.php` a blokuje primy pristup k adresarum `app`, `database`, `docs`, `scripts` a `storage`.
+
+V produkcnim `.env` nastavte:
+
+```env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://vyzkum.zootabor.eu
+MAIL_FROM=no-reply@vyzkum.zootabor.eu
+```
+
 ## Lokalne
 
 Pokud je dostupne PHP CLI:
