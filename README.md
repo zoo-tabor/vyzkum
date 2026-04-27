@@ -48,6 +48,12 @@ FTP_USER
 FTP_PASS
 ```
 
+Volitelne lze nastavit `FTP_DIR`, pokud FTP ucet smeruje do jineho korene. Vychozi hodnota je:
+
+```text
+./www/subdom/vyzkum/
+```
+
 Workflow zamerne nenasazuje `.env`, `.git`, `.github`, `storage/logs` ani `storage/uploads`, aby se neprepsaly citlive konfigurace, logy a nahrane rodokmeny.
 
 V produkcnim `.env` nastavte:
