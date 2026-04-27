@@ -34,6 +34,22 @@ https://vyzkum.zootabor.eu
 
 Preferovane nastaveni je smerovat document root subdomeny primo do `public/`. Pokud to na hostingu nepujde a aplikace bude muset lezet v koreni napr. `www/subdom/vyzkum`, je pripraveny korenovy `.htaccess`, ktery routuje pozadavky do `public/index.php` a blokuje primy pristup k adresarum `app`, `database`, `docs`, `scripts` a `storage`.
 
+Deploy je pripraveny pres GitHub Actions workflow `.github/workflows/deploy.yml`. Spousti se po pushi do `main` nebo rucne pres `workflow_dispatch` a nahrava projekt do:
+
+```text
+www/subdom/vyzkum
+```
+
+V GitHub repozitari nastavte tyto secrets:
+
+```text
+FTP_SERVER
+FTP_USER
+FTP_PASS
+```
+
+Workflow zamerne nenasazuje `.env`, `.git`, `.github`, `storage/logs` ani `storage/uploads`, aby se neprepsaly citlive konfigurace, logy a nahrane rodokmeny.
+
 V produkcnim `.env` nastavte:
 
 ```env
