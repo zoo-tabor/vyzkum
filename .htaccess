@@ -3,6 +3,7 @@ RewriteEngine On
 RewriteRule ^assets/(.*)$ public/assets/$1 [L]
 RewriteRule ^manifest\.webmanifest$ public/manifest.webmanifest [L]
 RewriteRule ^sw\.js$ public/sw.js [L]
+RewriteRule ^$ public/index.php [QSA,L]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
