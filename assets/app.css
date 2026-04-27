@@ -142,6 +142,30 @@ button:hover, .button:hover { background: var(--primary-dark); }
   gap: 6px;
   margin: 12px 0 18px;
 }
+.step-tabs {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  margin: 16px 0;
+}
+.step-tab {
+  min-height: 38px;
+  padding: 8px 6px;
+  border-radius: 6px;
+  background: #e8eeed;
+  color: var(--text);
+  font-size: 14px;
+}
+.step-tab.active {
+  background: var(--primary);
+  color: #fff;
+}
+.form-step[hidden] {
+  display: none;
+}
+.step-actions {
+  justify-content: space-between;
+}
 .step {
   flex: 1;
   height: 6px;
@@ -243,4 +267,59 @@ th {
     padding: 5mm;
   }
   .qr-box img { max-width: 34mm; }
+}
+@media (max-width: 640px) {
+  .shell,
+  .admin-shell {
+    padding: 12px;
+  }
+  .topbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .panel {
+    padding: 14px;
+  }
+  h1 {
+    font-size: 22px;
+  }
+  h2 {
+    font-size: 17px;
+  }
+  input,
+  select,
+  textarea,
+  button,
+  .button {
+    min-height: 48px;
+  }
+  .actions,
+  .step-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .actions.compact {
+    width: 100%;
+  }
+  .step-tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scroll-snap-type: x proximity;
+  }
+  .step-tab {
+    flex: 0 0 auto;
+    min-width: 92px;
+    scroll-snap-align: start;
+  }
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .qr-grid,
+  .labels {
+    grid-template-columns: 1fr;
+  }
 }
