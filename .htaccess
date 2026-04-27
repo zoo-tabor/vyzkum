@@ -1,15 +1,8 @@
 RewriteEngine On
 
-RewriteCond %{HTTPS} off
-RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
-
 RewriteRule ^assets/(.*)$ public/assets/$1 [L]
 RewriteRule ^manifest\.webmanifest$ public/manifest.webmanifest [L]
 RewriteRule ^sw\.js$ public/sw.js [L]
-
-RewriteRule ^(app|database|docs|scripts|storage|vendor)(/.*)?$ - [F,L]
-RewriteRule ^\.env$ - [F,L]
-RewriteRule ^\.env\.example$ - [F,L]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
