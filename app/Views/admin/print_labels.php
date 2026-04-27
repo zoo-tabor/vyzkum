@@ -47,7 +47,7 @@
               <div class="label-copy">
                 <strong><?= e($label['sample_id']) ?></strong>
                 <span><?= e($label['role']) ?></span>
-                <small>GWAS dlouhověkost psů</small>
+                <small>Výzkum dlouhověkosti psů</small>
               </div>
             <?php else: ?>
               <div class="notice danger">QR odkaz už není dostupný.</div>
