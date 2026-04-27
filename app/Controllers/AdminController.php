@@ -40,6 +40,7 @@ final class AdminController
                 'tables' => [],
                 'error' => $e->getMessage(),
                 'migrated' => false,
+                'vetChamberNumberExists' => false,
                 'admin' => true,
             ]);
         }
@@ -122,6 +123,7 @@ final class AdminController
             'tables' => $tables,
             'error' => $error,
             'migrated' => false,
+            'vetChamberNumberExists' => $this->vetChamberNumberExists(),
             'admin' => true,
         ]);
     }
@@ -152,6 +154,40 @@ final class AdminController
             'tables' => $tables,
             'error' => $error,
             'migrated' => $migrated,
+            'vetChamberNumberExists' => $this->vetChamberNumberExists(),
+            'admin' => true,
+        ]);
+    }
+
+    public function dropVetChamberNumber(): string
+    {
+        $this->auth->requireAdmin();
+        Csrf::verify();
+
+        $error = null;
+        $tables = [];
+        $columnDropped = false;
+
+        try {
+            $this->migrationService()->dropVetChamberNumber();
+            $columnDropped = true;
+            $tables = $this->migrationService()->tables();
+        } catch (\Throwable $e) {
+            $error = $e->getMessage();
+            try {
+                $tables = $this->migrationService()->tables();
+            } catch (\Throwable) {
+                $tables = [];
+            }
+        }
+
+        return view('admin/migration', [
+            'title' => 'Migrace databáze',
+            'tables' => $tables,
+            'error' => $error,
+            'migrated' => false,
+            'columnDropped' => $columnDropped,
+            'vetChamberNumberExists' => $this->vetChamberNumberExists(),
             'admin' => true,
         ]);
     }
@@ -221,5 +257,14 @@ final class AdminController
     private function migrationService(): DatabaseMigrationService
     {
         return $this->migration ??= new DatabaseMigrationService();
+    }
+
+    private function vetChamberNumberExists(): bool
+    {
+        try {
+            return $this->migrationService()->vetChamberNumberExists();
+        } catch (\Throwable) {
+            return false;
+        }
     }
 }

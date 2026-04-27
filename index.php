@@ -27,6 +27,7 @@ $router->get('/admin/vets', [$admin, 'vets']);
 $router->post('/admin/vets', [$admin, 'createVet']);
 $router->get('/admin/migrate', [$admin, 'migration']);
 $router->post('/admin/migrate', [$admin, 'runMigration']);
+$router->post('/admin/migrate/drop-vet-chamber-number', [$admin, 'dropVetChamberNumber']);
 $router->get('/admin/samples/new-batch', [$admin, 'newBatch']);
 $router->post('/admin/samples/new-batch', [$admin, 'createBatch']);
 $router->get('/admin/samples/{sampleId}', [$admin, 'detail']);

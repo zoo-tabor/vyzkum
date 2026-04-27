@@ -16,6 +16,10 @@
     <div class="notice ok">Migrace proběhla úspěšně.</div>
   <?php endif; ?>
 
+  <?php if (!empty($columnDropped)): ?>
+    <div class="notice ok">Sloupec <code>vets.chamber_number</code> byl odstraněn.</div>
+  <?php endif; ?>
+
   <div class="panel">
     <h2>Aktuální stav</h2>
     <?php if ($tables): ?>
@@ -39,4 +43,19 @@
       </form>
     <?php endif; ?>
   </div>
+
+  <?php if (!empty($vetChamberNumberExists)): ?>
+    <div class="panel">
+      <h2>Údržba databáze</h2>
+      <div class="notice">
+        Databáze stále obsahuje sloupec <code>vets.chamber_number</code>, který už aplikace nepoužívá.
+      </div>
+      <form method="post" action="/admin/migrate/drop-vet-chamber-number">
+        <?= Csrf::field() ?>
+        <div class="actions">
+          <button type="submit">Odstranit číslo komory z databáze</button>
+        </div>
+      </form>
+    </div>
+  <?php endif; ?>
 </section>

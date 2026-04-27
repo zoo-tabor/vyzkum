@@ -19,7 +19,7 @@ final class VetRepository
     public function all(): array
     {
         return $this->pdo->query("
-            SELECT id, name, chamber_number, clinic_name, email, phone, address, created_at
+            SELECT id, name, clinic_name, email, phone, address, created_at
             FROM vets
             ORDER BY name ASC, clinic_name ASC
         ")->fetchAll();
@@ -28,12 +28,11 @@ final class VetRepository
     public function create(array $data): void
     {
         $stmt = $this->pdo->prepare("
-            INSERT INTO vets (name, chamber_number, clinic_name, email, phone, address)
-            VALUES (:name, :chamber_number, :clinic_name, :email, :phone, :address)
+            INSERT INTO vets (name, clinic_name, email, phone, address)
+            VALUES (:name, :clinic_name, :email, :phone, :address)
         ");
         $stmt->execute([
             'name' => trim((string) $data['name']),
-            'chamber_number' => self::nullable($data['chamber_number'] ?? null),
             'clinic_name' => self::nullable($data['clinic_name'] ?? null),
             'email' => self::nullable($data['email'] ?? null),
             'phone' => self::nullable($data['phone'] ?? null),

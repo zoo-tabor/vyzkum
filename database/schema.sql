@@ -1,7 +1,6 @@
 CREATE TABLE vets (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(160) NOT NULL,
-  chamber_number VARCHAR(40) NULL,
   clinic_name VARCHAR(160) NULL,
   email VARCHAR(190) NULL,
   phone VARCHAR(60) NULL,

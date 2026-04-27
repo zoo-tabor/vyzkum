@@ -26,6 +26,29 @@ final class DatabaseMigrationService
         return $tables;
     }
 
+    public function vetChamberNumberExists(): bool
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT COUNT(*)
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME = 'vets'
+              AND COLUMN_NAME = 'chamber_number'
+        ");
+        $stmt->execute();
+
+        return (int) $stmt->fetchColumn() > 0;
+    }
+
+    public function dropVetChamberNumber(): void
+    {
+        if (!$this->vetChamberNumberExists()) {
+            return;
+        }
+
+        $this->pdo->exec('ALTER TABLE vets DROP COLUMN chamber_number');
+    }
+
     /** @return array<int, string> */
     public function migrate(string $schemaPath): array
     {

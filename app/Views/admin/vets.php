@@ -22,10 +22,6 @@
           <input id="clinic_name" name="clinic_name">
         </div>
         <div>
-          <label for="chamber_number">Číslo komory</label>
-          <input id="chamber_number" name="chamber_number">
-        </div>
-        <div>
           <label for="email">E-mail</label>
           <input id="email" name="email" type="email">
         </div>
