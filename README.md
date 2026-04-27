@@ -37,7 +37,7 @@ Preferovane nastaveni je smerovat document root subdomeny primo do `public/`. Po
 Deploy je pripraveny pres GitHub Actions workflow `.github/workflows/deploy.yml`. Spousti se po pushi do `main` nebo rucne pres `workflow_dispatch` a nahrava projekt do:
 
 ```text
-vyzkum
+korene FTP uctu
 ```
 
 V GitHub repozitari nastavte tyto secrets:
@@ -51,7 +51,7 @@ FTP_PASS
 Volitelne lze nastavit `FTP_DIR`, pokud FTP ucet smeruje do jineho korene. Vychozi hodnota je:
 
 ```text
-./vyzkum/
+./
 ```
 
 Workflow zamerne nenasazuje `.env`, `.git`, `.github`, `storage/logs` ani `storage/uploads`, aby se neprepsaly citlive konfigurace, logy a nahrane rodokmeny.
