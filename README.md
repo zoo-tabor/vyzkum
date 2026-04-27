@@ -6,7 +6,7 @@ Mobilne optimalizovana PHP 8.2 aplikace pro evidenci odberovych sad, veterinarni
 
 - PHP 8.2
 - MariaDB 10.4.x
-- Web server smerujici document root do `public/`
+- Web server smerujici document root do korene projektu
 - HTTPS v produkci
 
 ## Konfigurace
@@ -14,7 +14,7 @@ Mobilne optimalizovana PHP 8.2 aplikace pro evidenci odberovych sad, veterinarni
 1. Zkopirujte `.env.example` do `.env`.
 2. Nastavte pripojeni k databazi a silny `APP_KEY`.
 3. Spustte SQL migraci z `database/schema.sql`.
-4. Web server nastavte tak, aby verejne dostupny byl pouze adresar `public/`.
+4. Web server nastavte na koren projektu. Routing zajistuje `.htaccess`.
 
 Citlive soubory, zejmena rodokmeny a vysledky, se ukladaji do `storage/uploads`, mimo verejnou webovou slozku.
 
@@ -32,7 +32,7 @@ Produkce:
 https://vyzkum.zootabor.eu
 ```
 
-Preferovane nastaveni je smerovat document root subdomeny primo do `public/`. Pokud to na hostingu nepujde a aplikace bude muset lezet v koreni napr. `www/subdom/vyzkum`, je pripraveny korenovy `.htaccess`, ktery routuje pozadavky do `public/index.php` a blokuje primy pristup k adresarum `app`, `database`, `docs`, `scripts` a `storage`.
+Aplikace je prizpusobena beznemu Wedos nastaveni, kde subdomena miri do korene adresare napr. `www/subdom/vyzkum`. Vstupni bod je korenovy `index.php` a routing zajistuje `.htaccess`.
 
 Deploy je pripraveny pres GitHub Actions workflow `.github/workflows/deploy.yml`. Spousti se po pushi do `main` nebo rucne pres `workflow_dispatch` a nahrava projekt do:
 
@@ -48,7 +48,7 @@ FTP_USER
 FTP_PASS
 ```
 
-Workflow zamerne nenasazuje `.env`, `.git`, `.github`, `storage/logs` ani `storage/uploads`, aby se neprepsaly citlive konfigurace, logy a nahrane rodokmeny.
+Workflow zamerne nenasazuje `.env`, `.git` ani `.github`. Stare soubory po refaktoru, napr. puvodni adresar `public/`, je potreba jednorazove odstranit pres FTP.
 
 V produkcnim `.env` nastavte:
 
@@ -64,7 +64,7 @@ MAIL_FROM=no-reply@vyzkum.zootabor.eu
 Pokud je dostupne PHP CLI:
 
 ```bash
-php -S localhost:8000 -t public
+php -S localhost:8000
 ```
 
 V tomto prostredi zatim PHP ani Git nejsou v PATH, proto nebylo mozne aplikaci lokalne spustit ani vytvorit commit.

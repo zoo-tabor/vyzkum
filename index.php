@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
 
-$config = require dirname(__DIR__) . '/app/bootstrap.php';
-require dirname(__DIR__) . '/app/helpers.php';
+$config = require __DIR__ . '/app/bootstrap.php';
+require __DIR__ . '/app/helpers.php';
 
 use App\Controllers\AdminController;
 use App\Controllers\OwnerController;

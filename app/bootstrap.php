@@ -24,6 +24,7 @@ define('STORAGE_PATH', ROOT_PATH . '/storage');
 
 $config = Config::load(ROOT_PATH . '/.env');
 $debug = (bool) $config->get('APP_DEBUG', false);
+define('ASSET_BASE_PATH', (string) $config->get('ASSET_BASE_PATH', ''));
 
 error_reporting(E_ALL);
 ini_set('log_errors', '1');

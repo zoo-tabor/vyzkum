@@ -5,8 +5,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#146c5f">
-  <link rel="manifest" href="/manifest.webmanifest">
-  <link rel="stylesheet" href="/assets/app.css">
+  <link rel="manifest" href="<?= e(asset('manifest.webmanifest')) ?>">
+  <link rel="stylesheet" href="<?= e(asset('assets/app.css')) ?>">
   <title><?= e($title ?? 'Evidence vzorku psu') ?></title>
 </head>
 <body>
@@ -21,7 +21,7 @@
   </main>
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
+      navigator.serviceWorker.register('<?= e(asset('sw.js')) ?>').catch(() => {});
     }
   </script>
 </body>

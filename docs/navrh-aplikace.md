@@ -12,7 +12,7 @@ Zakladni jednotkou evidence je `sample_id`. Cislo cipu psa je biologicky identif
 - MariaDB 10.4.34
 - konfigurace pres `.env`
 - verzovani pres Git
-- verejny document root pouze `public/`
+- vstupni bod aplikace v korenovem `index.php`
 - citlive uploady mimo verejnou slozku ve `storage/uploads`
 
 ## QR odkazy

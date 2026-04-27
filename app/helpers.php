@@ -25,6 +25,12 @@ function url(string $path): string
     return $path === '' ? '/' : $path;
 }
 
+function asset(string $path): string
+{
+    $base = defined('ASSET_BASE_PATH') ? ASSET_BASE_PATH : '';
+    return rtrim($base, '/') . '/' . ltrim($path, '/');
+}
+
 function input(string $key, mixed $default = ''): mixed
 {
     return $_POST[$key] ?? $_GET[$key] ?? $default;
