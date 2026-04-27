@@ -1,0 +1,9 @@
+{
+  "name": "Evidence vzorku psu",
+  "short_name": "Vzorky psu",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f7f8",
+  "theme_color": "#146c5f",
+  "icons": []
+}
