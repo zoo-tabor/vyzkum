@@ -24,6 +24,10 @@
     <div class="notice ok">Ukládání dávek a QR tokenů bylo doplněno.</div>
   <?php endif; ?>
 
+  <?php if (!empty($ownerAddressInstalled)): ?>
+    <div class="notice ok">Adresa majitele byla do databáze doplněna.</div>
+  <?php endif; ?>
+
   <div class="panel">
     <h2>Aktuální stav</h2>
     <?php if ($tables): ?>
@@ -74,6 +78,21 @@
         <?= Csrf::field() ?>
         <div class="actions">
           <button type="submit">Doplnit ukládání dávek</button>
+        </div>
+      </form>
+    </div>
+  <?php endif; ?>
+
+  <?php if (!empty($ownerAddressMissing)): ?>
+    <div class="panel">
+      <h2>Údržba kontaktů</h2>
+      <div class="notice">
+        Pro ukládání nepovinné adresy majitele je potřeba doplnit sloupec <code>owners.address</code>.
+      </div>
+      <form method="post" action="/admin/migrate/install-owner-address">
+        <?= Csrf::field() ?>
+        <div class="actions">
+          <button type="submit">Doplnit adresu majitele</button>
         </div>
       </form>
     </div>

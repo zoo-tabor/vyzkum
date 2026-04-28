@@ -46,11 +46,12 @@ final class OwnerRegistrationService
     private function upsertOwner(array $data): int
     {
         $stmt = $this->pdo->prepare("
-            INSERT INTO owners (name, email, phone, contact_consent, newsletter_consent)
-            VALUES (:name, :email, :phone, :contact_consent, :newsletter_consent)
+            INSERT INTO owners (name, email, phone, address, contact_consent, newsletter_consent)
+            VALUES (:name, :email, :phone, :address, :contact_consent, :newsletter_consent)
             ON DUPLICATE KEY UPDATE
                 name = VALUES(name),
                 phone = VALUES(phone),
+                address = VALUES(address),
                 contact_consent = VALUES(contact_consent),
                 newsletter_consent = VALUES(newsletter_consent)
         ");
@@ -58,6 +59,7 @@ final class OwnerRegistrationService
             'name' => $data['owner_name'],
             'email' => $data['owner_email'],
             'phone' => $data['owner_phone'] ?: null,
+            'address' => $data['owner_address'] ?: null,
             'contact_consent' => !empty($data['future_contact_consent']) ? 1 : 0,
             'newsletter_consent' => !empty($data['newsletter_consent']) ? 1 : 0,
         ]);

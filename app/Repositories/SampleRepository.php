@@ -57,7 +57,7 @@ final class SampleRepository
                    d.id AS dog_id, d.name AS dog_name, d.breed, d.sex, d.birth_date,
                    d.chip_number AS dog_chip_number, d.pedigree_number, d.registry,
                    d.health_status_at_collection, d.health_note, d.death_date, d.death_cause,
-                   o.name AS owner_name, o.email AS owner_email, o.phone AS owner_phone,
+                   o.name AS owner_name, o.email AS owner_email, o.phone AS owner_phone, o.address AS owner_address,
                    o.contact_consent, o.newsletter_consent
             FROM samples s
             LEFT JOIN vets v ON v.id = s.vet_id

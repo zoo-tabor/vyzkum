@@ -29,6 +29,7 @@ $router->get('/admin/migrate', [$admin, 'migration']);
 $router->post('/admin/migrate', [$admin, 'runMigration']);
 $router->post('/admin/migrate/drop-vet-chamber-number', [$admin, 'dropVetChamberNumber']);
 $router->post('/admin/migrate/install-batch-storage', [$admin, 'installBatchStorage']);
+$router->post('/admin/migrate/install-owner-address', [$admin, 'installOwnerAddress']);
 $router->get('/admin/batches', [$admin, 'batches']);
 $router->get('/admin/batches/{batchId}/labels', [$admin, 'batchLabels']);
 $router->get('/admin/samples/new-batch', [$admin, 'newBatch']);

@@ -41,6 +41,7 @@ final class AdminController
                 'error' => $e->getMessage(),
                 'migrated' => false,
                 'vetChamberNumberExists' => false,
+                'ownerAddressMissing' => false,
                 'admin' => true,
             ]);
         }
@@ -174,6 +175,7 @@ final class AdminController
             'migrated' => false,
             'vetChamberNumberExists' => $this->vetChamberNumberExists(),
             'missingBatchStorageObjects' => $this->missingBatchStorageObjects(),
+            'ownerAddressMissing' => $this->ownerAddressMissing(),
             'admin' => true,
         ]);
     }
@@ -206,6 +208,7 @@ final class AdminController
             'migrated' => $migrated,
             'vetChamberNumberExists' => $this->vetChamberNumberExists(),
             'missingBatchStorageObjects' => $this->missingBatchStorageObjects(),
+            'ownerAddressMissing' => $this->ownerAddressMissing(),
             'admin' => true,
         ]);
     }
@@ -240,6 +243,42 @@ final class AdminController
             'batchStorageInstalled' => $batchStorageInstalled,
             'vetChamberNumberExists' => $this->vetChamberNumberExists(),
             'missingBatchStorageObjects' => $this->missingBatchStorageObjects(),
+            'ownerAddressMissing' => $this->ownerAddressMissing(),
+            'admin' => true,
+        ]);
+    }
+
+    public function installOwnerAddress(): string
+    {
+        $this->auth->requireAdmin();
+        Csrf::verify();
+
+        $error = null;
+        $tables = [];
+        $ownerAddressInstalled = false;
+
+        try {
+            $this->migrationService()->installOwnerAddress();
+            $ownerAddressInstalled = true;
+            $tables = $this->migrationService()->tables();
+        } catch (\Throwable $e) {
+            $error = $e->getMessage();
+            try {
+                $tables = $this->migrationService()->tables();
+            } catch (\Throwable) {
+                $tables = [];
+            }
+        }
+
+        return view('admin/migration', [
+            'title' => 'Migrace databáze',
+            'tables' => $tables,
+            'error' => $error,
+            'migrated' => false,
+            'ownerAddressInstalled' => $ownerAddressInstalled,
+            'vetChamberNumberExists' => $this->vetChamberNumberExists(),
+            'missingBatchStorageObjects' => $this->missingBatchStorageObjects(),
+            'ownerAddressMissing' => $this->ownerAddressMissing(),
             'admin' => true,
         ]);
     }
@@ -274,6 +313,7 @@ final class AdminController
             'columnDropped' => $columnDropped,
             'vetChamberNumberExists' => $this->vetChamberNumberExists(),
             'missingBatchStorageObjects' => $this->missingBatchStorageObjects(),
+            'ownerAddressMissing' => $this->ownerAddressMissing(),
             'admin' => true,
         ]);
     }
@@ -361,6 +401,15 @@ final class AdminController
             return $this->migrationService()->missingBatchStorageObjects();
         } catch (\Throwable) {
             return [];
+        }
+    }
+
+    private function ownerAddressMissing(): bool
+    {
+        try {
+            return $this->migrationService()->ownerAddressMissing();
+        } catch (\Throwable) {
+            return false;
         }
     }
 }

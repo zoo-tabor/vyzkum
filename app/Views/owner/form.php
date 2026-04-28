@@ -105,6 +105,11 @@
             <label for="owner_phone">Telefon</label>
             <input id="owner_phone" name="owner_phone" value="<?= e($sample['owner_phone'] ?? '') ?>">
           </div>
+          <div>
+            <label for="owner_address">Adresa</label>
+            <input id="owner_address" name="owner_address" value="<?= e($sample['owner_address'] ?? '') ?>">
+            <div class="field-note">Nepovinn&eacute; pole.</div>
+          </div>
         </div>
       </section>
 

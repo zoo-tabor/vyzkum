@@ -103,6 +103,24 @@ final class DatabaseMigrationService
         }
     }
 
+    public function ownerAddressMissing(): bool
+    {
+        if (!$this->tableExists('owners')) {
+            return false;
+        }
+
+        return !$this->columnExists('owners', 'address');
+    }
+
+    public function installOwnerAddress(): void
+    {
+        if (!$this->ownerAddressMissing()) {
+            return;
+        }
+
+        $this->pdo->exec('ALTER TABLE owners ADD COLUMN address VARCHAR(255) NULL AFTER phone');
+    }
+
     /** @return array<int, string> */
     public function migrate(string $schemaPath): array
     {

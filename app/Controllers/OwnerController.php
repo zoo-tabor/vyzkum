@@ -73,6 +73,7 @@ final class OwnerController
             'owner_name' => trim((string) input('owner_name')),
             'owner_email' => trim((string) input('owner_email')),
             'owner_phone' => trim((string) input('owner_phone')),
+            'owner_address' => trim((string) input('owner_address')),
             'future_contact_consent' => input('future_contact_consent') === '1',
             'results_consent' => input('results_consent') === '1',
             'newsletter_consent' => input('newsletter_consent') === '1',

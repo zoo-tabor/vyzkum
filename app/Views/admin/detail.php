@@ -37,7 +37,16 @@
     <tr><th>Plemeno</th><td><?= e($sample['breed'] ?? '') ?></td></tr>
     <tr><th>Narození</th><td><?= e($sample['birth_date'] ?? '') ?></td></tr>
     <tr><th>Pedigree</th><td><?= e($sample['pedigree_number'] ?? '') ?></td></tr>
-    <tr><th>Majitel</th><td><?= e($sample['owner_name'] ?? '') ?>, <?= e($sample['owner_email'] ?? '') ?>, <?= e($sample['owner_phone'] ?? '') ?></td></tr>
+    <tr>
+      <th>Majitel</th>
+      <td>
+        <?= e($sample['owner_name'] ?? '') ?><br>
+        <?= e($sample['owner_email'] ?? '') ?><?= ($sample['owner_email'] ?? '') && ($sample['owner_phone'] ?? '') ? ', ' : '' ?><?= e($sample['owner_phone'] ?? '') ?>
+        <?php if (!empty($sample['owner_address'])): ?>
+          <br><?= e($sample['owner_address']) ?>
+        <?php endif; ?>
+      </td>
+    </tr>
     <tr><th>Stav při odběru</th><td><?= e($sample['health_status_at_collection'] ?? '') ?></td></tr>
     <tr><th>Poznámka</th><td><?= e($sample['health_note'] ?? '') ?></td></tr>
   </table>
