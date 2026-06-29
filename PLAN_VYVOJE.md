@@ -106,14 +106,14 @@ dashboard, role/breed guardy a CSRF maji testy, migrace bezi.
 
 Cil: jadro CRM dat + prvotni naplneni daty pred prihlasenim majitelu.
 
-> STAV (2026-06-29): CASTECNE HOTOVO (increment A). Hotovo: migrace
-> `002_dogs_owners.sql` (owners, owner_emails, owner_phones, dogs, dog_owners,
-> dog_death_reports, files, health_documents + indexy), admin seznam psu s filtry
-> (jmeno/cip/prukaz/stav) + razenim + strankovanim BEZ N+1, detail psa s historii
-> majitelu, rucni create/edit psa, prirazeni majitele, seznam+detail+create
-> majitele s kontakty (vice e-mailu/telefonu). +6 unit testu (Paginator, DogQuery).
-> ZBYVA (increment B): CSV import psu/majitelu/vzorku dle sablony + CSV/XLSX export.
-> POZN.: migrace 002 nutno spustit v phpMyAdmin (deploy nespousti migrace).
+> STAV (2026-06-29): HOTOVO. Increment A: migrace `002_dogs_owners.sql`, admin
+> seznam psu s filtry + razenim + strankovanim BEZ N+1, detail psa s historii
+> majitelu, rucni create/edit, prirazeni majitele, majitele (seznam/detail/create
+> + vice kontaktu). Increment B: CSV import dle sablony (nahled s validaci +
+> deduplikace majitelu podle e-mailu + transakcni commit) a CSV export seznamu
+> psu (respektuje filtry/plemeno). 31 unit testu (Paginator, DogQuery, Csv,
+> importer helpery). POZN.: migrace 002 nutno spustit v phpMyAdmin (deploy
+> nespousti migrace); CSV import zatim ignoruje sample_* (modul vzorku = Faze 4).
 
 ### 2.1 Datovy model (migrace)
 - [ ] NEW migrace: `breeds`, `owners`, `owner_emails`, `owner_phones`, `dogs`,

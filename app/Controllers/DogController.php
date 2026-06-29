@@ -47,6 +47,56 @@ final class DogController
         ]);
     }
 
+    public function export(): never
+    {
+        $breedId = BreedContext::current();
+        $filters = [
+            'q' => (string) input('q'),
+            'code' => (string) input('code'),
+            'status' => (string) input('status'),
+        ];
+        $built = DogQuery::filters($filters, $breedId);
+        $orderBy = DogQuery::orderBy((string) input('sort'), (string) input('dir'));
+        $rows = (new DogRepository())->exportRows($built['where'], $built['params'], $orderBy);
+
+        $columns = [
+            'breed_slug', 'dog_name', 'kennel_name', 'sex', 'pedigree_number', 'chip_number',
+            'birth_date', 'death_date', 'death_cause', 'color', 'test_group', 'health_summary',
+            'owner_name', 'owner_primary_email', 'owner_secondary_emails', 'owner_phones',
+            'owner_address', 'sample_received_at',
+        ];
+
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="psi_export_' . date('Ymd_His') . '.csv"');
+        echo "\xEF\xBB\xBF"; // BOM pro Excel
+        $out = fopen('php://output', 'w');
+        fputcsv($out, $columns);
+        foreach ($rows as $r) {
+            fputcsv($out, [
+                $r['breed_slug'] ?? '',
+                $r['name'] ?? '',
+                $r['kennel_name'] ?? '',
+                $r['sex'] ?? '',
+                $r['pedigree_number'] ?? '',
+                $r['chip_number'] ?? '',
+                $r['birth_date'] ?? '',
+                $r['death_date'] ?? '',
+                $r['death_cause'] ?? '',
+                $r['color'] ?? '',
+                $r['test_group'] ?? '',
+                $r['health_summary'] ?? '',
+                $r['owner_name'] ?? '',
+                $r['owner_primary_email'] ?? '',
+                $r['owner_secondary_emails'] ?? '',
+                $r['owner_phones'] ?? '',
+                $r['owner_address'] ?? '',
+                $r['sample_received_at'] ?? '',
+            ]);
+        }
+        fclose($out);
+        exit;
+    }
+
     public function show(string $id): string
     {
         $repo = new DogRepository();

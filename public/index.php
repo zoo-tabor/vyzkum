@@ -16,6 +16,7 @@ use App\Controllers\AuthController;
 use App\Controllers\BreedController;
 use App\Controllers\DashboardController;
 use App\Controllers\DogController;
+use App\Controllers\ImportController;
 use App\Controllers\OwnerController;
 use App\Controllers\TwoFactorController;
 use App\Core\Router;
@@ -53,6 +54,7 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $dogs = new DogController();
         $router->get('/admin/dogs', [$dogs, 'index']);
         $router->get('/admin/dogs/new', [$dogs, 'create']);
+        $router->get('/admin/dogs/export.csv', [$dogs, 'export']);
         $router->post('/admin/dogs', [$dogs, 'store']);
         $router->get('/admin/dogs/{id}/edit', [$dogs, 'edit']);
         $router->post('/admin/dogs/{id}', [$dogs, 'update']);
@@ -64,6 +66,13 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $router->get('/admin/owners/new', [$owners, 'create']);
         $router->post('/admin/owners', [$owners, 'store']);
         $router->get('/admin/owners/{id}', [$owners, 'show']);
+
+        // Import CSV
+        $import = new ImportController();
+        $router->get('/admin/import', [$import, 'form']);
+        $router->get('/admin/import/template.csv', [$import, 'template']);
+        $router->post('/admin/import', [$import, 'preview']);
+        $router->post('/admin/import/commit', [$import, 'commit']);
 
         $router->get('/admin/security', [$twoFactor, 'setup']);
         $router->post('/admin/security/enable', [$twoFactor, 'enable']);

@@ -16,9 +16,23 @@ $qs = static function (array $over) use ($filters, $sort, $dir): string {
     return '/admin/dogs?' . http_build_query($merged);
 };
 ?>
+<?php
+$exportUrl = '/admin/dogs/export.csv';
+$exportParams = array_filter([
+    'q' => $filters['q'], 'code' => $filters['code'], 'status' => $filters['status'],
+    'sort' => $sort, 'dir' => $dir,
+], static fn ($v): bool => $v !== '' && $v !== null);
+if ($exportParams !== []) {
+    $exportUrl .= '?' . http_build_query($exportParams);
+}
+?>
 <div class="page-head" style="display:flex; justify-content:space-between; align-items:center;">
     <h1>Psi</h1>
-    <a class="btn btn--primary" href="/admin/dogs/new">+ Novy pes</a>
+    <span>
+        <a class="btn" href="/admin/import">Import CSV</a>
+        <a class="btn" href="<?= e($exportUrl) ?>">Export CSV</a>
+        <a class="btn btn--primary" href="/admin/dogs/new">+ Novy pes</a>
+    </span>
 </div>
 
 <?php if (!empty($notice)): ?><div class="alert alert--ok"><?= e($notice) ?></div><?php endif; ?>

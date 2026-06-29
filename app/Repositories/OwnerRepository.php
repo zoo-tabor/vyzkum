@@ -49,6 +49,18 @@ final class OwnerRepository
         $stmt->execute(['o' => $ownerId, 'ph' => $phone, 'l' => $label, 'p' => $isPrimary ? 1 : 0]);
     }
 
+    public function findByPrimaryEmail(string $email): ?int
+    {
+        $stmt = $this->pdo()->prepare(
+            'SELECT o.id FROM owners o
+             JOIN owner_emails e ON e.owner_id = o.id
+             WHERE e.is_primary = 1 AND e.email = :email LIMIT 1'
+        );
+        $stmt->execute(['email' => $email]);
+        $id = $stmt->fetchColumn();
+        return $id === false ? null : (int) $id;
+    }
+
     /** @return array<string, mixed>|null */
     public function find(int $id): ?array
     {

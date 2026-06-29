@@ -29,7 +29,7 @@
         </form>
     <?php else: ?>
         <p class="muted">
-            Naskenujte QR kod v aplikaci (Google Authenticator, Authy, 1Password apod.),
+            Naskenujte QR kod v aplikaci <strong>Google Authenticator</strong>,
             nebo zadejte klic rucne. Pak potvrdte aktualnim kodem.
         </p>
 

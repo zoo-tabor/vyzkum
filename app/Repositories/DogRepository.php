@@ -97,10 +97,12 @@ final class DogRepository
         $stmt = $this->pdo()->prepare(
             'INSERT INTO dogs
                 (breed_id, name, kennel_name, chip_number, pedigree_number, sex,
-                 birth_date, color, test_group, health_summary, status)
+                 birth_date, death_date, death_cause, color, test_group, health_summary,
+                 sample_received_at, status)
              VALUES
                 (:breed_id, :name, :kennel_name, :chip_number, :pedigree_number, :sex,
-                 :birth_date, :color, :test_group, :health_summary, :status)'
+                 :birth_date, :death_date, :death_cause, :color, :test_group, :health_summary,
+                 :sample_received_at, :status)'
         );
         $stmt->execute([
             'breed_id' => $d['breed_id'],
@@ -110,9 +112,12 @@ final class DogRepository
             'pedigree_number' => self::nv($d['pedigree_number'] ?? null),
             'sex' => in_array($d['sex'] ?? '', ['male', 'female', 'unknown'], true) ? $d['sex'] : 'unknown',
             'birth_date' => self::nv($d['birth_date'] ?? null),
+            'death_date' => self::nv($d['death_date'] ?? null),
+            'death_cause' => self::nv($d['death_cause'] ?? null),
             'color' => self::nv($d['color'] ?? null),
             'test_group' => self::nv($d['test_group'] ?? null),
             'health_summary' => self::nv($d['health_summary'] ?? null),
+            'sample_received_at' => self::nv($d['sample_received_at'] ?? null),
             'status' => $d['status'] ?? 'active',
         ]);
         return (int) $this->pdo()->lastInsertId();
@@ -145,6 +150,60 @@ final class DogRepository
             'test_group' => self::nv($d['test_group'] ?? null),
             'health_summary' => self::nv($d['health_summary'] ?? null),
         ]);
+    }
+
+    public function chipExists(string $chip): bool
+    {
+        $stmt = $this->pdo()->prepare('SELECT 1 FROM dogs WHERE chip_number = :c LIMIT 1');
+        $stmt->execute(['c' => $chip]);
+        return (bool) $stmt->fetchColumn();
+    }
+
+    public function pedigreeExists(string $pedigree): bool
+    {
+        $stmt = $this->pdo()->prepare('SELECT 1 FROM dogs WHERE pedigree_number = :p LIMIT 1');
+        $stmt->execute(['p' => $pedigree]);
+        return (bool) $stmt->fetchColumn();
+    }
+
+    /** Link an owner to a brand-new dog (no previous relation to close). No own transaction. */
+    public function linkOwner(int $dogId, int $ownerId, string $source = 'import'): void
+    {
+        $stmt = $this->pdo()->prepare(
+            'INSERT INTO dog_owners (dog_id, owner_id, is_current, valid_from, source)
+             VALUES (:d, :o, 1, CURDATE(), :s)'
+        );
+        $stmt->execute(['d' => $dogId, 'o' => $ownerId, 's' => $source]);
+    }
+
+    /**
+     * Rows for CSV export (single query, contacts aggregated - no N+1).
+     *
+     * @param array<string, mixed> $params
+     * @return array<int, array<string, mixed>>
+     */
+    public function exportRows(string $where, array $params, string $orderBy, int $cap = 50000): array
+    {
+        $cap = max(1, $cap);
+        $stmt = $this->pdo()->prepare(
+            "SELECT d.name, d.kennel_name, d.sex, d.pedigree_number, d.chip_number,
+                    d.birth_date, d.death_date, d.death_cause, d.color, d.test_group,
+                    d.health_summary, d.sample_received_at,
+                    b.slug AS breed_slug,
+                    o.display_name AS owner_name, o.address AS owner_address,
+                    (SELECT email FROM owner_emails e WHERE e.owner_id = o.id AND e.is_primary = 1 LIMIT 1) AS owner_primary_email,
+                    (SELECT GROUP_CONCAT(email SEPARATOR ';') FROM owner_emails e WHERE e.owner_id = o.id AND e.is_primary = 0) AS owner_secondary_emails,
+                    (SELECT GROUP_CONCAT(phone SEPARATOR ';') FROM owner_phones p WHERE p.owner_id = o.id) AS owner_phones
+             FROM dogs d
+             JOIN breeds b ON b.id = d.breed_id
+             LEFT JOIN dog_owners do2 ON do2.dog_id = d.id AND do2.is_current = 1
+             LEFT JOIN owners o ON o.id = do2.owner_id
+             WHERE {$where}
+             ORDER BY {$orderBy}
+             LIMIT {$cap}"
+        );
+        $stmt->execute($params);
+        return $stmt->fetchAll();
     }
 
     /** Set the current owner: close previous current relation, open a new one. */
