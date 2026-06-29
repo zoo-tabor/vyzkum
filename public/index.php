@@ -20,6 +20,7 @@ use App\Controllers\FormController;
 use App\Controllers\ImportController;
 use App\Controllers\OwnerController;
 use App\Controllers\PortalController;
+use App\Controllers\SampleController;
 use App\Controllers\SetPasswordController;
 use App\Controllers\TwoFactorController;
 use App\Core\Router;
@@ -101,6 +102,18 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $router->get('/admin/import/template.csv', [$import, 'template']);
         $router->post('/admin/import', [$import, 'preview']);
         $router->post('/admin/import/commit', [$import, 'commit']);
+
+        // Vzorky / davky / veterinari (QR modul)
+        $samples = new SampleController();
+        $router->get('/admin/samples', [$samples, 'index']);
+        $router->get('/admin/samples/new-batch', [$samples, 'newBatch']);
+        $router->post('/admin/samples/new-batch', [$samples, 'createBatch']);
+        $router->post('/admin/samples/{sampleId}/status', [$samples, 'updateStatus']);
+        $router->get('/admin/samples/{sampleId}', [$samples, 'detail']);
+        $router->get('/admin/batches', [$samples, 'batches']);
+        $router->get('/admin/batches/{batchId}/labels', [$samples, 'batchLabels']);
+        $router->get('/admin/vets', [$samples, 'vets']);
+        $router->post('/admin/vets', [$samples, 'createVet']);
 
         // Formulare (builder)
         $forms = new FormController();

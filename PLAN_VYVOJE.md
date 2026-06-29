@@ -235,6 +235,18 @@ upravi kontakt, potvrdi psa; odeslane e-maily jsou v audit logu.
 
 Cil: prenest funkcni QR workflow ze stare aplikace na novy datovy model.
 
+> STAV 4A (2026-06-29): HOTOVO. Migrace `006_samples.sql` (vets, sample_batches,
+> samples, consents - napojene na breed_id/dog_id). Admin /admin/samples: seznam
+> vzorku (filtr stav + breed context), generovani davek, detail + zmena stavu,
+> sprava veterinaru. Tisk QR etiket /admin/batches/{id}/labels jako SAMOSTATNA
+> tiskova stranka ve VERNEM formatu Avery 65-up (38,1x21,2 mm, 5 sloupcu, 65/A4,
+> QR 16,5 mm, generovane lokalne pres qrcode.min.js). Viditelne tokeny ulozene
+> kvuli reprintu. SampleCode (sample_id + token) + 2 testy.
+> ZBYVA 4B: verejne formulare /vet/{sid}/{token} a /dog/{sid}/{token} (port),
+> owner registrace -> dog/owner/dog_owners/consents + set-password pozvanka +
+> rodokmen (FileStorage), kompatibilni s old_app URL; CSV export vzorku.
+> POZN.: spustit migraci 006 v phpMyAdmin (ensure_schema.sql).
+
 ### 4.1 Datovy model
 - [ ] NEW migrace: `samples`, `sample_batches`, `vets` (+ `vet_clinics` dle
       potreby), `consents`. PORT konceptu z `old_app/database/schema.sql`, ale:
