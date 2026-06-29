@@ -358,9 +358,12 @@ Cil: PCR markery, genotypy, sortovatelne tabulky, klubovy read-only pristup.
 > hlavicky, X/prazdne = bez vysledku), CSV export. Genotypy i na detailu psa.
 > SKRYTE pred majiteli (jen research_admin; klub az s klub. dashboardem). Prvotni
 > CSV import nyni zaklada vzorek (sample_id) pro napojeni genetiky. +3 testy.
-> ZBYVA: KLUBOVE STATISTIKY (klubovy dashboard pro club_viewer - agregace, seznam
-> psu se jmenem majitele bez kontaktu; role club_viewer + user_breed_access existuji).
-> POZN.: spustit migraci 007 v phpMyAdmin (ensure_schema.sql).
+> KLUBOVE STATISTIKY (2026-06-29): HOTOVO. Klubovy dashboard /club (role club_viewer):
+> vyber plemene (jen prirazena pres user_breed_access), agregace (pocty zivi/uhynuli,
+> prumerny vek, vekova struktura, priciny umrti, geneticke rozlozeni), /club/dogs =
+> seznam psu se jmenem majitele BEZ kontaktu. Admin /admin/clubs: zalozeni klub. uctu
+> + pozvanka + prirazeni plemen (user_breed_access). StatsRepository. ==> FAZE 7 (NAVRH
+> Faze 6) KOMPLETNI. POZN.: migrace 007 v phpMyAdmin; klubove stat. bez nove migrace.
 
 > POZNAMKA k cislovani: jeste NENI hotova PLAN Faze 5 (Zpravy a zmena majitele -
 > interni vlakna + ownership transfer workflow). Hotovo: Faze 0-4, 6 (form builder),

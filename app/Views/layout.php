@@ -4,6 +4,7 @@
 $user = \App\Services\Auth::user();
 $pageTitle = isset($title) ? $title . ' - Vyzkum Zoo Tabor' : 'Vyzkum Zoo Tabor';
 $isOwner = $user !== null && ($user['role'] ?? '') === 'owner';
+$isClub = $user !== null && ($user['role'] ?? '') === 'club_viewer';
 
 $accessibleBreeds = [];
 $currentBreedId = null;
@@ -49,6 +50,27 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
     <main class="content" style="max-width:900px; margin:0 auto;">
         <?= $content ?>
     </main>
+<?php elseif ($user !== null && $isClub): ?>
+    <header class="topbar">
+        <div class="topbar__brand"><a href="/club">Vyzkum <span>Zoo Tabor</span></a></div>
+        <div class="topbar__user">
+            <span class="topbar__email"><?= e($user['email']) ?></span>
+            <span class="topbar__role">klub</span>
+            <form method="post" action="/logout" class="inline">
+                <?= \App\Core\Csrf::field() ?>
+                <button type="submit" class="btn btn--ghost">Odhlasit</button>
+            </form>
+        </div>
+    </header>
+    <div class="shell">
+        <nav class="sidebar">
+            <ul>
+                <li><a href="/club" class="<?= $currentPath === '/club' ? 'active' : '' ?>">Prehled</a></li>
+                <li><a href="/club/dogs" class="<?= $currentPath === '/club/dogs' ? 'active' : '' ?>">Psi</a></li>
+            </ul>
+        </nav>
+        <main class="content"><?= $content ?></main>
+    </div>
 <?php elseif ($user !== null): ?>
     <header class="topbar">
         <div class="topbar__brand">
@@ -100,6 +122,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
                 <?php if (($user['role'] ?? '') === 'research_admin'): ?>
                     <li class="sidebar__section">Nastaveni</li>
                     <li><a href="/admin/breeds" class="<?= $currentPath === '/admin/breeds' ? 'active' : '' ?>">Plemena</a></li>
+                    <li><a href="/admin/clubs" class="<?= str_starts_with((string) $currentPath, '/admin/clubs') ? 'active' : '' ?>">Kluby</a></li>
                     <li><a href="/admin/import" class="<?= str_starts_with((string) $currentPath, '/admin/import') ? 'active' : '' ?>">Import CSV</a></li>
                     <li><a href="/admin/security" class="<?= $currentPath === '/admin/security' ? 'active' : '' ?>">Zabezpeceni</a></li>
                 <?php endif; ?>

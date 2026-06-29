@@ -12,9 +12,12 @@ final class DashboardController
 {
     public function index(): string
     {
-        // Majitele patri do portalu, ne do admin dashboardu.
+        // Majitele a kluby maji vlastni rozhrani, ne admin dashboard.
         if (Auth::role() === 'owner') {
             redirect('/portal');
+        }
+        if (Auth::role() === 'club_viewer') {
+            redirect('/club');
         }
 
         $users = new UserRepository();

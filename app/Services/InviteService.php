@@ -40,6 +40,22 @@ final class InviteService
             $this->owners->linkUser($ownerId, $userId);
         }
 
+        return $this->createAndSend($userId, $ownerId, $email, (string) $owner['display_name'], $createdByUserId);
+    }
+
+    /**
+     * Pozvanka pro existujiciho uzivatele (napr. klubovy ucet) - bez vazby na majitele.
+     *
+     * @return array{ok: bool, message: string}
+     */
+    public function sendUserInvite(int $userId, string $email, ?int $createdByUserId): array
+    {
+        return $this->createAndSend($userId, null, $email, $email, $createdByUserId);
+    }
+
+    /** @return array{ok: bool, message: string} */
+    private function createAndSend(int $userId, ?int $ownerId, string $email, string $name, ?int $createdByUserId): array
+    {
         $token = TokenService::generate();
         $expiresAt = (new \DateTimeImmutable('+1 month'))->format('Y-m-d H:i:s');
         $this->invites->create($userId, $ownerId, TokenService::hash($token), 'set_password', $expiresAt, $createdByUserId);
@@ -47,9 +63,7 @@ final class InviteService
         $appUrl = rtrim((string) Config::instance()->get('APP_URL', ''), '/');
         $link = $appUrl . '/set-password/' . $token;
 
-        $subject = 'Nastaveni hesla - Vyzkum Zoo Tabor';
-        $body = $this->buildBody((string) $owner['display_name'], $link);
-        $sent = MailService::send($email, $subject, $body, 'set_password');
+        $sent = MailService::send($email, 'Nastaveni hesla - Vyzkum Zoo Tabor', $this->buildBody($name, $link), 'set_password');
 
         if (!$sent) {
             return ['ok' => false, 'message' => 'Pozvanka vytvorena, ale e-mail se nepodarilo odeslat (viz email log).'];

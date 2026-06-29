@@ -86,6 +86,34 @@ final class UserRepository
         return (int) $this->pdo()->lastInsertId();
     }
 
+    /** @return array<int, array<string, mixed>> */
+    public function listByRole(string $role): array
+    {
+        $stmt = $this->pdo()->prepare('SELECT id, email, status, last_login_at, password_hash FROM users WHERE role = :r ORDER BY email ASC');
+        $stmt->execute(['r' => $role]);
+        return $stmt->fetchAll();
+    }
+
+    /** @return array<int, int> breed_id, ke kterym ma uzivatel pristup */
+    public function breedIdsFor(int $userId): array
+    {
+        $stmt = $this->pdo()->prepare('SELECT breed_id FROM user_breed_access WHERE user_id = :u');
+        $stmt->execute(['u' => $userId]);
+        return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+    }
+
+    /** @param array<int, int> $breedIds nahradi seznam pristupu uzivatele */
+    public function setBreedAccess(int $userId, array $breedIds): void
+    {
+        $pdo = $this->pdo();
+        $del = $pdo->prepare('DELETE FROM user_breed_access WHERE user_id = :u');
+        $del->execute(['u' => $userId]);
+        $ins = $pdo->prepare('INSERT IGNORE INTO user_breed_access (user_id, breed_id, access_level) VALUES (:u, :b, "read")');
+        foreach (array_unique($breedIds) as $breedId) {
+            $ins->execute(['u' => $userId, 'b' => $breedId]);
+        }
+    }
+
     public function countByRole(?string $role = null): int
     {
         if ($role === null) {

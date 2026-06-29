@@ -52,7 +52,11 @@ function input(string $key, mixed $default = ''): mixed
 /** Landing page after login, by role. */
 function home_for(?string $role): string
 {
-    return $role === 'owner' ? '/portal' : '/admin';
+    return match ($role) {
+        'owner' => '/portal',
+        'club_viewer' => '/club',
+        default => '/admin',
+    };
 }
 
 function old(string $key, mixed $default = ''): string

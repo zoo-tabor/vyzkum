@@ -14,6 +14,8 @@ $config = require dirname(__DIR__) . '/app/bootstrap.php';
 
 use App\Controllers\AuthController;
 use App\Controllers\BreedController;
+use App\Controllers\ClubAdminController;
+use App\Controllers\ClubController;
 use App\Controllers\DashboardController;
 use App\Controllers\DogController;
 use App\Controllers\FormController;
@@ -53,6 +55,13 @@ $router->post('/dog/{sampleId}/{token}', [$publicSamples, 'dogSubmit']);
 $setPassword = new SetPasswordController();
 $router->get('/set-password/{token}', [$setPassword, 'show']);
 $router->post('/set-password/{token}', [$setPassword, 'submit']);
+
+// Klubovy dashboard (read-only, jen prirazena plemena).
+$router->group([new RequireRole('club_viewer')], function (Router $router): void {
+    $club = new ClubController();
+    $router->get('/club', [$club, 'index']);
+    $router->get('/club/dogs', [$club, 'dogs']);
+});
 
 // Portal majitele.
 $router->group([new RequireRole('owner')], function (Router $router): void {
@@ -150,6 +159,12 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $router->post('/admin/genetics/import', [$genetics, 'importPreview']);
         $router->post('/admin/genetics/import/commit', [$genetics, 'importCommit']);
         $router->post('/admin/genetics/manual', [$genetics, 'manualStore']);
+
+        // Klubove ucty + pristup k plemenum
+        $clubAdmin = new ClubAdminController();
+        $router->get('/admin/clubs', [$clubAdmin, 'index']);
+        $router->post('/admin/clubs', [$clubAdmin, 'create']);
+        $router->post('/admin/clubs/{id}/breeds', [$clubAdmin, 'updateAccess']);
 
         $router->get('/admin/security', [$twoFactor, 'setup']);
         $router->post('/admin/security/enable', [$twoFactor, 'enable']);
