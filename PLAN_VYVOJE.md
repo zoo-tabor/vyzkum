@@ -106,6 +106,15 @@ dashboard, role/breed guardy a CSRF maji testy, migrace bezi.
 
 Cil: jadro CRM dat + prvotni naplneni daty pred prihlasenim majitelu.
 
+> STAV (2026-06-29): CASTECNE HOTOVO (increment A). Hotovo: migrace
+> `002_dogs_owners.sql` (owners, owner_emails, owner_phones, dogs, dog_owners,
+> dog_death_reports, files, health_documents + indexy), admin seznam psu s filtry
+> (jmeno/cip/prukaz/stav) + razenim + strankovanim BEZ N+1, detail psa s historii
+> majitelu, rucni create/edit psa, prirazeni majitele, seznam+detail+create
+> majitele s kontakty (vice e-mailu/telefonu). +6 unit testu (Paginator, DogQuery).
+> ZBYVA (increment B): CSV import psu/majitelu/vzorku dle sablony + CSV/XLSX export.
+> POZN.: migrace 002 nutno spustit v phpMyAdmin (deploy nespousti migrace).
+
 ### 2.1 Datovy model (migrace)
 - [ ] NEW migrace: `breeds`, `owners`, `owner_emails`, `owner_phones`, `dogs`,
       `dog_owners`, `dog_death_reports`, `health_documents`, `files`

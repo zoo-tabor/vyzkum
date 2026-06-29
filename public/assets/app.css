@@ -97,6 +97,15 @@ input[type=text], input[type=email], input[type=password] {
 .alert--error { background: #fdecea; color: var(--danger); border: 1px solid #f5c6c2; }
 .alert--ok { background: #ecfdf5; color: var(--ok); border: 1px solid #a7f3d0; }
 
+/* Filters & pager */
+.filters { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
+.filters input[type=text], .filters input[type=email], .filters select { width: auto; min-width: 160px; }
+.filters .btn { margin-top: 0; }
+.pager { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; gap: 1rem; }
+.pager .btn { margin-top: 0; }
+textarea { width: 100%; padding: 0.55rem 0.6rem; border: 1px solid var(--line); border-radius: 8px; font: inherit; }
+select { padding: 0.55rem 0.6rem; border: 1px solid var(--line); border-radius: 8px; font: inherit; }
+
 /* Tables */
 .table { width: 100%; border-collapse: collapse; }
 .table th, .table td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--line); }

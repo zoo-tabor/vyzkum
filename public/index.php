@@ -15,6 +15,8 @@ $config = require dirname(__DIR__) . '/app/bootstrap.php';
 use App\Controllers\AuthController;
 use App\Controllers\BreedController;
 use App\Controllers\DashboardController;
+use App\Controllers\DogController;
+use App\Controllers\OwnerController;
 use App\Controllers\TwoFactorController;
 use App\Core\Router;
 use App\Middleware\EnforceAdminTwoFactor;
@@ -46,6 +48,22 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
     $router->group([new RequireRole('research_admin')], function (Router $router) use ($breeds, $twoFactor): void {
         $router->get('/admin/breeds', [$breeds, 'index']);
         $router->post('/admin/breeds', [$breeds, 'create']);
+
+        // Psi (poradi: staticke routy pred {id})
+        $dogs = new DogController();
+        $router->get('/admin/dogs', [$dogs, 'index']);
+        $router->get('/admin/dogs/new', [$dogs, 'create']);
+        $router->post('/admin/dogs', [$dogs, 'store']);
+        $router->get('/admin/dogs/{id}/edit', [$dogs, 'edit']);
+        $router->post('/admin/dogs/{id}', [$dogs, 'update']);
+        $router->get('/admin/dogs/{id}', [$dogs, 'show']);
+
+        // Majitele
+        $owners = new OwnerController();
+        $router->get('/admin/owners', [$owners, 'index']);
+        $router->get('/admin/owners/new', [$owners, 'create']);
+        $router->post('/admin/owners', [$owners, 'store']);
+        $router->get('/admin/owners/{id}', [$owners, 'show']);
 
         $router->get('/admin/security', [$twoFactor, 'setup']);
         $router->post('/admin/security/enable', [$twoFactor, 'enable']);

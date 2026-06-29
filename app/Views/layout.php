@@ -14,8 +14,8 @@ if ($user !== null) {
 
 $nav = [
     ['/admin', 'Dashboard', true],
-    ['#', 'Psi', false],
-    ['#', 'Majitele', false],
+    ['/admin/dogs', 'Psi', true],
+    ['/admin/owners', 'Majitele', true],
     ['#', 'Vzorky', false],
     ['#', 'Formulare', false],
     ['#', 'Zdravi', false],
@@ -68,9 +68,15 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
         <nav class="sidebar">
             <ul>
                 <?php foreach ($nav as [$href, $label, $enabled]): ?>
+                    <?php
+                    $active = $href !== '#' && (
+                        $currentPath === $href
+                        || ($href !== '/admin' && is_string($currentPath) && str_starts_with($currentPath, $href . '/'))
+                    );
+                    ?>
                     <li>
                         <a href="<?= e($href) ?>"
-                           class="<?= $href === $currentPath ? 'active' : '' ?> <?= $enabled ? '' : 'disabled' ?>"
+                           class="<?= $active ? 'active' : '' ?> <?= $enabled ? '' : 'disabled' ?>"
                            <?= $enabled ? '' : 'title="Pripravuje se v dalsi fazi"' ?>>
                             <?= e($label) ?>
                         </a>
