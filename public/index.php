@@ -18,6 +18,8 @@ use App\Controllers\DashboardController;
 use App\Controllers\DogController;
 use App\Controllers\ImportController;
 use App\Controllers\OwnerController;
+use App\Controllers\PortalController;
+use App\Controllers\SetPasswordController;
 use App\Controllers\TwoFactorController;
 use App\Core\Router;
 use App\Middleware\EnforceAdminTwoFactor;
@@ -36,6 +38,17 @@ $router->post('/login', [$auth, 'login']);
 $twoFactor = new TwoFactorController();
 $router->get('/2fa', [$twoFactor, 'showChallenge']);
 $router->post('/2fa', [$twoFactor, 'verifyChallenge']);
+
+// Nastaveni hesla pres pozvanku (verejne, validuje token).
+$setPassword = new SetPasswordController();
+$router->get('/set-password/{token}', [$setPassword, 'show']);
+$router->post('/set-password/{token}', [$setPassword, 'submit']);
+
+// Portal majitele.
+$router->group([new RequireRole('owner')], function (Router $router): void {
+    $portal = new PortalController();
+    $router->get('/portal', [$portal, 'index']);
+});
 
 $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Router $router) use ($auth, $twoFactor): void {
     $router->post('/logout', [$auth, 'logout']);
@@ -65,6 +78,7 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $router->get('/admin/owners', [$owners, 'index']);
         $router->get('/admin/owners/new', [$owners, 'create']);
         $router->post('/admin/owners', [$owners, 'store']);
+        $router->post('/admin/owners/{id}/send-password', [$owners, 'sendPassword']);
         $router->get('/admin/owners/{id}', [$owners, 'show']);
 
         // Import CSV

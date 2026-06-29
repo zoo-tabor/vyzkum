@@ -17,7 +17,7 @@ final class AuthController
     public function showLogin(): string
     {
         if (Auth::check()) {
-            redirect('/admin');
+            redirect(home_for(Auth::role()));
         }
         return view('auth/login', ['title' => 'Prihlaseni']);
     }
@@ -60,7 +60,7 @@ final class AuthController
         Auth::login($user);
         AuditService::log((int) $user['id'], (string) $user['role'], 'login', 'user', (string) $user['id']);
 
-        redirect('/admin');
+        redirect(home_for((string) $user['role']));
     }
 
     public function logout(): string

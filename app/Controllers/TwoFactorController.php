@@ -58,7 +58,7 @@ final class TwoFactorController
         Auth::login($user);
         AuditService::log($pendingId, (string) $user['role'], 'login_2fa', 'user', (string) $pendingId);
 
-        redirect('/admin');
+        redirect(home_for((string) $user['role']));
     }
 
     // --- Enrollment / management (authenticated research_admin) ---

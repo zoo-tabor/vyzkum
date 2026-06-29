@@ -49,6 +49,12 @@ function input(string $key, mixed $default = ''): mixed
     return $_POST[$key] ?? $_GET[$key] ?? $default;
 }
 
+/** Landing page after login, by role. */
+function home_for(?string $role): string
+{
+    return $role === 'owner' ? '/portal' : '/admin';
+}
+
 function old(string $key, mixed $default = ''): string
 {
     return e((string) ($_POST[$key] ?? $default));

@@ -12,6 +12,11 @@ final class DashboardController
 {
     public function index(): string
     {
+        // Majitele patri do portalu, ne do admin dashboardu.
+        if (Auth::role() === 'owner') {
+            redirect('/portal');
+        }
+
         $users = new UserRepository();
         $breeds = new BreedRepository();
 

@@ -70,6 +70,31 @@ final class OwnerRepository
         return $row ?: null;
     }
 
+    /** @return array<string, mixed>|null */
+    public function findByUserId(int $userId): ?array
+    {
+        $stmt = $this->pdo()->prepare('SELECT * FROM owners WHERE user_id = :u LIMIT 1');
+        $stmt->execute(['u' => $userId]);
+        $row = $stmt->fetch();
+        return $row ?: null;
+    }
+
+    public function linkUser(int $ownerId, int $userId): void
+    {
+        $stmt = $this->pdo()->prepare('UPDATE owners SET user_id = :u, updated_at = NOW() WHERE id = :id');
+        $stmt->execute(['u' => $userId, 'id' => $ownerId]);
+    }
+
+    public function primaryEmail(int $ownerId): ?string
+    {
+        $stmt = $this->pdo()->prepare(
+            'SELECT email FROM owner_emails WHERE owner_id = :o AND is_primary = 1 LIMIT 1'
+        );
+        $stmt->execute(['o' => $ownerId]);
+        $email = $stmt->fetchColumn();
+        return $email === false ? null : (string) $email;
+    }
+
     /** @return array<int, array<string, mixed>> */
     public function emails(int $ownerId): array
     {

@@ -3,10 +3,11 @@
 /** @var string|null $title */
 $user = \App\Services\Auth::user();
 $pageTitle = isset($title) ? $title . ' - Vyzkum Zoo Tabor' : 'Vyzkum Zoo Tabor';
+$isOwner = $user !== null && ($user['role'] ?? '') === 'owner';
 
 $accessibleBreeds = [];
 $currentBreedId = null;
-if ($user !== null) {
+if ($user !== null && !$isOwner) {
     $accessibleBreeds = (new \App\Repositories\BreedRepository())
         ->accessibleFor((int) $user['id'], (string) $user['role']);
     $currentBreedId = \App\Services\BreedContext::current();
@@ -34,7 +35,21 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
     <link rel="stylesheet" href="<?= e(asset('assets/app.css')) ?>">
 </head>
 <body>
-<?php if ($user !== null): ?>
+<?php if ($user !== null && $isOwner): ?>
+    <header class="topbar">
+        <div class="topbar__brand"><a href="/portal">Vyzkum <span>Zoo Tabor</span></a></div>
+        <div class="topbar__user">
+            <span class="topbar__email"><?= e($user['email']) ?></span>
+            <form method="post" action="/logout" class="inline">
+                <?= \App\Core\Csrf::field() ?>
+                <button type="submit" class="btn btn--ghost">Odhlasit</button>
+            </form>
+        </div>
+    </header>
+    <main class="content" style="max-width:900px; margin:0 auto;">
+        <?= $content ?>
+    </main>
+<?php elseif ($user !== null): ?>
     <header class="topbar">
         <div class="topbar__brand">
             <a href="/admin">Vyzkum <span>Zoo Tabor</span></a>

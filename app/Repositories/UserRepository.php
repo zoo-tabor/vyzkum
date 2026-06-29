@@ -72,6 +72,20 @@ final class UserRepository
         return (int) $lookup->fetchColumn();
     }
 
+    /**
+     * Ensure a user exists for this e-mail without touching an existing one
+     * (never downgrades role or clears a password). Returns the user id.
+     */
+    public function ensureUser(string $email, string $role = 'owner'): int
+    {
+        $stmt = $this->pdo()->prepare(
+            'INSERT INTO users (email, role, status) VALUES (:e, :r, "active")
+             ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)'
+        );
+        $stmt->execute(['e' => $email, 'r' => $role]);
+        return (int) $this->pdo()->lastInsertId();
+    }
+
     public function countByRole(?string $role = null): int
     {
         if ($role === null) {

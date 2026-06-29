@@ -6,6 +6,31 @@
 ?>
 <div class="page-head"><h1><?= e($owner['display_name']) ?></h1></div>
 
+<?php if (!empty($notice)): ?><div class="alert alert--ok"><?= e($notice) ?></div><?php endif; ?>
+<?php if (!empty($error)): ?><div class="alert alert--error"><?= e($error) ?></div><?php endif; ?>
+
+<div class="card">
+    <h2>Ucet a prihlaseni</h2>
+    <?php if (empty($primaryEmail)): ?>
+        <p class="muted">Majitel nema primarni e-mail. Doplnte ho, aby slo odeslat pozvanku pro nastaveni hesla.</p>
+    <?php elseif (!empty($account['has_password'])): ?>
+        <p>Majitel ma aktivni ucet (heslo nastaveno). Prihlasuje se e-mailem <strong><?= e($primaryEmail) ?></strong>.</p>
+    <?php else: ?>
+        <?php if (!empty($account['has_invite']) && empty($account['invite_expired'])): ?>
+            <p class="muted">Pozvanka byla odeslana na <?= e($primaryEmail) ?> a ceka na nastaveni hesla.</p>
+        <?php elseif (!empty($account['invite_expired'])): ?>
+            <p class="muted">Predchozi pozvanka vyprsela.</p>
+        <?php endif; ?>
+        <form method="post" action="/admin/owners/<?= (int) $owner['id'] ?>/send-password">
+            <?= \App\Core\Csrf::field() ?>
+            <button type="submit" class="btn btn--primary">
+                <?= !empty($account['has_invite']) ? 'Odeslat heslo znovu' : 'Odeslat heslo' ?>
+            </button>
+            <span class="muted">Posle na <?= e($primaryEmail) ?> odkaz pro nastaveni hesla (plati 1 mesic).</span>
+        </form>
+    <?php endif; ?>
+</div>
+
 <div class="card">
     <h2>Kontaktni udaje</h2>
     <table class="table">

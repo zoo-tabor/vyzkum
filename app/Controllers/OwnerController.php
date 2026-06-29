@@ -5,9 +5,12 @@ namespace App\Controllers;
 
 use App\Core\Csrf;
 use App\Core\Session;
+use App\Repositories\InviteRepository;
 use App\Repositories\OwnerRepository;
+use App\Repositories\UserRepository;
 use App\Services\Auth;
 use App\Services\AuditService;
+use App\Services\InviteService;
 use App\Support\Paginator;
 
 final class OwnerController
@@ -41,13 +44,41 @@ final class OwnerController
             return view('errors/404', ['title' => 'Majitel nenalezen']);
         }
 
+        $account = ['has_user' => false, 'has_password' => false, 'has_invite' => false, 'invite_expired' => false];
+        if (!empty($owner['user_id'])) {
+            $account['has_user'] = true;
+            $user = (new UserRepository())->findById((int) $owner['user_id']);
+            $account['has_password'] = $user !== null && !empty($user['password_hash']);
+            $invite = (new InviteRepository())->latestForUser((int) $owner['user_id']);
+            if ($invite !== null) {
+                $account['has_invite'] = true;
+                $account['invite_expired'] = $invite['used_at'] === null
+                    && strtotime((string) $invite['expires_at']) < time();
+            }
+        }
+
         return view('admin/owners/show', [
             'title' => $owner['display_name'],
             'owner' => $owner,
             'emails' => $repo->emails((int) $id),
             'phones' => $repo->phones((int) $id),
             'dogs' => $repo->dogsOf((int) $id),
+            'primaryEmail' => $repo->primaryEmail((int) $id),
+            'account' => $account,
+            'notice' => Session::flash('owner_notice'),
+            'error' => Session::flash('owner_error'),
         ]);
+    }
+
+    public function sendPassword(string $id): string
+    {
+        Csrf::verify();
+
+        $result = (new InviteService())->sendPasswordInvite((int) $id, Auth::id());
+        AuditService::log(Auth::id(), Auth::role(), 'owner_password_invite', 'owner', $id, null, ['ok' => $result['ok']]);
+
+        Session::flash($result['ok'] ? 'owner_notice' : 'owner_error', $result['message']);
+        redirect('/admin/owners/' . $id);
     }
 
     public function create(): string

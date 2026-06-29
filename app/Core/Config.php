@@ -5,6 +5,8 @@ namespace App\Core;
 
 final class Config
 {
+    private static ?self $instance = null;
+
     /** @param array<string, string> $values */
     private function __construct(private array $values)
     {
@@ -24,7 +26,13 @@ final class Config
             }
         }
 
-        return new self($values);
+        self::$instance = new self($values);
+        return self::$instance;
+    }
+
+    public static function instance(): self
+    {
+        return self::$instance ??= new self([]);
     }
 
     public function get(string $key, mixed $default = null): mixed

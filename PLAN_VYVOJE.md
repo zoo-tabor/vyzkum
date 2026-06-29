@@ -162,6 +162,17 @@ majiteli; filtry a pagination funguji; testy importu zelene.
 
 Cil: majitel se prihlasi a vidi sve psy; funguji pozvanky a notifikace.
 
+> STAV (2026-06-29): increment A HOTOVO. Migrace `003_invites_mail.sql`
+> (password_invites, email_log). MailService (SMTP STARTTLS+AUTH LOGIN, bez
+> knihoven; pri MAIL_ENABLED=false jen loguje do storage/logs/mail.log + email_log).
+> TokenService (token v odkazu, do DB jen sha256). InviteService + tlacitko
+> "Odeslat heslo" na detailu majitele (vytvori ucet owner + pozvanku 1 mesic +
+> posle odkaz). Verejne /set-password/{token} (validace, nastaveni hesla, prihlaseni).
+> Role-based redirect po loginu (owner -> /portal). Portal majitele /portal
+> ("Moji psi" + kontakty, read-only). +2 testy (TokenService). ZBYVA increment B:
+> samoobsluha majitele (potvrzeni psa, uprava kontaktu, datum umrti, nahrani
+> zdrav. dokumentu). POZN.: spustit migraci 003 v phpMyAdmin (nebo ensure_schema.sql).
+
 ### 3.1 Mail modul (NEW)
 - [ ] NEW: `MailService` (SMTP z `.env`, `vyzkum@zootabor.eu`), sablony,
       audit odeslani (komu, sablona, stav, chyba) do DB.
