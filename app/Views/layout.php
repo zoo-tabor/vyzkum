@@ -20,7 +20,7 @@ $nav = [
     ['/admin/owners', 'Majitele', true],
     ['/admin/samples', 'Vzorky', true],
     ['/admin/forms', 'Formulare', true],
-    ['#', 'Zdravi', false],
+    ['/admin/health', 'Zdravi', true],
     ['/admin/genetics', 'Genetika', true],
     ['/admin/messages', 'Zpravy', true],
     ['#', 'Statistiky', false],

@@ -9,6 +9,7 @@ use App\Support\FormSchema;
 
 $cfg = !empty($question['config_json']) ? (json_decode((string) $question['config_json'], true) ?: []) : [];
 $visibleIf = $cfg['visible_if'] ?? null;
+$healthEvent = $cfg['health_event']['type'] ?? '';
 $optionsText = implode("\n", array_map(static fn ($o) => $o['option_key'] . '|' . $o['label'], $options));
 ?>
 <div class="page-head">
@@ -65,7 +66,15 @@ $optionsText = implode("\n", array_map(static fn ($o) => $o['option_key'] . '|' 
                 <label for="visible_if_value">ma hodnotu</label>
                 <input type="text" id="visible_if_value" name="visible_if_value" value="<?= e($visibleIf['eq'] ?? '') ?>">
             </div>
-            <div></div>
+            <div>
+                <label for="health_event_type">Zaznamenat jako zdravotni udalost</label>
+                <select id="health_event_type" name="health_event_type">
+                    <option value="">- ne -</option>
+                    <?php foreach (\App\Repositories\HealthEventRepository::TYPES as $t): ?>
+                        <option value="<?= e($t) ?>"<?= $healthEvent === $t ? ' selected' : '' ?>><?= e($t) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
         </div>
 
         <button type="submit" class="btn btn--primary">Ulozit otazku</button>

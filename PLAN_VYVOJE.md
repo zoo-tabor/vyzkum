@@ -328,6 +328,15 @@ ztrati pristup, vse je auditovano; admin/majitel komunikuji ve vlaknu.
 
 Cil: tvoritelne dotazniky (jako Google Forms) s normalizovanymi daty.
 
+> STAV (2026-06-30): HOTOVO. Form builder + vyplneni majitelem viz STAV u Faze 3
+> (B2/B3). Zdravotni data: migrace 010 `health_events`. Mapovani odpovedi ->
+> health_events (otazka v builderu ma volbu "zaznamenat jako zdravotni udalost"
+> typu disease/examination/castration/death/other; pri odeslani dotazniku se zalozi
+> health_event). Umrti (portal/dotaznik) zaklada health_event typu death. Admin
+> /admin/health (cetnost typu, nemoci, vysetreni, posledni udalosti per breed) +
+> udalosti na detailu psa; klubovy dashboard ukazuje cetnost zdrav. udalosti.
+> POZN.: spustit migraci 010 v phpMyAdmin (ensure_schema.sql).
+
 ### 6.1 Model formularu (kap. 6.2)
 - [ ] NEW migrace: `form_definitions`, `form_versions`, `form_questions`,
       `form_question_options`, `form_assignments`, `form_responses`,

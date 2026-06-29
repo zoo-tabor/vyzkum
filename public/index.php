@@ -20,6 +20,7 @@ use App\Controllers\DashboardController;
 use App\Controllers\DogController;
 use App\Controllers\FormController;
 use App\Controllers\GeneticsController;
+use App\Controllers\HealthController;
 use App\Controllers\ImportController;
 use App\Controllers\MessagesController;
 use App\Controllers\OwnerController;
@@ -154,6 +155,9 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $router->post('/admin/forms/{id}/questions/{qid}', [$forms, 'updateQuestion']);
         $router->post('/admin/forms/{id}/questions/{qid}/delete', [$forms, 'deleteQuestion']);
         $router->post('/admin/forms/{id}/questions/{qid}/move', [$forms, 'moveQuestion']);
+
+        // Zdravi (prehled zdravotnich udalosti)
+        $router->get('/admin/health', [new HealthController(), 'index']);
 
         // Interni zpravy (vlakna ke psovi)
         $messages = new MessagesController();

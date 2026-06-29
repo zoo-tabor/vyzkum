@@ -9,6 +9,7 @@ use App\Repositories\BreedRepository;
 use App\Repositories\DogRepository;
 use App\Repositories\FormResponseRepository;
 use App\Repositories\GenotypeRepository;
+use App\Repositories\HealthEventRepository;
 use App\Repositories\OwnerRepository;
 use App\Services\Auth;
 use App\Services\AuditService;
@@ -115,6 +116,7 @@ final class DogController
             'history' => $repo->ownersHistory((int) $id),
             'responses' => (new FormResponseRepository())->responsesForDog((int) $id),
             'genotypes' => (new GenotypeRepository())->byDog((int) $id),
+            'healthEvents' => (new HealthEventRepository())->byDog((int) $id),
             'notice' => Session::flash('dog_notice'),
         ]);
     }

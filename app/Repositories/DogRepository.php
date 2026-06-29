@@ -273,6 +273,23 @@ final class DogRepository
 
                 $stmt = $pdo->prepare('UPDATE dogs SET death_date = :dd, updated_at = NOW() WHERE id = :d');
                 $stmt->execute(['dd' => $deathDateIso, 'd' => $dogId]);
+
+                // Strukturovana zdravotni udalost (umrti).
+                $breedStmt = $pdo->prepare('SELECT breed_id FROM dogs WHERE id = :d LIMIT 1');
+                $breedStmt->execute(['d' => $dogId]);
+                $breedId = $breedStmt->fetchColumn();
+                (new HealthEventRepository())->create(
+                    $dogId,
+                    $breedId !== false ? (int) $breedId : null,
+                    'death',
+                    $deathDateIso,
+                    $source,
+                    null,
+                    null,
+                    null,
+                    $note,
+                    null
+                );
             }
             $pdo->commit();
         } catch (\Throwable $e) {

@@ -6,6 +6,7 @@
 /** @var array{b0:int,b1:int,b2:int,b3:int} $buckets */
 /** @var array<int, array{cause:string, c:int}> $deathCauses */
 /** @var array<int, array{gene_symbol:string, marker_code:string, genotype:string, c:int}> $genetics */
+/** @var array<int, array{event_type:string, c:int}> $healthFreq */
 ?>
 <div class="page-head"><h1>Klubovy prehled</h1></div>
 
@@ -48,6 +49,20 @@
                 <tbody>
                 <?php foreach ($deathCauses as $d): ?>
                     <tr><td><?= e($d['cause']) ?></td><td><?= (int) $d['c'] ?></td></tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
+    </div>
+
+    <div class="card">
+        <h2>Zdravotni udalosti (cetnost)</h2>
+        <?php if ($healthFreq === []): ?><p class="muted">Zadne zdravotni udalosti.</p><?php else: ?>
+            <table class="table">
+                <thead><tr><th>Typ udalosti</th><th>Pocet</th></tr></thead>
+                <tbody>
+                <?php foreach ($healthFreq as $h): ?>
+                    <tr><td><?= e($h['event_type']) ?></td><td><?= (int) $h['c'] ?></td></tr>
                 <?php endforeach; ?>
                 </tbody>
             </table>

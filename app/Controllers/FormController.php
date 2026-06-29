@@ -8,6 +8,7 @@ use App\Core\Session;
 use App\Repositories\BreedRepository;
 use App\Repositories\FormRepository;
 use App\Repositories\FormResponseRepository;
+use App\Repositories\HealthEventRepository;
 use App\Services\Auth;
 use App\Services\AuditService;
 use App\Services\BreedContext;
@@ -240,11 +241,19 @@ final class FormController
 
     private function buildConfig(): ?string
     {
+        $config = [];
+
         $q = trim((string) input('visible_if_question'));
         $v = trim((string) input('visible_if_value'));
-        if ($q === '' || $v === '') {
-            return null;
+        if ($q !== '' && $v !== '') {
+            $config['visible_if'] = ['q' => $q, 'eq' => $v];
         }
-        return json_encode(['visible_if' => ['q' => $q, 'eq' => $v]], JSON_UNESCAPED_UNICODE);
+
+        $he = trim((string) input('health_event_type'));
+        if ($he !== '' && in_array($he, HealthEventRepository::TYPES, true)) {
+            $config['health_event'] = ['type' => $he];
+        }
+
+        return $config === [] ? null : json_encode($config, JSON_UNESCAPED_UNICODE);
     }
 }

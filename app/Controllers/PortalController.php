@@ -9,6 +9,7 @@ use App\Repositories\DogRepository;
 use App\Repositories\FilesRepository;
 use App\Repositories\FormRepository;
 use App\Repositories\FormResponseRepository;
+use App\Repositories\HealthEventRepository;
 use App\Repositories\MessageRepository;
 use App\Repositories\OwnerRepository;
 use App\Repositories\TransferRepository;
@@ -183,6 +184,7 @@ final class PortalController
                 continue;
             }
             $this->storeAnswer($responses, $responseId, $q, $optionsByQ[(int) $q['id']] ?? [], (string) $dog['breed_slug'], (int) $owner['id'], (int) $id);
+            $this->maybeHealthEvent($q, $config, $answersByKey, (int) $id, $dog['breed_id'] !== null ? (int) $dog['breed_id'] : null, $responseId);
         }
 
         AuditService::log(Auth::id(), 'owner', 'form_submitted', 'form_response', (string) $responseId, null, ['dog_id' => (int) $id]);
@@ -372,6 +374,38 @@ final class PortalController
         AuditService::log(Auth::id(), 'owner', 'owner_contacts_updated', 'owner', (string) $owner['id']);
         Session::flash('portal_notice', 'Kontaktni udaje byly ulozeny.');
         redirect('/portal/contacts');
+    }
+
+    /**
+     * @param array<string, mixed> $q
+     * @param array<string, mixed> $config
+     * @param array<string, mixed> $answersByKey
+     */
+    private function maybeHealthEvent(array $q, array $config, array $answersByKey, int $dogId, ?int $breedId, int $responseId): void
+    {
+        $type = $config['health_event']['type'] ?? null;
+        if ($type === null) {
+            return;
+        }
+        $val = $answersByKey[$q['question_key']] ?? '';
+        $hasAnswer = is_array($val) ? $val !== [] : trim((string) $val) !== '';
+        if (!$hasAnswer) {
+            return;
+        }
+        $eventDate = ($q['type'] === 'date' && \App\Services\DogOwnerImporter::isDate((string) $val)) ? (string) $val : null;
+        $code = is_array($val) ? implode(',', array_map('strval', $val)) : (string) $val;
+        (new HealthEventRepository())->create(
+            $dogId,
+            $breedId,
+            (string) $type,
+            $eventDate,
+            'owner_form',
+            $responseId,
+            substr($code, 0, 120),
+            ['answer' => $val],
+            (string) $q['label'],
+            Auth::id()
+        );
     }
 
     /**

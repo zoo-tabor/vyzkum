@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Repositories\BreedRepository;
+use App\Repositories\HealthEventRepository;
 use App\Repositories\StatsRepository;
 use App\Services\Auth;
 use App\Support\Paginator;
@@ -24,6 +25,7 @@ final class ClubController
             'buckets' => $selected > 0 ? $stats->ageBuckets($selected) : ['b0' => 0, 'b1' => 0, 'b2' => 0, 'b3' => 0],
             'deathCauses' => $selected > 0 ? $stats->deathCauses($selected) : [],
             'genetics' => $selected > 0 ? $stats->geneticDistribution($selected) : [],
+            'healthFreq' => $selected > 0 ? (new HealthEventRepository())->frequencyByType($selected) : [],
         ]);
     }
 

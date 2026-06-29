@@ -68,6 +68,28 @@ $row = static function (string $label, mixed $value): void {
 </div>
 
 <div class="card">
+    <h2>Zdravotni udalosti</h2>
+    <?php if (empty($healthEvents)): ?>
+        <p class="muted">Zadne zdravotni udalosti.</p>
+    <?php else: ?>
+        <table class="table">
+            <thead><tr><th>Typ</th><th>Kod</th><th>Datum</th><th>Zdroj</th><th>Poznamka</th></tr></thead>
+            <tbody>
+            <?php foreach ($healthEvents as $h): ?>
+                <tr>
+                    <td><?= e($h['event_type']) ?></td>
+                    <td><?= e($h['normalized_code'] ?? '') ?></td>
+                    <td><?= e(\App\Support\Dates::toCz($h['event_date'] ?? null)) ?></td>
+                    <td><?= e($h['source_type']) ?></td>
+                    <td><?= e($h['note'] ?? '') ?></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    <?php endif; ?>
+</div>
+
+<div class="card">
     <h2>Genetika</h2>
     <?php if (empty($genotypes)): ?>
         <p class="muted">Zadne genotypy.</p>

@@ -141,7 +141,15 @@ $defId = (int) $def['id'];
                     <label for="visible_if_value">ma hodnotu (klic moznosti / "yes" / "no")</label>
                     <input type="text" id="visible_if_value" name="visible_if_value">
                 </div>
-                <div></div>
+                <div>
+                    <label for="health_event_type">Zaznamenat jako zdravotni udalost</label>
+                    <select id="health_event_type" name="health_event_type">
+                        <option value="">- ne -</option>
+                        <?php foreach (\App\Repositories\HealthEventRepository::TYPES as $t): ?>
+                            <option value="<?= e($t) ?>"><?= e($t) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
             </div>
 
             <button type="submit" class="btn btn--primary">Pridat otazku</button>
