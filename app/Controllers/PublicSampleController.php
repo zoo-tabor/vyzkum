@@ -1,0 +1,200 @@
+<?php
+declare(strict_types=1);
+
+namespace App\Controllers;
+
+use App\Core\Csrf;
+use App\Repositories\BreedRepository;
+use App\Repositories\SampleRepository;
+use App\Services\AuditService;
+use App\Services\OwnerQrRegistrationService;
+
+final class PublicSampleController
+{
+    private function samples(): SampleRepository
+    {
+        return new SampleRepository();
+    }
+
+    // ----- Veterinar -----
+
+    public function vetShow(string $sampleId, string $token): string
+    {
+        $sample = $this->samples()->findForToken($sampleId, $token, 'vet');
+        if ($sample === null) {
+            http_response_code(404);
+            return view('errors/404', ['title' => 'Vzorek nenalezen', '_layout' => 'public']);
+        }
+        if ($sample['vet_submitted_at'] !== null) {
+            return view('vet/done', ['title' => 'Odber jiz ulozen', 'sample' => $sample, '_layout' => 'public']);
+        }
+        return view('vet/form', ['title' => 'Veterinarni odber', 'sample' => $sample, 'errors' => [], '_layout' => 'public']);
+    }
+
+    public function vetSubmit(string $sampleId, string $token): string
+    {
+        Csrf::verify();
+        $sample = $this->samples()->findForToken($sampleId, $token, 'vet');
+        if ($sample === null) {
+            http_response_code(404);
+            return view('errors/404', ['title' => 'Vzorek nenalezen', '_layout' => 'public']);
+        }
+        if ($sample['vet_submitted_at'] !== null) {
+            return view('vet/done', ['title' => 'Odber jiz ulozen', 'sample' => $sample, '_layout' => 'public']);
+        }
+
+        $data = [
+            'chip_number_vet' => trim((string) input('chip_number_vet')),
+            'sample_type' => trim((string) input('sample_type')),
+            'sample_type_other' => trim((string) input('sample_type_other')),
+            'material_count' => trim((string) input('material_count')),
+            'collection_date' => trim((string) input('collection_date')),
+        ];
+        $errors = [];
+        if (!preg_match('/^[0-9]{15}$/', $data['chip_number_vet'])) {
+            $errors[] = 'Cislo cipu musi mit 15 cislic.';
+        }
+        if ($data['sample_type'] === '') {
+            $errors[] = 'Vyberte typ vzorku.';
+        }
+        if ($data['material_count'] === '') {
+            $errors[] = 'Vyberte pocet zkumavek.';
+        }
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $data['collection_date'])) {
+            $errors[] = 'Vyplnte datum odberu.';
+        }
+
+        if ($errors !== []) {
+            return view('vet/form', ['title' => 'Veterinarni odber', 'sample' => array_merge($sample, $data), 'errors' => $errors, '_layout' => 'public']);
+        }
+
+        $this->samples()->submitVet((int) $sample['id'], $data);
+        AuditService::log(null, 'vet', 'vet_submitted', 'sample', $sampleId);
+        return view('vet/done', ['title' => 'Odber ulozen', 'sample' => $sample, '_layout' => 'public']);
+    }
+
+    // ----- Majitel -----
+
+    public function dogShow(string $sampleId, string $token): string
+    {
+        $sample = $this->samples()->findForToken($sampleId, $token, 'owner');
+        if ($sample === null) {
+            http_response_code(404);
+            return view('errors/404', ['title' => 'Vzorek nenalezen', '_layout' => 'public']);
+        }
+        if ($sample['owner_submitted_at'] !== null) {
+            return view('dog/done', ['title' => 'Registrace odeslana', 'sample' => $sample, '_layout' => 'public']);
+        }
+        return view('dog/form', [
+            'title' => 'Registrace psa',
+            'sample' => $sample,
+            'breeds' => empty($sample['breed_id']) ? (new BreedRepository())->all() : [],
+            'errors' => [],
+            '_layout' => 'public',
+        ]);
+    }
+
+    public function dogSubmit(string $sampleId, string $token): string
+    {
+        Csrf::verify();
+        $sample = $this->samples()->findForToken($sampleId, $token, 'owner');
+        if ($sample === null) {
+            http_response_code(404);
+            return view('errors/404', ['title' => 'Vzorek nenalezen', '_layout' => 'public']);
+        }
+        if ($sample['owner_submitted_at'] !== null) {
+            return view('dog/done', ['title' => 'Registrace odeslana', 'sample' => $sample, '_layout' => 'public']);
+        }
+
+        $data = [
+            'chip_number' => trim((string) input('chip_number')),
+            'dog_name' => trim((string) input('dog_name')),
+            'sex' => (string) input('sex', 'unknown'),
+            'birth_date' => trim((string) input('birth_date')),
+            'pedigree_number' => trim((string) input('pedigree_number')),
+            'health_note' => trim((string) input('health_note')),
+            'owner_name' => trim((string) input('owner_name')),
+            'owner_email' => trim((string) input('owner_email')),
+            'owner_phone' => trim((string) input('owner_phone')),
+            'owner_address' => trim((string) input('owner_address')),
+            'future_contact_consent' => (bool) input('future_contact_consent'),
+            'results_consent' => (bool) input('results_consent'),
+        ];
+
+        // Plemeno: bud z davky (sample.breed_id), nebo z formulare.
+        $breeds = new BreedRepository();
+        if (!empty($sample['breed_id'])) {
+            $breedId = (int) $sample['breed_id'];
+            $breedSlug = (string) ($sample['breed_slug'] ?? '');
+        } else {
+            $breedId = (int) input('breed_id');
+            $breed = $breedId > 0 ? $breeds->find($breedId) : null;
+            $breedSlug = $breed !== null ? (string) $breed['slug'] : '';
+        }
+
+        $errors = $this->validateDog($data, $breedId);
+        $file = $_FILES['pedigree'] ?? null;
+        if (!is_array($file) || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            $errors[] = 'Nahrajte sken/foto prukazu puvodu (rodokmen).';
+        }
+
+        if ($errors !== []) {
+            return view('dog/form', [
+                'title' => 'Registrace psa',
+                'sample' => array_merge($sample, $data),
+                'breeds' => empty($sample['breed_id']) ? $breeds->all() : [],
+                'errors' => $errors,
+                '_layout' => 'public',
+            ]);
+        }
+
+        try {
+            (new OwnerQrRegistrationService())->register($sample, $data, $file, $breedId, $breedSlug);
+        } catch (\Throwable $e) {
+            return view('dog/form', [
+                'title' => 'Registrace psa',
+                'sample' => array_merge($sample, $data),
+                'breeds' => empty($sample['breed_id']) ? $breeds->all() : [],
+                'errors' => ['Registraci se nepodarilo ulozit: ' . $e->getMessage()],
+                '_layout' => 'public',
+            ]);
+        }
+
+        AuditService::log(null, 'owner_qr', 'owner_registered', 'sample', $sampleId);
+        return view('dog/done', ['title' => 'Registrace odeslana', 'sample' => $sample, '_layout' => 'public']);
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return array<int, string>
+     */
+    private function validateDog(array $data, int $breedId): array
+    {
+        $errors = [];
+        if ($breedId <= 0) {
+            $errors[] = 'Vyberte plemeno.';
+        }
+        if (!preg_match('/^[0-9]{15}$/', $data['chip_number'])) {
+            $errors[] = 'Cislo cipu musi mit 15 cislic.';
+        }
+        if ($data['dog_name'] === '') {
+            $errors[] = 'Vyplnte jmeno psa.';
+        }
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $data['birth_date'])) {
+            $errors[] = 'Vyplnte datum narozeni.';
+        }
+        if ($data['pedigree_number'] === '') {
+            $errors[] = 'Vyplnte cislo prukazu / zapisu.';
+        }
+        if ($data['owner_name'] === '') {
+            $errors[] = 'Vyplnte jmeno majitele.';
+        }
+        if (!filter_var($data['owner_email'], FILTER_VALIDATE_EMAIL)) {
+            $errors[] = 'Vyplnte platny e-mail majitele.';
+        }
+        if (empty(input('main_consent'))) {
+            $errors[] = 'Bez souhlasu nelze psa do studie zaradit.';
+        }
+        return $errors;
+    }
+}

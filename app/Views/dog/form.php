@@ -1,0 +1,87 @@
+<?php
+/** @var array<string, mixed> $sample */
+/** @var array<int, array<string, mixed>> $breeds */
+/** @var array<int, string> $errors */
+$chip = $sample['chip_number'] ?? $sample['chip_number_vet'] ?? '';
+$chipLocked = !empty($sample['chip_number_vet']);
+$sex = $sample['sex'] ?? 'unknown';
+?>
+<div class="card">
+    <h1>Registrace psa</h1>
+    <p>Vzorek <span class="sample-code"><?= e($sample['sample_id']) ?></span></p>
+
+    <?php if ($errors !== []): ?><div class="alert alert--error"><?= e(implode(' ', $errors)) ?></div><?php endif; ?>
+
+    <form method="post" enctype="multipart/form-data">
+        <?= \App\Core\Csrf::field() ?>
+
+        <fieldset>
+            <legend>Pes</legend>
+            <?php if (empty($sample['breed_id'])): ?>
+                <label for="breed_id">Plemeno</label>
+                <select id="breed_id" name="breed_id" required>
+                    <option value="">- vyberte -</option>
+                    <?php foreach ($breeds as $b): ?>
+                        <option value="<?= (int) $b['id'] ?>"<?= (int) ($sample['breed_id'] ?? 0) === (int) $b['id'] ? ' selected' : '' ?>><?= e($b['name']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            <?php else: ?>
+                <p>Plemeno: <strong><?= e($sample['breed_name'] ?? '') ?></strong></p>
+            <?php endif; ?>
+
+            <label for="chip_number">Cislo cipu psa (15 cislic)</label>
+            <input type="text" id="chip_number" name="chip_number" inputmode="numeric" pattern="[0-9]{15}" maxlength="15" required value="<?= e($chip) ?>" <?= $chipLocked ? 'readonly' : '' ?>>
+
+            <label for="dog_name">Jmeno psa</label>
+            <input type="text" id="dog_name" name="dog_name" required value="<?= e($sample['dog_name'] ?? '') ?>">
+
+            <label for="sex">Pohlavi</label>
+            <select id="sex" name="sex">
+                <option value="unknown"<?= $sex === 'unknown' ? ' selected' : '' ?>>Neuvedeno</option>
+                <option value="male"<?= $sex === 'male' ? ' selected' : '' ?>>Pes</option>
+                <option value="female"<?= $sex === 'female' ? ' selected' : '' ?>>Fena</option>
+            </select>
+
+            <label for="birth_date">Datum narozeni</label>
+            <input type="date" id="birth_date" name="birth_date" required value="<?= e($sample['birth_date'] ?? '') ?>">
+
+            <label for="pedigree_number">Cislo zapisu / prukazu puvodu</label>
+            <input type="text" id="pedigree_number" name="pedigree_number" required value="<?= e($sample['pedigree_number'] ?? '') ?>">
+        </fieldset>
+
+        <fieldset>
+            <legend>Zdravotni stav a rodokmen</legend>
+            <label for="health_note">Poznamka ke zdravotnimu stavu (nepovinne)</label>
+            <textarea id="health_note" name="health_note" rows="2"><?= e($sample['health_note'] ?? '') ?></textarea>
+
+            <label for="pedigree">Foto / sken prukazu puvodu</label>
+            <input type="file" id="pedigree" name="pedigree" accept=".pdf,.jpg,.jpeg,.png,.webp" required>
+            <p class="muted">PDF, JPG, PNG nebo WEBP do 10 MB.</p>
+        </fieldset>
+
+        <fieldset>
+            <legend>Kontakt majitele</legend>
+            <label for="owner_name">Jmeno a prijmeni</label>
+            <input type="text" id="owner_name" name="owner_name" required value="<?= e($sample['owner_name'] ?? '') ?>">
+
+            <label for="owner_email">E-mail</label>
+            <input type="email" id="owner_email" name="owner_email" required value="<?= e($sample['owner_email'] ?? '') ?>">
+            <p class="muted">Na tento e-mail prijde odkaz pro nastaveni hesla do portalu.</p>
+
+            <label for="owner_phone">Telefon (nepovinne)</label>
+            <input type="text" id="owner_phone" name="owner_phone" value="<?= e($sample['owner_phone'] ?? '') ?>">
+
+            <label for="owner_address">Adresa (nepovinne)</label>
+            <input type="text" id="owner_address" name="owner_address" value="<?= e($sample['owner_address'] ?? '') ?>">
+        </fieldset>
+
+        <fieldset>
+            <legend>Souhlas</legend>
+            <p><label><input type="checkbox" name="main_consent" value="1" required> Souhlasim se zarazenim psa do vyzkumne studie a se zpracovanim osobnich a genetickych dat pro vyzkumne ucely.</label></p>
+            <p><label><input type="checkbox" name="future_contact_consent" value="1"> Souhlasim s budoucim kontaktovanim ohledne data a priciny umrti psa.</label></p>
+            <p><label><input type="checkbox" name="results_consent" value="1"> Chci byt informovan/a o pripadnych vysledcich.</label></p>
+        </fieldset>
+
+        <button type="submit" class="btn btn--primary">Odeslat registraci</button>
+    </form>
+</div>

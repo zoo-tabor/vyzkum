@@ -11,6 +11,7 @@
     <span>
         <a class="btn" href="/admin/batches">Davky</a>
         <a class="btn" href="/admin/vets">Veterinari</a>
+        <a class="btn" href="/admin/samples/export.csv<?= $status !== '' ? '?status=' . e(urlencode($status)) : '' ?>">Export CSV</a>
         <a class="btn btn--primary" href="/admin/samples/new-batch">+ Nova davka</a>
     </span>
 </div>

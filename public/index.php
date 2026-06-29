@@ -41,6 +41,13 @@ $twoFactor = new TwoFactorController();
 $router->get('/2fa', [$twoFactor, 'showChallenge']);
 $router->post('/2fa', [$twoFactor, 'verifyChallenge']);
 
+// Verejne QR formulare (token, bez prihlaseni) - kompatibilni s old_app URL.
+$publicSamples = new \App\Controllers\PublicSampleController();
+$router->get('/vet/{sampleId}/{token}', [$publicSamples, 'vetShow']);
+$router->post('/vet/{sampleId}/{token}', [$publicSamples, 'vetSubmit']);
+$router->get('/dog/{sampleId}/{token}', [$publicSamples, 'dogShow']);
+$router->post('/dog/{sampleId}/{token}', [$publicSamples, 'dogSubmit']);
+
 // Nastaveni hesla pres pozvanku (verejne, validuje token).
 $setPassword = new SetPasswordController();
 $router->get('/set-password/{token}', [$setPassword, 'show']);
@@ -106,6 +113,7 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         // Vzorky / davky / veterinari (QR modul)
         $samples = new SampleController();
         $router->get('/admin/samples', [$samples, 'index']);
+        $router->get('/admin/samples/export.csv', [$samples, 'export']);
         $router->get('/admin/samples/new-batch', [$samples, 'newBatch']);
         $router->post('/admin/samples/new-batch', [$samples, 'createBatch']);
         $router->post('/admin/samples/{sampleId}/status', [$samples, 'updateStatus']);

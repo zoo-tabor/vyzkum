@@ -38,6 +38,26 @@ final class SampleController
         ]);
     }
 
+    public function export(): never
+    {
+        $breedId = BreedContext::current();
+        $rows = (new SampleRepository())->listForBreed($breedId, (string) input('status'), 100000);
+
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="vzorky_export_' . date('Ymd_His') . '.csv"');
+        echo "\xEF\xBB\xBF";
+        $out = fopen('php://output', 'w');
+        fputcsv($out, ['sample_id', 'status', 'breed', 'dog', 'vet', 'sample_type', 'collection_date', 'created_at']);
+        foreach ($rows as $r) {
+            fputcsv($out, [
+                $r['sample_id'], $r['status'], $r['breed_name'] ?? '', $r['dog_name'] ?? '',
+                $r['vet_name'] ?? '', $r['sample_type'] ?? '', $r['collection_date'] ?? '', $r['created_at'] ?? '',
+            ]);
+        }
+        fclose($out);
+        exit;
+    }
+
     public function newBatch(): string
     {
         return view('admin/samples/new_batch', [

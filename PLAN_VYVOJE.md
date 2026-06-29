@@ -242,9 +242,12 @@ Cil: prenest funkcni QR workflow ze stare aplikace na novy datovy model.
 > tiskova stranka ve VERNEM formatu Avery 65-up (38,1x21,2 mm, 5 sloupcu, 65/A4,
 > QR 16,5 mm, generovane lokalne pres qrcode.min.js). Viditelne tokeny ulozene
 > kvuli reprintu. SampleCode (sample_id + token) + 2 testy.
-> ZBYVA 4B: verejne formulare /vet/{sid}/{token} a /dog/{sid}/{token} (port),
-> owner registrace -> dog/owner/dog_owners/consents + set-password pozvanka +
-> rodokmen (FileStorage), kompatibilni s old_app URL; CSV export vzorku.
+> STAV 4B (2026-06-29): HOTOVO. Verejne token formulare (public layout, mobilni):
+> /vet/{sid}/{token} (veterinarni odber) a /dog/{sid}/{token} (registrace psa) -
+> kompatibilni s old_app URL. OwnerQrRegistrationService: transakcne zalozi/najde
+> majitele, psa, vazbu dog_owners (source owner_qr), souhlas (consents), rodokmen
+> pres FileStorage (health_documents type rodokmen), napoji na vzorek; po commitu
+> posle set-password pozvanku. CSV export vzorku. ==> FAZE 4 KOMPLETNI.
 > POZN.: spustit migraci 006 v phpMyAdmin (ensure_schema.sql).
 
 ### 4.1 Datovy model
