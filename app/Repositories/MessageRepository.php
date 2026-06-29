@@ -1,0 +1,102 @@
+<?php
+declare(strict_types=1);
+
+namespace App\Repositories;
+
+use App\Core\Database;
+use PDO;
+
+final class MessageRepository
+{
+    private function pdo(): PDO
+    {
+        return Database::pdo();
+    }
+
+    public function findOrCreateDogThread(int $dogId, ?int $userId): int
+    {
+        $existing = $this->dogThread($dogId);
+        if ($existing !== null) {
+            return (int) $existing['id'];
+        }
+        $stmt = $this->pdo()->prepare(
+            "INSERT INTO message_threads (entity_type, entity_id, subject, status, created_by_user_id)
+             VALUES ('dog', :d, NULL, 'open', :u)"
+        );
+        $stmt->execute(['d' => $dogId, 'u' => $userId]);
+        return (int) $this->pdo()->lastInsertId();
+    }
+
+    /** @return array<string, mixed>|null */
+    public function dogThread(int $dogId): ?array
+    {
+        $stmt = $this->pdo()->prepare(
+            "SELECT * FROM message_threads WHERE entity_type = 'dog' AND entity_id = :d ORDER BY id DESC LIMIT 1"
+        );
+        $stmt->execute(['d' => $dogId]);
+        $row = $stmt->fetch();
+        return $row ?: null;
+    }
+
+    public function addMessage(int $threadId, ?int $userId, ?string $role, string $body, ?string $newStatus = null): void
+    {
+        $ins = $this->pdo()->prepare(
+            'INSERT INTO messages (thread_id, sender_user_id, sender_role, body) VALUES (:t, :u, :r, :b)'
+        );
+        $ins->execute(['t' => $threadId, 'u' => $userId, 'r' => $role, 'b' => $body]);
+
+        if ($newStatus !== null) {
+            $upd = $this->pdo()->prepare('UPDATE message_threads SET last_message_at = NOW(), status = :s WHERE id = :id');
+            $upd->execute(['s' => $newStatus, 'id' => $threadId]);
+        } else {
+            $this->pdo()->prepare('UPDATE message_threads SET last_message_at = NOW() WHERE id = :id')->execute(['id' => $threadId]);
+        }
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    public function messages(int $threadId): array
+    {
+        $stmt = $this->pdo()->prepare(
+            'SELECT m.*, u.email AS sender_email FROM messages m
+             LEFT JOIN users u ON u.id = m.sender_user_id
+             WHERE m.thread_id = :t ORDER BY m.created_at ASC, m.id ASC'
+        );
+        $stmt->execute(['t' => $threadId]);
+        return $stmt->fetchAll();
+    }
+
+    /** @return array<string, mixed>|null */
+    public function thread(int $id): ?array
+    {
+        $stmt = $this->pdo()->prepare(
+            "SELECT t.*, d.name AS dog_name FROM message_threads t
+             LEFT JOIN dogs d ON d.id = t.entity_id AND t.entity_type = 'dog'
+             WHERE t.id = :id LIMIT 1"
+        );
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch();
+        return $row ?: null;
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    public function threadsList(string $status = ''): array
+    {
+        $where = $status !== '' ? 'WHERE t.status = :status' : '';
+        $sql =
+            "SELECT t.id, t.status, t.last_message_at, t.entity_id, d.name AS dog_name,
+                    (SELECT COUNT(*) FROM messages m WHERE m.thread_id = t.id) AS msg_count
+             FROM message_threads t
+             LEFT JOIN dogs d ON d.id = t.entity_id AND t.entity_type = 'dog'
+             {$where}
+             ORDER BY t.last_message_at DESC LIMIT 300";
+        $stmt = $this->pdo()->prepare($sql);
+        $stmt->execute($status !== '' ? ['status' => $status] : []);
+        return $stmt->fetchAll();
+    }
+
+    public function setStatus(int $threadId, string $status): void
+    {
+        $stmt = $this->pdo()->prepare('UPDATE message_threads SET status = :s WHERE id = :id');
+        $stmt->execute(['s' => $status, 'id' => $threadId]);
+    }
+}

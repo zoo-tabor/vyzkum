@@ -21,6 +21,7 @@ use App\Controllers\DogController;
 use App\Controllers\FormController;
 use App\Controllers\GeneticsController;
 use App\Controllers\ImportController;
+use App\Controllers\MessagesController;
 use App\Controllers\OwnerController;
 use App\Controllers\PortalController;
 use App\Controllers\SampleController;
@@ -51,6 +52,11 @@ $router->post('/vet/{sampleId}/{token}', [$publicSamples, 'vetSubmit']);
 $router->get('/dog/{sampleId}/{token}', [$publicSamples, 'dogShow']);
 $router->post('/dog/{sampleId}/{token}', [$publicSamples, 'dogSubmit']);
 
+// Verejne potvrzeni prevodu psa novym majitelem.
+$transfer = new \App\Controllers\TransferController();
+$router->get('/transfer/{token}', [$transfer, 'show']);
+$router->post('/transfer/{token}', [$transfer, 'confirm']);
+
 // Nastaveni hesla pres pozvanku (verejne, validuje token).
 $setPassword = new SetPasswordController();
 $router->get('/set-password/{token}', [$setPassword, 'show']);
@@ -75,6 +81,8 @@ $router->group([new RequireRole('owner')], function (Router $router): void {
     $router->post('/portal/dogs/{id}/document', [$portal, 'uploadDocument']);
     $router->get('/portal/dogs/{id}/forms/{defId}', [$portal, 'fillForm']);
     $router->post('/portal/dogs/{id}/forms/{defId}', [$portal, 'submitForm']);
+    $router->post('/portal/dogs/{id}/message', [$portal, 'sendMessage']);
+    $router->post('/portal/dogs/{id}/transfer', [$portal, 'transferRequest']);
 });
 
 // Stahovani souboru (admin i majitel; autorizace v controlleru).
@@ -146,6 +154,13 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $router->post('/admin/forms/{id}/questions/{qid}', [$forms, 'updateQuestion']);
         $router->post('/admin/forms/{id}/questions/{qid}/delete', [$forms, 'deleteQuestion']);
         $router->post('/admin/forms/{id}/questions/{qid}/move', [$forms, 'moveQuestion']);
+
+        // Interni zpravy (vlakna ke psovi)
+        $messages = new MessagesController();
+        $router->get('/admin/messages', [$messages, 'index']);
+        $router->get('/admin/messages/{id}', [$messages, 'show']);
+        $router->post('/admin/messages/{id}/reply', [$messages, 'reply']);
+        $router->post('/admin/messages/{id}/status', [$messages, 'setStatus']);
 
         // Genetika (PCR markery, genotypy)
         $genetics = new GeneticsController();

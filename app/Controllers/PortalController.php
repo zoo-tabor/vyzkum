@@ -9,9 +9,12 @@ use App\Repositories\DogRepository;
 use App\Repositories\FilesRepository;
 use App\Repositories\FormRepository;
 use App\Repositories\FormResponseRepository;
+use App\Repositories\MessageRepository;
 use App\Repositories\OwnerRepository;
+use App\Repositories\TransferRepository;
 use App\Services\Auth;
 use App\Services\AuditService;
+use App\Services\OwnershipTransferService;
 use App\Support\Dates;
 use App\Support\FileStorage;
 use App\Support\FormConditions;
@@ -43,6 +46,9 @@ final class PortalController
         }
 
         $dogs = new DogRepository();
+        $messages = new MessageRepository();
+        $thread = $messages->dogThread((int) $id);
+
         return view('portal/dog', [
             'title' => $dog['name'],
             'owner' => $owner,
@@ -51,9 +57,55 @@ final class PortalController
             'documents' => $dogs->healthDocuments((int) $id),
             'forms' => (new FormRepository())->publishedFormsForBreed((int) $dog['breed_id']),
             'responses' => (new FormResponseRepository())->responsesForDog((int) $id),
+            'messages' => $thread !== null ? $messages->messages((int) $thread['id']) : [],
+            'pendingTransfer' => (new TransferRepository())->pendingForDog((int) $id),
             'notice' => Session::flash('portal_notice'),
             'error' => Session::flash('portal_error'),
         ]);
+    }
+
+    public function sendMessage(string $id): string
+    {
+        Csrf::verify();
+        [$owner, $dog] = $this->ownerAndDog((int) $id, true);
+        if ($dog === null) {
+            Session::flash('portal_error', 'K tomuto psovi nemate pristup.');
+            redirect('/portal');
+        }
+        $body = trim((string) input('body'));
+        if ($body === '') {
+            Session::flash('portal_error', 'Zprava nesmi byt prazdna.');
+            redirect('/portal/dogs/' . $id);
+        }
+
+        $messages = new MessageRepository();
+        $threadId = $messages->findOrCreateDogThread((int) $id, Auth::id());
+        $messages->addMessage($threadId, Auth::id(), 'owner', $body, 'open');
+        AuditService::log(Auth::id(), 'owner', 'message_sent', 'dog', $id);
+        Session::flash('portal_notice', 'Zprava odeslana vyzkumnemu tymu.');
+        redirect('/portal/dogs/' . $id);
+    }
+
+    public function transferRequest(string $id): string
+    {
+        Csrf::verify();
+        [$owner, $dog] = $this->ownerAndDog((int) $id, true);
+        if ($dog === null) {
+            Session::flash('portal_error', 'K tomuto psovi nemate pristup.');
+            redirect('/portal');
+        }
+
+        $name = trim((string) input('new_owner_name'));
+        $email = trim((string) input('new_owner_email'));
+        if ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            Session::flash('portal_error', 'Zadejte jmeno a platny e-mail noveho majitele.');
+            redirect('/portal/dogs/' . $id);
+        }
+
+        $result = (new OwnershipTransferService())->request((int) $id, (int) $owner['id'], $name, $email, Auth::id());
+        AuditService::log(Auth::id(), 'owner', 'ownership_transfer_requested', 'dog', $id, null, ['new_owner_email' => strtolower($email)]);
+        Session::flash($result['ok'] ? 'portal_notice' : 'portal_error', $result['message']);
+        redirect('/portal/dogs/' . $id);
     }
 
     public function fillForm(string $id, string $defId): string

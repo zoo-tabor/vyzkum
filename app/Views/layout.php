@@ -22,7 +22,7 @@ $nav = [
     ['/admin/forms', 'Formulare', true],
     ['#', 'Zdravi', false],
     ['/admin/genetics', 'Genetika', true],
-    ['#', 'Zpravy', false],
+    ['/admin/messages', 'Zpravy', true],
     ['#', 'Statistiky', false],
 ];
 $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);

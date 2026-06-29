@@ -91,6 +91,48 @@ $isDead = !empty($dog['death_date']);
 </div>
 
 <div class="card">
+    <h2>Zpravy vyzkumnemu tymu</h2>
+    <?php if (empty($messages)): ?>
+        <p class="muted">Zatim zadne zpravy.</p>
+    <?php else: ?>
+        <?php foreach ($messages as $m): ?>
+            <div style="border-top:1px solid var(--line); padding:0.5rem 0;">
+                <strong><?= ($m['sender_role'] ?? '') === 'owner' ? 'Vy' : 'Vyzkumny tym' ?></strong>
+                <span class="muted"><?= e(\App\Support\Dates::toCz(substr((string) $m['created_at'], 0, 10))) ?></span>
+                <div><?= nl2br(e((string) $m['body'])) ?></div>
+            </div>
+        <?php endforeach; ?>
+    <?php endif; ?>
+    <?php if ($isCurrent): ?>
+        <form method="post" action="/portal/dogs/<?= (int) $dog['id'] ?>/message" style="margin-top:0.75rem">
+            <?= \App\Core\Csrf::field() ?>
+            <label for="body">Nova zprava / poznamka</label>
+            <textarea id="body" name="body" rows="2" required></textarea>
+            <button type="submit" class="btn btn--primary">Odeslat</button>
+        </form>
+    <?php endif; ?>
+</div>
+
+<?php if ($isCurrent): ?>
+    <div class="card">
+        <h2>Zmena majitele</h2>
+        <?php if (!empty($pendingTransfer)): ?>
+            <div class="alert alert--ok">Probiha prevod na <strong><?= e($pendingTransfer['new_owner_email']) ?></strong> - ceka na potvrzeni novym majitelem.</div>
+        <?php else: ?>
+            <p class="muted">Pokud psa prevadite na noveho majitele, zadejte jeho jmeno a e-mail. Novemu majiteli prijde odkaz; po jeho potvrzeni se vlastnictvi automaticky prevede.</p>
+            <form method="post" action="/portal/dogs/<?= (int) $dog['id'] ?>/transfer">
+                <?= \App\Core\Csrf::field() ?>
+                <div class="form-row">
+                    <div><label for="new_owner_name">Jmeno noveho majitele</label><input type="text" id="new_owner_name" name="new_owner_name" required></div>
+                    <div><label for="new_owner_email">E-mail noveho majitele</label><input type="email" id="new_owner_email" name="new_owner_email" required></div>
+                    <div class="form-row__action"><button type="submit" class="btn">Nahlasit noveho majitele</button></div>
+                </div>
+            </form>
+        <?php endif; ?>
+    </div>
+<?php endif; ?>
+
+<div class="card">
     <h2>Zdravotni dokumenty</h2>
     <?php if ($documents === []): ?>
         <p class="muted">Zatim zadne dokumenty.</p>

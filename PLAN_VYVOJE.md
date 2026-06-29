@@ -295,6 +295,16 @@ QR tokenu a kompatibilnich URL zelene.
 
 Cil: interni komunikace a samoobsluzny prevod psa.
 
+> STAV (2026-06-30): HOTOVO. Migrace 008 (message_threads, messages) + 009
+> (ownership_transfer_requests). 5A zpravy: jedno vlakno na psa, majitel pise z
+> portalu (detail psa), admin /admin/messages (seznam+filtr stavu, vlakno, odpoved,
+> stav open/waiting_owner/resolved/archived). 5B zmena majitele: majitel z portalu
+> zada noveho (jmeno+e-mail) -> OwnershipTransferService posle potvrzovaci odkaz
+> /transfer/{token} -> novy majitel potvrdi -> AUTOMATICKY prevod (setCurrentOwner
+> uzavre stare, zalozi nove, source transfer) + set-password pozvanka + audit.
+> InviteService::sendUserInvite (zobecneno). POZN.: spustit migrace 008+009 v
+> phpMyAdmin (ensure_schema.sql). ==> FAZE 5 KOMPLETNI.
+
 ### 5.1 Interni zpravy (kap. 5.9)
 - [ ] NEW migrace: `message_threads`, `message_participants`, `messages`,
       `message_attachments`; index `message_threads(entity_type,entity_id)`.

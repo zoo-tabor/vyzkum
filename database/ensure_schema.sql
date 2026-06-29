@@ -438,8 +438,52 @@ CREATE TABLE IF NOT EXISTS dog_genotypes (
   CONSTRAINT dog_genotypes_test_fk FOREIGN KEY (genetic_test_id) REFERENCES genetic_tests(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS message_threads (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  entity_type VARCHAR(40) NOT NULL,
+  entity_id INT UNSIGNED NOT NULL,
+  subject VARCHAR(190) NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'open',
+  created_by_user_id INT UNSIGNED NULL,
+  last_message_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX message_threads_entity_idx (entity_type, entity_id),
+  INDEX message_threads_status_idx (status, last_message_at),
+  CONSTRAINT message_threads_creator_fk FOREIGN KEY (created_by_user_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS messages (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  thread_id INT UNSIGNED NOT NULL,
+  sender_user_id INT UNSIGNED NULL,
+  sender_role VARCHAR(40) NULL,
+  body TEXT NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX messages_thread_idx (thread_id, created_at),
+  CONSTRAINT messages_thread_fk FOREIGN KEY (thread_id) REFERENCES message_threads(id) ON DELETE CASCADE,
+  CONSTRAINT messages_sender_fk FOREIGN KEY (sender_user_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS ownership_transfer_requests (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  dog_id INT UNSIGNED NOT NULL,
+  from_owner_id INT UNSIGNED NULL,
+  new_owner_name VARCHAR(190) NOT NULL,
+  new_owner_email VARCHAR(190) NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'pending',
+  invite_token_hash CHAR(64) NOT NULL,
+  expires_at DATETIME NOT NULL,
+  confirmed_at DATETIME NULL,
+  created_by_user_id INT UNSIGNED NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY ownership_transfer_token_unique (invite_token_hash),
+  INDEX ownership_transfer_dog_idx (dog_id, status),
+  CONSTRAINT ownership_transfer_dog_fk FOREIGN KEY (dog_id) REFERENCES dogs(id) ON DELETE CASCADE,
+  CONSTRAINT ownership_transfer_from_fk FOREIGN KEY (from_owner_id) REFERENCES owners(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Oznaceni migraci jako provedenych (bez chyby, kdyz uz tam jsou).
 INSERT IGNORE INTO schema_migrations (version)
 VALUES ('001_core.sql'), ('002_dogs_owners.sql'), ('003_invites_mail.sql'),
        ('004_forms.sql'), ('005_form_responses.sql'), ('006_samples.sql'),
-       ('007_genetics.sql');
+       ('007_genetics.sql'), ('008_messages.sql'), ('009_ownership_transfer.sql');
