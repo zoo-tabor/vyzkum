@@ -1,0 +1,5 @@
+qrcodejs
+Copyright (c) davidshimjs
+Released under the MIT license.
+
+Bundled from: https://www.npmjs.com/package/qrcodejs

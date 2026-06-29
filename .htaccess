@@ -1,0 +1,13 @@
+# Fallback for hosts whose document root is the repository root instead of /public.
+# Prefer pointing the vhost DocumentRoot directly at the public/ directory.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^$ public/ [L]
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Block access to sensitive files at the repo root.
+<FilesMatch "^(\.env.*|composer\.(json|lock)|.*\.md)$">
+    Require all denied
+</FilesMatch>

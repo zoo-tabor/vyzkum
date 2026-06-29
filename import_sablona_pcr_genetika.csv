@@ -1,0 +1,2 @@
+sample_id,expected_phenotype,B3GALNT1_genotype,NLRP1_genotype,PARP14_genotype,COL9A1_genotype,lab_name,tested_at,notes
+CKCML1,long_lived,GG,GG,X,X,,2025-06-29,

@@ -1,0 +1,16 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Serve existing files/directories as-is.
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Everything else goes through the front controller.
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# Never serve dotfiles (.env etc.) even if docroot is misconfigured.
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>

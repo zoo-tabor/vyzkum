@@ -1,0 +1,25 @@
+# Secrets / local config
+.env
+.env.local
+
+# Stara aplikace - zustava lokalne jako reference pro port QR/vzorku (Faze 4),
+# ale do repa se nenahrava.
+/old_app/
+
+# Runtime storage
+/storage/logs/*
+/storage/uploads/*
+/storage/exports/*
+!/storage/logs/.gitkeep
+!/storage/uploads/.gitkeep
+!/storage/exports/.gitkeep
+
+# Dependencies (Composer is optional dev tooling)
+/vendor/
+
+# Deploy / editor / OS
+.idea/
+.vscode/
+*.log
+Thumbs.db
+.DS_Store
