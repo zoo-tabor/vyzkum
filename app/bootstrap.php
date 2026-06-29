@@ -21,6 +21,7 @@ $config = Config::load(ROOT_PATH . '/.env');
 $debug = (bool) $config->get('APP_DEBUG', false);
 define('APP_DEBUG', $debug);
 define('ASSET_BASE_PATH', (string) $config->get('ASSET_BASE_PATH', ''));
+define('ENFORCE_ADMIN_2FA', (bool) $config->get('ENFORCE_ADMIN_2FA', true));
 
 error_reporting(E_ALL);
 ini_set('log_errors', '1');

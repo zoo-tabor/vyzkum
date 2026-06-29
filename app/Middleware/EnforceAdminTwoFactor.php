@@ -25,6 +25,11 @@ final class EnforceAdminTwoFactor implements Middleware
 
     public function handle(Request $request): void
     {
+        // Lze vypnout pro vyvoj pres .env (ENFORCE_ADMIN_2FA=false).
+        if (defined('ENFORCE_ADMIN_2FA') && ENFORCE_ADMIN_2FA === false) {
+            return;
+        }
+
         $user = Auth::user();
         if ($user === null || ($user['role'] ?? '') !== 'research_admin') {
             return;
