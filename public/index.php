@@ -48,6 +48,17 @@ $router->post('/set-password/{token}', [$setPassword, 'submit']);
 $router->group([new RequireRole('owner')], function (Router $router): void {
     $portal = new PortalController();
     $router->get('/portal', [$portal, 'index']);
+    $router->get('/portal/contacts', [$portal, 'contacts']);
+    $router->post('/portal/contacts', [$portal, 'updateContacts']);
+    $router->get('/portal/dogs/{id}', [$portal, 'dog']);
+    $router->post('/portal/dogs/{id}/confirm', [$portal, 'confirm']);
+    $router->post('/portal/dogs/{id}/death', [$portal, 'death']);
+    $router->post('/portal/dogs/{id}/document', [$portal, 'uploadDocument']);
+});
+
+// Stahovani souboru (admin i majitel; autorizace v controlleru).
+$router->group([RequireAuth::class], function (Router $router): void {
+    $router->get('/files/{id}', [new \App\Controllers\FileDownloadController(), 'download']);
 });
 
 $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Router $router) use ($auth, $twoFactor): void {

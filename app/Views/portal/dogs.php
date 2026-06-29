@@ -3,11 +3,16 @@
 /** @var array<int, array<string, mixed>> $dogs */
 /** @var array<int, array<string, mixed>> $emails */
 /** @var array<int, array<string, mixed>> $phones */
+/** @var string|null $notice */
+/** @var string|null $error */
 ?>
 <div class="page-head">
     <h1>Moji psi</h1>
     <?php if ($owner !== null): ?><p class="muted"><?= e($owner['display_name']) ?></p><?php endif; ?>
 </div>
+
+<?php if (!empty($notice)): ?><div class="alert alert--ok"><?= e($notice) ?></div><?php endif; ?>
+<?php if (!empty($error)): ?><div class="alert alert--error"><?= e($error) ?></div><?php endif; ?>
 
 <?php if ($owner === null): ?>
     <div class="card">
@@ -20,18 +25,18 @@
             <p class="muted">Zatim u vas nemame evidovane zadne psy.</p>
         <?php else: ?>
             <table class="table">
-                <thead><tr><th>Jmeno</th><th>Plemeno</th><th>Vztah</th></tr></thead>
+                <thead><tr><th>Jmeno</th><th>Plemeno</th><th>Vztah</th><th></th></tr></thead>
                 <tbody>
                 <?php foreach ($dogs as $d): ?>
                     <tr>
-                        <td><?= e($d['name']) ?></td>
+                        <td><a href="/portal/dogs/<?= (int) $d['id'] ?>"><?= e($d['name']) ?></a></td>
                         <td><?= e($d['breed_name']) ?></td>
                         <td><?= ((int) $d['is_current']) === 1 ? 'aktualni' : 'byvaly' ?></td>
+                        <td><a href="/portal/dogs/<?= (int) $d['id'] ?>">Detail &rarr;</a></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
             </table>
-            <p class="muted">Sprava udaju (potvrzeni psa, kontakty, dokumenty) bude doplnena v dalsi casti.</p>
         <?php endif; ?>
     </div>
 
@@ -43,5 +48,6 @@
         <p><strong>Telefony:</strong>
             <?= $phones === [] ? '-' : e(implode(', ', array_map(static fn ($p) => $p['phone'], $phones))) ?>
         </p>
+        <p><a class="btn" href="/portal/contacts">Upravit kontaktni udaje</a></p>
     </div>
 <?php endif; ?>

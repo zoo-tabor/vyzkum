@@ -231,6 +231,81 @@ final class DogRepository
         }
     }
 
+    /** @return array<string, mixed>|null vztah dog_owners pro daneho majitele */
+    public function relation(int $dogId, int $ownerId): ?array
+    {
+        $stmt = $this->pdo()->prepare(
+            'SELECT * FROM dog_owners WHERE dog_id = :d AND owner_id = :o
+             ORDER BY is_current DESC, id DESC LIMIT 1'
+        );
+        $stmt->execute(['d' => $dogId, 'o' => $ownerId]);
+        $row = $stmt->fetch();
+        return $row ?: null;
+    }
+
+    public function confirmOwnership(int $dogId, int $ownerId): void
+    {
+        $stmt = $this->pdo()->prepare(
+            'UPDATE dog_owners SET confirmed_at = NOW()
+             WHERE dog_id = :d AND owner_id = :o AND is_current = 1'
+        );
+        $stmt->execute(['d' => $dogId, 'o' => $ownerId]);
+    }
+
+    /**
+     * Nastavi stav naziva/umrti. alive=true -> vycisti datum umrti. alive=false
+     * -> ulozi report (auditovany original) a propise do psa.
+     */
+    public function setAliveStatus(int $dogId, ?int $ownerId, bool $alive, ?string $deathDateIso, ?string $note, string $source = 'owner'): void
+    {
+        $pdo = $this->pdo();
+        $pdo->beginTransaction();
+        try {
+            if ($alive) {
+                $stmt = $pdo->prepare('UPDATE dogs SET death_date = NULL, death_cause = NULL, updated_at = NOW() WHERE id = :d');
+                $stmt->execute(['d' => $dogId]);
+            } else {
+                $report = $pdo->prepare(
+                    'INSERT INTO dog_death_reports (dog_id, owner_id, death_date, note, source)
+                     VALUES (:d, :o, :dd, :note, :src)'
+                );
+                $report->execute(['d' => $dogId, 'o' => $ownerId, 'dd' => $deathDateIso, 'note' => $note, 'src' => $source]);
+
+                $stmt = $pdo->prepare('UPDATE dogs SET death_date = :dd, updated_at = NOW() WHERE id = :d');
+                $stmt->execute(['dd' => $deathDateIso, 'd' => $dogId]);
+            }
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    public function addHealthDocument(int $dogId, ?int $ownerId, int $fileId, ?string $docType, ?string $docDateIso, ?string $note): int
+    {
+        $stmt = $this->pdo()->prepare(
+            'INSERT INTO health_documents (dog_id, owner_id, file_id, document_type, document_date, note)
+             VALUES (:d, :o, :f, :t, :dd, :n)'
+        );
+        $stmt->execute(['d' => $dogId, 'o' => $ownerId, 'f' => $fileId, 't' => $docType, 'dd' => $docDateIso, 'n' => $note]);
+        return (int) $this->pdo()->lastInsertId();
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    public function healthDocuments(int $dogId): array
+    {
+        $stmt = $this->pdo()->prepare(
+            'SELECT hd.id, hd.document_type, hd.document_date, hd.note, hd.created_at,
+                    f.id AS file_id, f.original_name, f.mime_type, f.size
+             FROM health_documents hd
+             LEFT JOIN files f ON f.id = hd.file_id
+             WHERE hd.dog_id = :d
+             ORDER BY hd.created_at DESC'
+        );
+        $stmt->execute(['d' => $dogId]);
+        return $stmt->fetchAll();
+    }
+
     private static function nv(mixed $value): ?string
     {
         $value = trim((string) $value);

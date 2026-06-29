@@ -172,6 +172,19 @@ Cil: majitel se prihlasi a vidi sve psy; funguji pozvanky a notifikace.
 > ("Moji psi" + kontakty, read-only). +2 testy (TokenService). ZBYVA increment B:
 > samoobsluha majitele (potvrzeni psa, uprava kontaktu, datum umrti, nahrani
 > zdrav. dokumentu). POZN.: spustit migraci 003 v phpMyAdmin (nebo ensure_schema.sql).
+>
+> STAV mail (2026-06-29): wedos blokuje odchozi SMTP 25 -> MailService pouziva
+> PHP mail() (MAIL_TRANSPORT=mail|smtp). Diagnostika /admin/diagnostics/smtp.
+>
+> STAV increment B1 (2026-06-29): HOTOVO (bez migrace). FileStorage - uploady
+> prejmenovane a trideny do storage/uploads/<plemeno>/owner_<id>/dog_<id>/
+> (mimo web root, deny .htaccess); stahovani pres /files/{id} s autorizaci.
+> Portal majitele: detail psa, potvrzeni "pes je muj", blok "naziva?/datum umrti
+> DD.MM.RRRR" (propis do psa + dog_death_reports), nahrani zdrav. dokumentu,
+> uprava kontaktu (adresa/telefony/sekundarni e-maily). +6 testu (Dates, FileStorage).
+> ZBYVA: form builder (puvodni Faze 5, posunuto sem): B2 = admin builder dotazniku
+> per plemeno (single/multiple choice, text, cislo, datum, ano/ne, soubor u otazky,
+> podminene otazky, poznamka), B3 = vyplneni dotazniku majitelem + napojeni souboru.
 
 ### 3.1 Mail modul (NEW)
 - [ ] NEW: `MailService` (SMTP z `.env`, `vyzkum@zootabor.eu`), sablony,

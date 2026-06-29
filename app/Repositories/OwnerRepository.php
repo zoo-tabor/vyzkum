@@ -162,6 +162,47 @@ final class OwnerRepository
         return $stmt->fetchAll();
     }
 
+    /** Vztah majitel-pes existuje? currentOnly = jen aktualni vztah. */
+    public function ownsDog(int $ownerId, int $dogId, bool $currentOnly = false): bool
+    {
+        $sql = 'SELECT 1 FROM dog_owners WHERE owner_id = :o AND dog_id = :d';
+        if ($currentOnly) {
+            $sql .= ' AND is_current = 1';
+        }
+        $sql .= ' LIMIT 1';
+        $stmt = $this->pdo()->prepare($sql);
+        $stmt->execute(['o' => $ownerId, 'd' => $dogId]);
+        return (bool) $stmt->fetchColumn();
+    }
+
+    public function updateContactInfo(int $ownerId, ?string $address): void
+    {
+        $stmt = $this->pdo()->prepare('UPDATE owners SET address = :a, updated_at = NOW() WHERE id = :id');
+        $stmt->execute(['a' => $address, 'id' => $ownerId]);
+    }
+
+    /** @param array<int, string> $phones nahradi vsechny telefony */
+    public function replacePhones(int $ownerId, array $phones): void
+    {
+        $del = $this->pdo()->prepare('DELETE FROM owner_phones WHERE owner_id = :o');
+        $del->execute(['o' => $ownerId]);
+        foreach ($phones as $phone) {
+            $this->addPhone($ownerId, $phone, null, false);
+        }
+    }
+
+    /** @param array<int, string> $emails nahradi sekundarni (ne-primarni) e-maily */
+    public function replaceSecondaryEmails(int $ownerId, array $emails): void
+    {
+        $del = $this->pdo()->prepare('DELETE FROM owner_emails WHERE owner_id = :o AND is_primary = 0');
+        $del->execute(['o' => $ownerId]);
+        foreach ($emails as $email) {
+            if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $this->addEmail($ownerId, $email, false);
+            }
+        }
+    }
+
     /** @return array<int, array<string, mixed>> pro vyber pri rucnim prirazeni */
     public function allForSelect(int $limit = 500): array
     {
