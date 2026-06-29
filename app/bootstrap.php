@@ -31,6 +31,10 @@ ini_set('display_startup_errors', $debug ? '1' : '0');
 
 // Sessions only in a web context (CLI tooling does not need them).
 if (PHP_SAPI !== 'cli') {
+    ini_set('session.use_strict_mode', '1');
+    ini_set('session.use_only_cookies', '1');
+    ini_set('session.cookie_httponly', '1');
+    ini_set('session.cookie_samesite', 'Lax');
     Session::start();
 }
 

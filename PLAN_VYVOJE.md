@@ -427,6 +427,14 @@ read modelu.
 
 Cil: bezpecne, vykonne a provozovatelne nasazeni na `vyzkum.zootabor.eu`.
 
+> STAV (2026-06-30): HOTOVO (kodova cast). Bezpecnostni HTTP hlavicky + CSP
+> (SecurityHeaders), session hardening (strict_mode/only_cookies/httponly/SameSite/
+> secure dle HTTPS), 500 stranka nezavisla na DB, ochrana stahovani proti path
+> traversal, `bin/check_config.php` (kontrola APP_KEY/DEBUG/DB/migrace/storage),
+> provozni runbook + bezpecnostni a N+1 audit v `HARDENING.md`. Provozni ukoly
+> (mimo kod) zustavaji na uzivateli: HTTPS cert, SPF/DKIM/DMARC, zalohy + test
+> obnovy, APP_DEBUG=false na serveru. Viz `HARDENING.md`.
+
 - [ ] Performance + N+1 review klicovych seznamu (psi, vzorky, genetika);
       testy na maximalni pocet SQL dotazu na obrazovku.
 - [ ] Bezpecnostni review: RBAC + object-level autorizace, breed-scope vsude,

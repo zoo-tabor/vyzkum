@@ -196,6 +196,12 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
     });
 });
 
+foreach (\App\Support\SecurityHeaders::all() as $headerName => $headerValue) {
+    if (!headers_sent()) {
+        header($headerName . ': ' . $headerValue);
+    }
+}
+
 try {
     echo $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
 } catch (Throwable $e) {
@@ -211,5 +217,12 @@ try {
         exit;
     }
 
-    echo 'Doslo k vnitrni chybe aplikace.';
+    // Samostatna 500 stranka (nezavisla na DB/layoutu, aby neselhala znovu).
+    header('Content-Type: text/html; charset=utf-8');
+    echo '<!DOCTYPE html><html lang="cs"><head><meta charset="utf-8">'
+        . '<title>Chyba</title><meta name="viewport" content="width=device-width, initial-scale=1">'
+        . '<style>body{font-family:system-ui,Arial,sans-serif;max-width:520px;margin:4rem auto;padding:0 1rem;color:#1f2933}</style>'
+        . '</head><body><h1>Doslo k chybe</h1>'
+        . '<p>Omlouvame se, nastala vnitrni chyba aplikace. Zkuste to prosim znovu pozdeji.</p>'
+        . '<p><a href="/">Zpet na uvod</a></p></body></html>';
 }

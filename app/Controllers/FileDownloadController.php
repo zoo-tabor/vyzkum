@@ -24,7 +24,10 @@ final class FileDownloadController
         }
 
         $path = FileStorage::absolutePath((string) $file['stored_name']);
-        if (!is_file($path)) {
+        // Obrana proti path traversal: soubor musi byt uvnitr storage/uploads.
+        $base = realpath(STORAGE_PATH . '/uploads');
+        $real = realpath($path);
+        if ($real === false || $base === false || !str_starts_with($real, $base . DIRECTORY_SEPARATOR)) {
             http_response_code(404);
             exit('Soubor na disku neexistuje.');
         }
