@@ -17,6 +17,7 @@ use App\Controllers\BreedController;
 use App\Controllers\DashboardController;
 use App\Controllers\DogController;
 use App\Controllers\FormController;
+use App\Controllers\GeneticsController;
 use App\Controllers\ImportController;
 use App\Controllers\OwnerController;
 use App\Controllers\PortalController;
@@ -136,6 +137,19 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $router->post('/admin/forms/{id}/questions/{qid}', [$forms, 'updateQuestion']);
         $router->post('/admin/forms/{id}/questions/{qid}/delete', [$forms, 'deleteQuestion']);
         $router->post('/admin/forms/{id}/questions/{qid}/move', [$forms, 'moveQuestion']);
+
+        // Genetika (PCR markery, genotypy)
+        $genetics = new GeneticsController();
+        $router->get('/admin/genetics', [$genetics, 'index']);
+        $router->get('/admin/genetics/export.csv', [$genetics, 'export']);
+        $router->get('/admin/genetics/markers', [$genetics, 'markers']);
+        $router->post('/admin/genetics/genes', [$genetics, 'createGene']);
+        $router->post('/admin/genetics/markers', [$genetics, 'createMarker']);
+        $router->get('/admin/genetics/import', [$genetics, 'importForm']);
+        $router->get('/admin/genetics/import/template.csv', [$genetics, 'template']);
+        $router->post('/admin/genetics/import', [$genetics, 'importPreview']);
+        $router->post('/admin/genetics/import/commit', [$genetics, 'importCommit']);
+        $router->post('/admin/genetics/manual', [$genetics, 'manualStore']);
 
         $router->get('/admin/security', [$twoFactor, 'setup']);
         $router->post('/admin/security/enable', [$twoFactor, 'enable']);

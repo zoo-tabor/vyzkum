@@ -20,7 +20,7 @@ $nav = [
     ['/admin/samples', 'Vzorky', true],
     ['/admin/forms', 'Formulare', true],
     ['#', 'Zdravi', false],
-    ['#', 'Genetika', false],
+    ['/admin/genetics', 'Genetika', true],
     ['#', 'Zpravy', false],
     ['#', 'Statistiky', false],
 ];

@@ -350,6 +350,23 @@ odpovedi se ulozi a mapuji do health_events; nova verze nerozbije stara data.
 
 Cil: PCR markery, genotypy, sortovatelne tabulky, klubovy read-only pristup.
 
+> STAV genetika (2026-06-29): HOTOVO. Migrace `007_genetics.sql` (genes,
+> genetic_markers, genetic_tests, dog_genotypes + indexy + unique dog+marker).
+> Admin /admin/genetics: sortovatelna/filtrovatelna tabulka genotypu (breed context,
+> marker, genotyp, jmeno psa) + strankovani, rucni zadani, sprava genu/markeru,
+> CSV import (siroky PCR format, paruje sample_id->pes, auto-zaklada markery dle
+> hlavicky, X/prazdne = bez vysledku), CSV export. Genotypy i na detailu psa.
+> SKRYTE pred majiteli (jen research_admin; klub az s klub. dashboardem). Prvotni
+> CSV import nyni zaklada vzorek (sample_id) pro napojeni genetiky. +3 testy.
+> ZBYVA: KLUBOVE STATISTIKY (klubovy dashboard pro club_viewer - agregace, seznam
+> psu se jmenem majitele bez kontaktu; role club_viewer + user_breed_access existuji).
+> POZN.: spustit migraci 007 v phpMyAdmin (ensure_schema.sql).
+
+> POZNAMKA k cislovani: jeste NENI hotova PLAN Faze 5 (Zpravy a zmena majitele -
+> interni vlakna + ownership transfer workflow). Hotovo: Faze 0-4, 6 (form builder),
+> 7-genetika. Chybi: Faze 5, klubove statistiky, mapovani odpovedi -> health_events,
+> Faze 8 (hardening).
+
 ### 7.1 Model genetiky (kap. 5.8 / 6.2)
 - [ ] NEW migrace: `genes`, `genetic_markers`, `genetic_tests`, `dog_genotypes`.
 - [ ] NEW indexy: `dog_genotypes(dog_id,marker_id)`,

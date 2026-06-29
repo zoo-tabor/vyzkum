@@ -7,6 +7,7 @@ use App\Core\Database;
 use App\Repositories\BreedRepository;
 use App\Repositories\DogRepository;
 use App\Repositories\OwnerRepository;
+use App\Repositories\SampleRepository;
 
 /**
  * Import psu + majitelu + vazeb z CSV (sablona import_sablona_psi_majitele_vzorky).
@@ -166,6 +167,12 @@ final class DogOwnerImporter
                 $ownerId = $this->resolveOwner($r, $ownerByEmail, $ownerByNamePhone);
                 if ($ownerId !== null) {
                     $this->dogs->linkOwner($dogId, $ownerId, 'import');
+                }
+
+                // Vzorek (sample_id) - aby na nej slo navazat geneticky import.
+                $sampleId = trim((string) ($r['sample_id'] ?? ''));
+                if ($sampleId !== '') {
+                    (new SampleRepository())->ensureImportedSample($sampleId, $breedId, $dogId, trim((string) ($r['sample_received_at'] ?? '')) ?: null);
                 }
             }
 

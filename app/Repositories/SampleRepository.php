@@ -227,6 +227,40 @@ final class SampleRepository
         ]);
     }
 
+    /** @return array{dog_id:int, breed_id:?int}|null pes navazany na dany sample_id */
+    public function dogForSampleId(string $sampleId): ?array
+    {
+        $stmt = $this->pdo()->prepare(
+            'SELECT s.dog_id, d.breed_id FROM samples s
+             JOIN dogs d ON d.id = s.dog_id
+             WHERE s.sample_id = :sid AND s.dog_id IS NOT NULL LIMIT 1'
+        );
+        $stmt->execute(['sid' => $sampleId]);
+        $row = $stmt->fetch();
+        return $row ? ['dog_id' => (int) $row['dog_id'], 'breed_id' => $row['breed_id'] !== null ? (int) $row['breed_id'] : null] : null;
+    }
+
+    /**
+     * Zalozi/aktualizuje "importovany" vzorek s danym sample_id navazany na psa
+     * (pro prvotni CSV import historickych dat). Tokeny jsou jen vyplnove.
+     */
+    public function ensureImportedSample(string $sampleId, ?int $breedId, int $dogId, ?string $receivedAt): void
+    {
+        $stmt = $this->pdo()->prepare(
+            "INSERT INTO samples (sample_id, breed_id, dog_id, status, vet_token_hash, owner_token_hash, received_at)
+             VALUES (:sid, :breed, :dog, 'sample_received', :vh, :oh, :recv)
+             ON DUPLICATE KEY UPDATE dog_id = VALUES(dog_id), breed_id = VALUES(breed_id), updated_at = NOW()"
+        );
+        $stmt->execute([
+            'sid' => $sampleId,
+            'breed' => $breedId,
+            'dog' => $dogId,
+            'vh' => hash('sha256', \App\Support\SampleCode::token()),
+            'oh' => hash('sha256', \App\Support\SampleCode::token()),
+            'recv' => $receivedAt ?: null,
+        ]);
+    }
+
     public function attachDog(int $sampleId, int $dogId): void
     {
         $stmt = $this->pdo()->prepare(

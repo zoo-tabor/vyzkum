@@ -68,6 +68,27 @@ $row = static function (string $label, mixed $value): void {
 </div>
 
 <div class="card">
+    <h2>Genetika</h2>
+    <?php if (empty($genotypes)): ?>
+        <p class="muted">Zadne genotypy.</p>
+    <?php else: ?>
+        <table class="table">
+            <thead><tr><th>Gen / marker</th><th>Genotyp</th><th>Datum testu</th><th>Stav</th></tr></thead>
+            <tbody>
+            <?php foreach ($genotypes as $g): ?>
+                <tr>
+                    <td><?= e($g['gene_symbol']) ?> / <code><?= e($g['marker_code']) ?></code></td>
+                    <td><strong><?= e($g['genotype']) ?></strong></td>
+                    <td><?= e(\App\Support\Dates::toCz($g['tested_at'] ?? null)) ?></td>
+                    <td><?= e($g['validation_status']) ?></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    <?php endif; ?>
+</div>
+
+<div class="card">
     <h2>Dotazniky (odpovedi)</h2>
     <?php if (empty($responses)): ?>
         <p class="muted">Zatim zadne odeslane dotazniky.</p>
