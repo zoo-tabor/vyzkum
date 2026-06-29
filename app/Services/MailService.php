@@ -35,6 +35,112 @@ final class MailService
         }
     }
 
+    /**
+     * Diagnostika SMTP bez odeslani mailu: connect -> banner -> EHLO -> STARTTLS
+     * -> AUTH. Hesla se nevypisuji. Pro overeni dosazitelnosti z daneho serveru.
+     *
+     * @return array{ok: bool, config: array<string, mixed>, steps: array<int, array{step:string, ok:bool, detail:string}>, error: ?string}
+     */
+    public static function diagnose(): array
+    {
+        $cfg = Config::instance();
+        $host = (string) $cfg->get('SMTP_HOST', '');
+        $port = (int) ($cfg->get('SMTP_PORT', 25) ?: 25);
+        $user = (string) $cfg->get('SMTP_USER', '');
+        $pass = (string) $cfg->get('SMTP_PASS', '');
+        $startTls = (bool) $cfg->get('SMTP_USE_STARTTLS', true);
+        $ehlo = parse_url((string) $cfg->get('APP_URL', 'localhost'), PHP_URL_HOST) ?: 'localhost';
+
+        $steps = [];
+        $error = null;
+        $add = static function (string $step, bool $ok, string $detail = '') use (&$steps): void {
+            $steps[] = ['step' => $step, 'ok' => $ok, 'detail' => $detail];
+        };
+
+        try {
+            if ($host === '') {
+                throw new \RuntimeException('SMTP_HOST neni nastaven.');
+            }
+            $t0 = microtime(true);
+            $fp = @stream_socket_client("tcp://{$host}:{$port}", $errno, $errstr, 12);
+            if ($fp === false) {
+                $add('connect ' . $host . ':' . $port, false, "{$errstr} ({$errno})");
+                throw new \RuntimeException('Spojeni se nepodarilo navazat (port nejspis blokovan).');
+            }
+            $add('connect ' . $host . ':' . $port, true, sprintf('%.0f ms', (microtime(true) - $t0) * 1000));
+            stream_set_timeout($fp, 12);
+
+            $banner = trim((string) fgets($fp, 515));
+            $add('banner', str_starts_with($banner, '220'), $banner !== '' ? $banner : '(zadna odpoved - timeout)');
+
+            fwrite($fp, "EHLO {$ehlo}\r\n");
+            $caps = self::readAll($fp);
+            $add('EHLO', str_contains($caps, '250'), $caps);
+
+            if ($startTls) {
+                fwrite($fp, "STARTTLS\r\n");
+                $r = trim((string) fgets($fp, 515));
+                $okTls = str_starts_with($r, '220');
+                $add('STARTTLS', $okTls, $r);
+                if ($okTls) {
+                    $enc = stream_socket_enable_crypto($fp, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
+                    $add('TLS handshake', $enc === true, $enc === true ? 'OK' : 'selhalo');
+                    if ($enc === true) {
+                        fwrite($fp, "EHLO {$ehlo}\r\n");
+                        self::readAll($fp);
+                    }
+                }
+            }
+
+            if ($user !== '') {
+                fwrite($fp, "AUTH LOGIN\r\n");
+                fgets($fp, 515);
+                fwrite($fp, base64_encode($user) . "\r\n");
+                fgets($fp, 515);
+                fwrite($fp, base64_encode($pass) . "\r\n");
+                $r = trim((string) fgets($fp, 515));
+                $add('AUTH LOGIN', str_starts_with($r, '235'), str_starts_with($r, '235') ? '235 prihlaseni OK' : $r);
+            }
+
+            fwrite($fp, "QUIT\r\n");
+            fclose($fp);
+        } catch (\Throwable $e) {
+            $error = $e->getMessage();
+        }
+
+        $ok = $error === null && $steps !== [] && array_reduce($steps, static fn (bool $c, array $s): bool => $c && $s['ok'], true);
+
+        return [
+            'ok' => $ok,
+            'config' => [
+                'host' => $host,
+                'port' => $port,
+                'starttls' => $startTls,
+                'user' => $user !== '' ? '(nastaven)' : '(prazdny)',
+            ],
+            'steps' => $steps,
+            'error' => $error,
+        ];
+    }
+
+    /** @param resource $fp */
+    private static function readAll($fp): string
+    {
+        $out = [];
+        $deadline = microtime(true) + 6;
+        while (microtime(true) < $deadline) {
+            $line = fgets($fp, 515);
+            if ($line === false || $line === '') {
+                break;
+            }
+            $out[] = trim($line);
+            if (isset($line[3]) && $line[3] === ' ') {
+                break;
+            }
+        }
+        return implode(' | ', $out);
+    }
+
     private static function smtpSend(Config $cfg, string $to, string $subject, string $body): void
     {
         $host = (string) $cfg->get('SMTP_HOST', '');

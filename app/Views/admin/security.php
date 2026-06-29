@@ -77,3 +77,8 @@
         <button type="submit" class="btn btn--primary">Zmenit heslo</button>
     </form>
 </div>
+
+<div class="card">
+    <h2>Diagnostika</h2>
+    <p><a href="/admin/diagnostics/smtp">Test SMTP spojeni</a> - overi dosazitelnost mailserveru z tohoto serveru (bez odeslani mailu).</p>
+</div>
