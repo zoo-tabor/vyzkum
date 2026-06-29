@@ -18,7 +18,7 @@ $nav = [
     ['/admin/dogs', 'Psi', true],
     ['/admin/owners', 'Majitele', true],
     ['#', 'Vzorky', false],
-    ['#', 'Formulare', false],
+    ['/admin/forms', 'Formulare', true],
     ['#', 'Zdravi', false],
     ['#', 'Genetika', false],
     ['#', 'Zpravy', false],

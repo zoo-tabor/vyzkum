@@ -182,9 +182,15 @@ Cil: majitel se prihlasi a vidi sve psy; funguji pozvanky a notifikace.
 > Portal majitele: detail psa, potvrzeni "pes je muj", blok "naziva?/datum umrti
 > DD.MM.RRRR" (propis do psa + dog_death_reports), nahrani zdrav. dokumentu,
 > uprava kontaktu (adresa/telefony/sekundarni e-maily). +6 testu (Dates, FileStorage).
-> ZBYVA: form builder (puvodni Faze 5, posunuto sem): B2 = admin builder dotazniku
-> per plemeno (single/multiple choice, text, cislo, datum, ano/ne, soubor u otazky,
-> podminene otazky, poznamka), B3 = vyplneni dotazniku majitelem + napojeni souboru.
+> STAV B2 (2026-06-29): HOTOVO. Migrace `004_forms.sql` (form_definitions,
+> form_versions, form_questions, form_question_options). Admin builder /admin/forms:
+> dotaznik per plemeno, verzovani (publikace = zamek, uprava = nova draft verze
+> klonovanim), typy otazek (kratka/dlouha odpoved, single/multiple choice, cislo,
+> datum, ano/ne, soubor), podminene otazky (visible_if), poradi (nahoru/dolu),
+> moznosti pres "klic|popisek". FormSchema (deterministicky slug + parseOptions)
+> +4 testy. ZBYVA B3: vyplneni dotazniku majitelem (render typu + podminek +
+> soubor u otazky + poznamka na konci + vestaveny blok naziva/umrti) + ulozeni
+> odpovedi (form_assignments/responses/answers) + admin prehled odpovedi.
 
 ### 3.1 Mail modul (NEW)
 - [ ] NEW: `MailService` (SMTP z `.env`, `vyzkum@zootabor.eu`), sablony,

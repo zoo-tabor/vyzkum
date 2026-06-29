@@ -16,6 +16,7 @@ use App\Controllers\AuthController;
 use App\Controllers\BreedController;
 use App\Controllers\DashboardController;
 use App\Controllers\DogController;
+use App\Controllers\FormController;
 use App\Controllers\ImportController;
 use App\Controllers\OwnerController;
 use App\Controllers\PortalController;
@@ -98,6 +99,19 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $router->get('/admin/import/template.csv', [$import, 'template']);
         $router->post('/admin/import', [$import, 'preview']);
         $router->post('/admin/import/commit', [$import, 'commit']);
+
+        // Formulare (builder)
+        $forms = new FormController();
+        $router->get('/admin/forms', [$forms, 'index']);
+        $router->post('/admin/forms', [$forms, 'create']);
+        $router->get('/admin/forms/{id}', [$forms, 'show']);
+        $router->post('/admin/forms/{id}/publish', [$forms, 'publish']);
+        $router->post('/admin/forms/{id}/new-version', [$forms, 'newVersion']);
+        $router->post('/admin/forms/{id}/questions', [$forms, 'addQuestion']);
+        $router->get('/admin/forms/{id}/questions/{qid}/edit', [$forms, 'editQuestion']);
+        $router->post('/admin/forms/{id}/questions/{qid}', [$forms, 'updateQuestion']);
+        $router->post('/admin/forms/{id}/questions/{qid}/delete', [$forms, 'deleteQuestion']);
+        $router->post('/admin/forms/{id}/questions/{qid}/move', [$forms, 'moveQuestion']);
 
         $router->get('/admin/security', [$twoFactor, 'setup']);
         $router->post('/admin/security/enable', [$twoFactor, 'enable']);
