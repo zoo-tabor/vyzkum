@@ -5,20 +5,34 @@ namespace App\Core;
 
 final class Session
 {
-    public static function start(bool $debug = false): void
+    public static function start(): void
     {
         if (session_status() === PHP_SESSION_ACTIVE) {
             return;
         }
 
+        // Secure cookie only over HTTPS - decoupled from APP_DEBUG so login works
+        // over plain HTTP (e.g. before the TLS cert is in place) and is hardened
+        // automatically once HTTPS is active.
         session_set_cookie_params([
             'lifetime' => 0,
             'path' => '/',
-            'secure' => !$debug,
+            'secure' => self::isHttps(),
             'httponly' => true,
             'samesite' => 'Lax',
         ]);
         session_start();
+    }
+
+    private static function isHttps(): bool
+    {
+        if (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off') {
+            return true;
+        }
+        if ((int) ($_SERVER['SERVER_PORT'] ?? 0) === 443) {
+            return true;
+        }
+        return strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
     }
 
     public static function get(string $key, mixed $default = null): mixed

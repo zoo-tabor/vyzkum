@@ -30,7 +30,7 @@ ini_set('display_startup_errors', $debug ? '1' : '0');
 
 // Sessions only in a web context (CLI tooling does not need them).
 if (PHP_SAPI !== 'cli') {
-    Session::start($debug);
+    Session::start();
 }
 
 Database::configure($config);
