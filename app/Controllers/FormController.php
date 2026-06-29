@@ -7,6 +7,7 @@ use App\Core\Csrf;
 use App\Core\Session;
 use App\Repositories\BreedRepository;
 use App\Repositories\FormRepository;
+use App\Repositories\FormResponseRepository;
 use App\Services\Auth;
 use App\Services\AuditService;
 use App\Services\BreedContext;
@@ -207,6 +208,22 @@ final class FormController
         (new FormRepository())->ensureDraft((int) $id);
         Session::flash('form_notice', 'Vytvorena nova (draft) verze - muzete upravovat.');
         redirect('/admin/forms/' . $id);
+    }
+
+    public function response(string $id): string
+    {
+        $repo = new FormResponseRepository();
+        $response = $repo->find((int) $id);
+        if ($response === null) {
+            http_response_code(404);
+            return view('errors/404', ['title' => 'Odpoved nenalezena']);
+        }
+
+        return view('admin/forms/response', [
+            'title' => 'Odpoved dotazniku',
+            'response' => $response,
+            'answers' => $repo->answers((int) $id),
+        ]);
     }
 
     /** @param array<int, string> $existing */

@@ -55,6 +55,8 @@ $router->group([new RequireRole('owner')], function (Router $router): void {
     $router->post('/portal/dogs/{id}/confirm', [$portal, 'confirm']);
     $router->post('/portal/dogs/{id}/death', [$portal, 'death']);
     $router->post('/portal/dogs/{id}/document', [$portal, 'uploadDocument']);
+    $router->get('/portal/dogs/{id}/forms/{defId}', [$portal, 'fillForm']);
+    $router->post('/portal/dogs/{id}/forms/{defId}', [$portal, 'submitForm']);
 });
 
 // Stahovani souboru (admin i majitel; autorizace v controlleru).
@@ -104,6 +106,7 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $forms = new FormController();
         $router->get('/admin/forms', [$forms, 'index']);
         $router->post('/admin/forms', [$forms, 'create']);
+        $router->get('/admin/forms/responses/{id}', [$forms, 'response']);
         $router->get('/admin/forms/{id}', [$forms, 'show']);
         $router->post('/admin/forms/{id}/publish', [$forms, 'publish']);
         $router->post('/admin/forms/{id}/new-version', [$forms, 'newVersion']);

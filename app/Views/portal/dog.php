@@ -64,6 +64,33 @@ $isDead = !empty($dog['death_date']);
 <?php endif; ?>
 
 <div class="card">
+    <h2>Dotazniky</h2>
+    <?php if (!empty($forms)): ?>
+        <ul>
+            <?php foreach ($forms as $f): ?>
+                <li>
+                    <?= e($f['name']) ?>
+                    <?php if ($isCurrent): ?>
+                        - <a href="/portal/dogs/<?= (int) $dog['id'] ?>/forms/<?= (int) $f['definition_id'] ?>">Vyplnit</a>
+                    <?php endif; ?>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    <?php else: ?>
+        <p class="muted">Pro toto plemeno zatim neni publikovany zadny dotaznik.</p>
+    <?php endif; ?>
+
+    <?php if (!empty($responses)): ?>
+        <h3>Odeslane dotazniky</h3>
+        <ul>
+            <?php foreach ($responses as $r): ?>
+                <li><?= e($r['form_name']) ?> (v<?= (int) $r['version'] ?>) - <?= e(\App\Support\Dates::toCz(substr((string) $r['submitted_at'], 0, 10))) ?></li>
+            <?php endforeach; ?>
+        </ul>
+    <?php endif; ?>
+</div>
+
+<div class="card">
     <h2>Zdravotni dokumenty</h2>
     <?php if ($documents === []): ?>
         <p class="muted">Zatim zadne dokumenty.</p>

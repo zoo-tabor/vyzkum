@@ -7,6 +7,7 @@ use App\Core\Csrf;
 use App\Core\Session;
 use App\Repositories\BreedRepository;
 use App\Repositories\DogRepository;
+use App\Repositories\FormResponseRepository;
 use App\Repositories\OwnerRepository;
 use App\Services\Auth;
 use App\Services\AuditService;
@@ -111,6 +112,7 @@ final class DogController
             'dog' => $dog,
             'currentOwner' => $repo->currentOwner((int) $id),
             'history' => $repo->ownersHistory((int) $id),
+            'responses' => (new FormResponseRepository())->responsesForDog((int) $id),
             'notice' => Session::flash('dog_notice'),
         ]);
     }

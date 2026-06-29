@@ -67,4 +67,25 @@ $row = static function (string $label, mixed $value): void {
     <?php endif; ?>
 </div>
 
+<div class="card">
+    <h2>Dotazniky (odpovedi)</h2>
+    <?php if (empty($responses)): ?>
+        <p class="muted">Zatim zadne odeslane dotazniky.</p>
+    <?php else: ?>
+        <table class="table">
+            <thead><tr><th>Dotaznik</th><th>Verze</th><th>Odeslano</th><th></th></tr></thead>
+            <tbody>
+            <?php foreach ($responses as $r): ?>
+                <tr>
+                    <td><?= e($r['form_name']) ?></td>
+                    <td>v<?= (int) $r['version'] ?></td>
+                    <td><?= e(\App\Support\Dates::toCz(substr((string) $r['submitted_at'], 0, 10))) ?></td>
+                    <td><a href="/admin/forms/responses/<?= (int) $r['id'] ?>">Zobrazit</a></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    <?php endif; ?>
+</div>
+
 <p><a href="/admin/dogs">&larr; Zpet na seznam</a></p>

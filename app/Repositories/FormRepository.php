@@ -68,6 +68,20 @@ final class FormRepository
         return $stmt->fetchAll();
     }
 
+    /** @return array<int, array<string, mixed>> publikovane dotazniky pro plemeno */
+    public function publishedFormsForBreed(int $breedId): array
+    {
+        $stmt = $this->pdo()->prepare(
+            'SELECT d.id AS definition_id, d.name, v.id AS version_id, v.version
+             FROM form_definitions d
+             JOIN form_versions v ON v.form_definition_id = d.id AND v.status = "published"
+             WHERE d.breed_id = :b
+             ORDER BY d.name ASC'
+        );
+        $stmt->execute(['b' => $breedId]);
+        return $stmt->fetchAll();
+    }
+
     // ----- Versions -----
 
     /** @return array<string, mixed>|null */

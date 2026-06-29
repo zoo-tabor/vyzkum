@@ -188,9 +188,16 @@ Cil: majitel se prihlasi a vidi sve psy; funguji pozvanky a notifikace.
 > klonovanim), typy otazek (kratka/dlouha odpoved, single/multiple choice, cislo,
 > datum, ano/ne, soubor), podminene otazky (visible_if), poradi (nahoru/dolu),
 > moznosti pres "klic|popisek". FormSchema (deterministicky slug + parseOptions)
-> +4 testy. ZBYVA B3: vyplneni dotazniku majitelem (render typu + podminek +
-> soubor u otazky + poznamka na konci + vestaveny blok naziva/umrti) + ulozeni
-> odpovedi (form_assignments/responses/answers) + admin prehled odpovedi.
+> +4 testy.
+>
+> STAV B3 (2026-06-29): HOTOVO. Migrace `005_form_responses.sql` (form_responses,
+> form_answers). Majitel vyplnuje dotaznik v portalu (/portal/dogs/{id}/forms/{defId}):
+> render vsech typu otazek, podminene otazky (JS show/hide + server skip pres
+> FormConditions), soubor u otazky (FileStorage), poznamka na konci, vestaveny blok
+> "je pes naziva? -> datum umrti" nahore (propis do psa). Ulozeni do form_responses/
+> form_answers (value_text = zobrazitelna hodnota + strukturovane sloupce). Admin
+> prehled: odpovedi na detailu psa + /admin/forms/responses/{id}. +4 testy
+> (FormConditions). FAZE 3 (+ form builder, puv. Faze 5) KOMPLETNI.
 
 ### 3.1 Mail modul (NEW)
 - [ ] NEW: `MailService` (SMTP z `.env`, `vyzkum@zootabor.eu`), sablony,

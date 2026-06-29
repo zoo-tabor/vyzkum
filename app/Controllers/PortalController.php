@@ -7,11 +7,14 @@ use App\Core\Csrf;
 use App\Core\Session;
 use App\Repositories\DogRepository;
 use App\Repositories\FilesRepository;
+use App\Repositories\FormRepository;
+use App\Repositories\FormResponseRepository;
 use App\Repositories\OwnerRepository;
 use App\Services\Auth;
 use App\Services\AuditService;
 use App\Support\Dates;
 use App\Support\FileStorage;
+use App\Support\FormConditions;
 
 final class PortalController
 {
@@ -46,9 +49,175 @@ final class PortalController
             'dog' => $dog,
             'relation' => $dogs->relation((int) $id, (int) $owner['id']),
             'documents' => $dogs->healthDocuments((int) $id),
+            'forms' => (new FormRepository())->publishedFormsForBreed((int) $dog['breed_id']),
+            'responses' => (new FormResponseRepository())->responsesForDog((int) $id),
             'notice' => Session::flash('portal_notice'),
             'error' => Session::flash('portal_error'),
         ]);
+    }
+
+    public function fillForm(string $id, string $defId): string
+    {
+        [$owner, $dog] = $this->ownerAndDog((int) $id, true);
+        if ($dog === null) {
+            http_response_code(404);
+            return view('errors/404', ['title' => 'Pes nenalezen']);
+        }
+
+        $forms = new FormRepository();
+        $def = $forms->findDefinition((int) $defId);
+        $version = $forms->publishedVersion((int) $defId);
+        if ($def === null || $version === null || (int) $def['breed_id'] !== (int) $dog['breed_id']) {
+            Session::flash('portal_error', 'Dotaznik neni dostupny.');
+            redirect('/portal/dogs/' . $id);
+        }
+
+        return view('portal/form', [
+            'title' => $def['name'],
+            'dog' => $dog,
+            'def' => $def,
+            'questions' => $forms->questions((int) $version['id']),
+            'options' => $forms->optionsByQuestion((int) $version['id']),
+            'error' => Session::flash('portal_error'),
+        ]);
+    }
+
+    public function submitForm(string $id, string $defId): string
+    {
+        Csrf::verify();
+        [$owner, $dog] = $this->ownerAndDog((int) $id, true);
+        if ($dog === null) {
+            Session::flash('portal_error', 'K tomuto psovi nemate pristup.');
+            redirect('/portal');
+        }
+
+        $forms = new FormRepository();
+        $def = $forms->findDefinition((int) $defId);
+        $version = $forms->publishedVersion((int) $defId);
+        if ($def === null || $version === null || (int) $def['breed_id'] !== (int) $dog['breed_id']) {
+            Session::flash('portal_error', 'Dotaznik neni dostupny.');
+            redirect('/portal/dogs/' . $id);
+        }
+
+        $questions = $forms->questions((int) $version['id']);
+        $optionsByQ = $forms->optionsByQuestion((int) $version['id']);
+
+        // 1) Mapa odpovedi podle klice (pro vyhodnoceni podminek).
+        $answersByKey = [];
+        foreach ($questions as $q) {
+            $field = 'q_' . (int) $q['id'];
+            $answersByKey[$q['question_key']] = $q['type'] === 'multiple_choice'
+                ? (array) ($_POST[$field] ?? [])
+                : (string) input($field);
+        }
+
+        // 2) Vestaveny blok "je pes naziva? -> datum umrti" -> propsani do psa.
+        $alive = (string) input('builtin_alive') !== 'no';
+        $deathIso = $alive ? null : Dates::fromCz((string) input('builtin_death_date'));
+        if (!$alive && $deathIso === null) {
+            Session::flash('portal_error', 'Zadejte platne datum umrti (DD.MM.RRRR).');
+            redirect('/portal/dogs/' . $id . '/forms/' . $defId);
+        }
+        $dogsRepo = new DogRepository();
+        $dogsRepo->setAliveStatus((int) $id, (int) $owner['id'], $alive, $deathIso, null);
+
+        // 3) Ulozeni odpovedi.
+        $responses = new FormResponseRepository();
+        $responseId = $responses->create((int) $version['id'], (int) $id, (int) $owner['id'], Auth::id(), trim((string) input('note')) ?: null);
+
+        foreach ($questions as $q) {
+            $config = !empty($q['config_json']) ? (json_decode((string) $q['config_json'], true) ?: []) : [];
+            if (!FormConditions::isVisible($config, $answersByKey)) {
+                continue;
+            }
+            $this->storeAnswer($responses, $responseId, $q, $optionsByQ[(int) $q['id']] ?? [], (string) $dog['breed_slug'], (int) $owner['id'], (int) $id);
+        }
+
+        AuditService::log(Auth::id(), 'owner', 'form_submitted', 'form_response', (string) $responseId, null, ['dog_id' => (int) $id]);
+        Session::flash('portal_notice', 'Dekujeme, dotaznik byl odeslan.');
+        redirect('/portal/dogs/' . $id);
+    }
+
+    /**
+     * @param array<string, mixed> $q
+     * @param array<int, array<string, mixed>> $options
+     */
+    private function storeAnswer(FormResponseRepository $responses, int $responseId, array $q, array $options, string $breedSlug, int $ownerId, int $dogId): void
+    {
+        $field = 'q_' . (int) $q['id'];
+        $type = (string) $q['type'];
+
+        switch ($type) {
+            case 'multiple_choice':
+                $selected = array_map('strval', (array) ($_POST[$field] ?? []));
+                if ($selected === []) {
+                    return;
+                }
+                $labels = [];
+                foreach ($options as $o) {
+                    if (in_array((string) $o['option_key'], $selected, true)) {
+                        $labels[] = $o['label'];
+                    }
+                }
+                $responses->addAnswer($responseId, (int) $q['id'], ['text' => implode(', ', $labels), 'json' => $selected]);
+                break;
+
+            case 'single_choice':
+                $key = (string) input($field);
+                if ($key === '') {
+                    return;
+                }
+                foreach ($options as $o) {
+                    if ((string) $o['option_key'] === $key) {
+                        $responses->addAnswer($responseId, (int) $q['id'], ['text' => $o['label'], 'option_id' => (int) $o['id'], 'json' => [$key]]);
+                        return;
+                    }
+                }
+                break;
+
+            case 'yes_no':
+                $val = (string) input($field);
+                if ($val === '') {
+                    return;
+                }
+                $responses->addAnswer($responseId, (int) $q['id'], ['text' => $val === 'yes' ? 'Ano' : 'Ne']);
+                break;
+
+            case 'number':
+                $val = trim((string) input($field));
+                if ($val === '') {
+                    return;
+                }
+                $responses->addAnswer($responseId, (int) $q['id'], ['text' => $val, 'number' => (float) str_replace(',', '.', $val)]);
+                break;
+
+            case 'date':
+                $val = trim((string) input($field)); // <input type=date> -> YYYY-MM-DD
+                if ($val === '' || !\App\Services\DogOwnerImporter::isDate($val)) {
+                    return;
+                }
+                $responses->addAnswer($responseId, (int) $q['id'], ['text' => Dates::toCz($val), 'date' => $val]);
+                break;
+
+            case 'file':
+                if (($_FILES[$field]['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+                    return;
+                }
+                try {
+                    $stored = FileStorage::store($_FILES[$field], $breedSlug, $ownerId, $dogId, 'form');
+                    $fileId = (new FilesRepository())->create('dog', $dogId, $stored['original'], $stored['relative'], $stored['mime'], $stored['size'], Auth::id());
+                    $responses->addAnswer($responseId, (int) $q['id'], ['text' => $stored['original'], 'json' => ['file_id' => $fileId]]);
+                } catch (\Throwable $e) {
+                    // tichy preskok jednoho souboru, zbytek dotazniku se ulozi
+                }
+                break;
+
+            default: // short_text, long_text
+                $val = trim((string) input($field));
+                if ($val !== '') {
+                    $responses->addAnswer($responseId, (int) $q['id'], ['text' => $val]);
+                }
+        }
     }
 
     public function confirm(string $id): string
