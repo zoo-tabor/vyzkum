@@ -1,44 +1,62 @@
 <?php
-/** @var array{ok:bool, config:array<string,mixed>, steps:array<int,array{step:string,ok:bool,detail:string}>, error:?string} $result */
+/** @var string $transport */
 /** @var bool $mailEnabled */
+/** @var string $from */
+/** @var array{ok:bool, config:array<string,mixed>, steps:array<int,array{step:string,ok:bool,detail:string}>, error:?string}|null $smtp */
+/** @var bool $mailFn */
+/** @var string|null $notice */
+/** @var string|null $error */
 ?>
-<div class="page-head"><h1>Test SMTP</h1></div>
+<div class="page-head"><h1>Mailova diagnostika</h1></div>
+
+<?php if (!empty($notice)): ?><div class="alert alert--ok"><?= e($notice) ?></div><?php endif; ?>
+<?php if (!empty($error)): ?><div class="alert alert--error"><?= e($error) ?></div><?php endif; ?>
 
 <div class="card">
     <p>
-        Konfigurace: <code><?= e($result['config']['host']) ?>:<?= (int) $result['config']['port'] ?></code>,
-        STARTTLS: <strong><?= $result['config']['starttls'] ? 'ano' : 'ne' ?></strong>,
-        uzivatel: <strong><?= e($result['config']['user']) ?></strong>,
+        Transport: <strong><?= $transport === 'smtp' ? 'SMTP' : 'PHP mail()' ?></strong>,
+        odesilatel: <code><?= e($from) ?></code>,
         MAIL_ENABLED: <strong><?= $mailEnabled ? 'true' : 'false' ?></strong>
     </p>
 
-    <?php if ($result['ok']): ?>
-        <div class="alert alert--ok">SMTP spojeni i prihlaseni proslo. Mail by mel fungovat.</div>
+    <?php if ($transport === 'smtp' && $smtp !== null): ?>
+        <?php if ($smtp['ok']): ?>
+            <div class="alert alert--ok">SMTP spojeni i prihlaseni proslo.</div>
+        <?php else: ?>
+            <div class="alert alert--error">SMTP test neprosel.<?= !empty($smtp['error']) ? ' ' . e($smtp['error']) : '' ?></div>
+        <?php endif; ?>
+        <table class="table">
+            <thead><tr><th>Krok</th><th>Vysledek</th><th>Detail</th></tr></thead>
+            <tbody>
+            <?php foreach ($smtp['steps'] as $s): ?>
+                <tr>
+                    <td><?= e($s['step']) ?></td>
+                    <td><?= $s['ok'] ? '<span style="color:var(--ok)">OK</span>' : '<span style="color:var(--danger)">CHYBA</span>' ?></td>
+                    <td><code><?= e($s['detail']) ?></code></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
     <?php else: ?>
-        <div class="alert alert--error">
-            SMTP test neprosel.<?= !empty($result['error']) ? ' Chyba: ' . e($result['error']) : '' ?>
-        </div>
+        <p>
+            Pouziva se <strong>PHP mail()</strong> (lokalni MTA hostingu) - vhodne pro wedos, kde je
+            odchozi SMTP port 25 blokovan. Funkce mail() je
+            <strong><?= $mailFn ? 'dostupna' : 'NEDOSTUPNA' ?></strong>.
+            Skutecne odeslani overite testovacim e-mailem nize.
+        </p>
     <?php endif; ?>
+</div>
 
-    <table class="table">
-        <thead><tr><th>Krok</th><th>Vysledek</th><th>Detail</th></tr></thead>
-        <tbody>
-        <?php foreach ($result['steps'] as $s): ?>
-            <tr>
-                <td><?= e($s['step']) ?></td>
-                <td><?= $s['ok'] ? '<span style="color:var(--ok)">OK</span>' : '<span style="color:var(--danger)">CHYBA</span>' ?></td>
-                <td><code><?= e($s['detail']) ?></code></td>
-            </tr>
-        <?php endforeach; ?>
-        </tbody>
-    </table>
-
-    <p class="muted">
-        Pokud uvazne uz na kroku <strong>connect</strong> (timeout / odmitnuto), server nedosahne na
-        port 25 - typicky blokovany odchozi port 25 na danem hostingu. Reseni: povolit odchozi 25
-        u poskytovatele, nebo nechat <code>MAIL_ENABLED=false</code> a brat odkazy z
-        <code>storage/logs/mail.log</code> (vyvoj). Mailserver ekospol nabizi jen port 25 (587 je zavreny).
-    </p>
-
-    <form method="get" action="/admin/diagnostics/smtp"><button class="btn" type="submit">Spustit test znovu</button></form>
+<div class="card">
+    <h2>Poslat testovaci e-mail</h2>
+    <?php if (!$mailEnabled): ?>
+        <p class="muted">MAIL_ENABLED je false - e-mail se reálně neodešle, jen zaloguje do <code>storage/logs/mail.log</code>.</p>
+    <?php endif; ?>
+    <form method="post" action="/admin/diagnostics/smtp/send-test">
+        <?= \App\Core\Csrf::field() ?>
+        <label for="to">E-mail prijemce</label>
+        <input type="email" id="to" name="to" required style="max-width:320px" placeholder="vas@email.cz">
+        <button type="submit" class="btn btn--primary">Odeslat test</button>
+    </form>
+    <p class="muted">Stav odeslani se zapise do tabulky <code>email_log</code>.</p>
 </div>

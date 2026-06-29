@@ -17,6 +17,8 @@ final class MailService
     {
         $cfg = Config::instance();
         $enabled = (bool) $cfg->get('MAIL_ENABLED', false);
+        // Vychozi transport je PHP mail() - na wedos je odchozi SMTP (port 25) blokovan.
+        $transport = strtolower((string) $cfg->get('MAIL_TRANSPORT', 'mail'));
 
         if (!$enabled) {
             self::logFile("[DISABLED] To: {$to}\nSubject: {$subject}\n\n{$body}\n" . str_repeat('-', 60) . "\n");
@@ -25,7 +27,11 @@ final class MailService
         }
 
         try {
-            self::smtpSend($cfg, $to, $subject, $body);
+            if ($transport === 'smtp') {
+                self::smtpSend($cfg, $to, $subject, $body);
+            } else {
+                self::mailSend($cfg, $to, $subject, $body);
+            }
             self::record($to, $subject, $template, 'sent', null);
             return true;
         } catch (\Throwable $e) {
@@ -139,6 +145,28 @@ final class MailService
             }
         }
         return implode(' | ', $out);
+    }
+
+    /** Odeslani pres PHP mail() - lokalni MTA hostingu (wedos). */
+    private static function mailSend(Config $cfg, string $to, string $subject, string $body): void
+    {
+        $from = (string) $cfg->get('SMTP_FROM', 'vyzkum@zootabor.eu');
+        $fromName = (string) $cfg->get('SMTP_FROM_NAME', 'Vyzkum Zoo Tabor');
+
+        $headers = [
+            'From: =?UTF-8?B?' . base64_encode($fromName) . '?= <' . $from . '>',
+            'MIME-Version: 1.0',
+            'Content-Type: text/plain; charset=UTF-8',
+            'Content-Transfer-Encoding: 8bit',
+        ];
+        $encodedSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
+        $body = str_replace(["\r\n", "\r"], "\n", $body);
+
+        // -f nastavi obalku odesilatele (SPF). Doména je hostovana na uctu, takze povoleno.
+        $ok = @mail($to, $encodedSubject, $body, implode("\r\n", $headers), '-f' . $from);
+        if ($ok !== true) {
+            throw new \RuntimeException('PHP mail() vratila false (MTA odmitlo nebo neni k dispozici).');
+        }
     }
 
     private static function smtpSend(Config $cfg, string $to, string $subject, string $body): void

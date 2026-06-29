@@ -93,7 +93,9 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $router->post('/admin/security/disable', [$twoFactor, 'disable']);
         $router->post('/admin/security/password', [$twoFactor, 'changePassword']);
 
-        $router->get('/admin/diagnostics/smtp', [new \App\Controllers\DiagnosticsController(), 'smtp']);
+        $diagnostics = new \App\Controllers\DiagnosticsController();
+        $router->get('/admin/diagnostics/smtp', [$diagnostics, 'smtp']);
+        $router->post('/admin/diagnostics/smtp/send-test', [$diagnostics, 'sendTest']);
     });
 });
 
