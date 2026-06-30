@@ -19,7 +19,7 @@ final class AuthController
         if (Auth::check()) {
             redirect(home_for(Auth::role()));
         }
-        return view('auth/login', ['title' => 'Prihlaseni']);
+        return view('auth/login', ['title' => 'Přihlášení']);
     }
 
     public function login(): string
@@ -32,8 +32,8 @@ final class AuthController
 
         if (RateLimiter::tooMany($key, self::MAX_ATTEMPTS, self::DECAY_SECONDS)) {
             return view('auth/login', [
-                'title' => 'Prihlaseni',
-                'error' => 'Prilis mnoho pokusu o prihlaseni. Zkuste to prosim za chvili.',
+                'title' => 'Přihlášení',
+                'error' => 'Příliš mnoho pokusů o přihlášení. Zkuste to prosím za chvíli.',
                 'email' => $email,
             ]);
         }
@@ -43,8 +43,8 @@ final class AuthController
             RateLimiter::hit($key, self::DECAY_SECONDS);
             AuditService::log(null, null, 'login_failed', 'user', $email !== '' ? $email : null);
             return view('auth/login', [
-                'title' => 'Prihlaseni',
-                'error' => 'Neplatne prihlasovaci udaje.',
+                'title' => 'Přihlášení',
+                'error' => 'Neplatné přihlašovací údaje.',
                 'email' => $email,
             ]);
         }

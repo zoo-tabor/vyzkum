@@ -4,39 +4,39 @@
 /** @var string|null $notice */
 /** @var string|null $error */
 ?>
-<div class="page-head"><h1>Klubove ucty</h1></div>
+<div class="page-head"><h1>Klubové účty</h1></div>
 
 <?php if (!empty($notice)): ?><div class="alert alert--ok"><?= e($notice) ?></div><?php endif; ?>
 <?php if (!empty($error)): ?><div class="alert alert--error"><?= e($error) ?></div><?php endif; ?>
 
 <div class="card">
-    <h2>Novy klubovy ucet</h2>
+    <h2>Nový klubový účet</h2>
     <form method="post" action="/admin/clubs">
         <?= \App\Core\Csrf::field() ?>
         <label for="email">E-mail klubu</label>
         <input type="email" id="email" name="email" required style="max-width:360px">
 
-        <label>Pristup k plemenum</label>
+        <label>Přístup k plemenům</label>
         <div style="columns:2; max-width:520px;">
             <?php foreach ($breeds as $b): ?>
                 <label class="inline" style="display:block"><input type="checkbox" name="breeds[]" value="<?= (int) $b['id'] ?>"> <?= e($b['name']) ?></label>
             <?php endforeach; ?>
         </div>
 
-        <button type="submit" class="btn btn--primary">Vytvorit a poslat pozvanku</button>
+        <button type="submit" class="btn btn--primary">Vytvořit a poslat pozvánku</button>
     </form>
-    <p class="muted">Vytvori ucet s roli klub (read-only) a posle odkaz pro nastaveni hesla.</p>
+    <p class="muted">Vytvoří účet s rolí klub (read-only) a pošle odkaz pro nastavení hesla.</p>
 </div>
 
 <div class="card">
-    <h2>Existujici kluby (<?= count($clubs) ?>)</h2>
+    <h2>Existující kluby (<?= count($clubs) ?>)</h2>
     <?php if ($clubs === []): ?>
-        <p class="muted">Zatim zadne klubove ucty.</p>
+        <p class="muted">Zatím žádné klubové účty.</p>
     <?php else: ?>
         <?php foreach ($clubs as $c): ?>
             <div style="border-top:1px solid var(--line); padding-top:0.75rem; margin-top:0.75rem;">
                 <strong><?= e($c['email']) ?></strong>
-                <?= empty($c['password_hash']) ? '<span class="muted">(heslo zatim nenastaveno)</span>' : '' ?>
+                <?= empty($c['password_hash']) ? '<span class="muted">(heslo zatím nenastaveno)</span>' : '' ?>
                 <form method="post" action="/admin/clubs/<?= (int) $c['id'] ?>/breeds">
                     <?= \App\Core\Csrf::field() ?>
                     <div style="columns:2; max-width:520px; margin:0.5rem 0;">
@@ -47,7 +47,7 @@
                             </label>
                         <?php endforeach; ?>
                     </div>
-                    <button type="submit" class="btn">Ulozit pristup</button>
+                    <button type="submit" class="btn">Uložit přístup</button>
                 </form>
             </div>
         <?php endforeach; ?>

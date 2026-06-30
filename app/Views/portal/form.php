@@ -9,7 +9,7 @@ $isDead = !empty($dog['death_date']);
 ?>
 <div class="page-head">
     <h1><?= e($def['name']) ?></h1>
-    <p class="muted">Pes: <?= e($dog['name']) ?> / <?= e($dog['breed_name']) ?> &middot; <a href="/portal/dogs/<?= (int) $dog['id'] ?>">zpet</a></p>
+    <p class="muted">Pes: <?= e($dog['name']) ?> / <?= e($dog['breed_name']) ?> &middot; <a href="/portal/dogs/<?= (int) $dog['id'] ?>">zpět</a></p>
 </div>
 
 <?php if (!empty($error)): ?><div class="alert alert--error"><?= e($error) ?></div><?php endif; ?>
@@ -19,11 +19,11 @@ $isDead = !empty($dog['death_date']);
         <?= \App\Core\Csrf::field() ?>
 
         <fieldset style="border:1px solid var(--line); border-radius:8px; padding:1rem; margin-bottom:1rem;">
-            <legend><strong>Je pes naziva?</strong></legend>
-            <label><input type="radio" name="builtin_alive" value="yes" <?= $isDead ? '' : 'checked' ?> onclick="document.getElementById('builtin-death').style.display='none'"> Ano, zije</label>
+            <legend><strong>Je pes naživu?</strong></legend>
+            <label><input type="radio" name="builtin_alive" value="yes" <?= $isDead ? '' : 'checked' ?> onclick="document.getElementById('builtin-death').style.display='none'"> Ano, žije</label>
             <label><input type="radio" name="builtin_alive" value="no" <?= $isDead ? 'checked' : '' ?> onclick="document.getElementById('builtin-death').style.display='block'"> Ne, uhynul</label>
             <div id="builtin-death" style="display:<?= $isDead ? 'block' : 'none' ?>; margin-top:0.5rem">
-                <label for="builtin_death_date">Datum umrti (DD.MM.RRRR)</label>
+                <label for="builtin_death_date">Datum úmrtí (DD.MM.RRRR)</label>
                 <input type="text" id="builtin_death_date" name="builtin_death_date" placeholder="DD.MM.RRRR"
                        value="<?= e(\App\Support\Dates::toCz($dog['death_date'] ?? null)) ?>" style="max-width:200px">
             </div>
@@ -70,10 +70,10 @@ $isDead = !empty($dog['death_date']);
             </div>
         <?php endforeach; ?>
 
-        <label for="note"><strong>Poznamka na zaver</strong></label>
-        <textarea id="note" name="note" rows="3" placeholder="Cokoliv, co se do dotazniku nevejde..."></textarea>
+        <label for="note"><strong>Poznámka na závěr</strong></label>
+        <textarea id="note" name="note" rows="3" placeholder="Cokoliv, co se do dotazníku nevejde..."></textarea>
 
-        <button type="submit" class="btn btn--primary">Odeslat dotaznik</button>
+        <button type="submit" class="btn btn--primary">Odeslat dotazník</button>
     </form>
 </div>
 

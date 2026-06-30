@@ -1,7 +1,7 @@
 <?php
 /** @var string $content */
 /** @var string|null $title */
-$pageTitle = isset($title) ? $title . ' - Vyzkum Zoo Tabor' : 'Vyzkum Zoo Tabor';
+$pageTitle = isset($title) ? $title . ' - Výzkum Zoo Tábor' : 'Výzkum Zoo Tábor';
 ?>
 <!DOCTYPE html>
 <html lang="cs">
@@ -13,7 +13,7 @@ $pageTitle = isset($title) ? $title . ' - Vyzkum Zoo Tabor' : 'Vyzkum Zoo Tabor'
 </head>
 <body>
 <header class="public-top">
-    <div class="public-brand">Vyzkum <span>Zoo Tabor</span></div>
+    <div class="public-brand">Výzkum <span>Zoo Tábor</span></div>
 </header>
 <main class="public-main">
     <?= $content ?>

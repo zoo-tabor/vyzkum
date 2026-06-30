@@ -10,47 +10,47 @@
 <?php if (!empty($error)): ?><div class="alert alert--error"><?= e($error) ?></div><?php endif; ?>
 
 <div class="card">
-    <h2>Ucet a prihlaseni</h2>
+    <h2>Účet a přihlášení</h2>
     <?php if (empty($primaryEmail)): ?>
-        <p class="muted">Majitel nema primarni e-mail. Doplnte ho, aby slo odeslat pozvanku pro nastaveni hesla.</p>
+        <p class="muted">Majitel nemá primární e-mail. Doplňte ho, aby šlo odeslat pozvánku pro nastavení hesla.</p>
     <?php elseif (!empty($account['has_password'])): ?>
-        <p>Majitel ma aktivni ucet (heslo nastaveno). Prihlasuje se e-mailem <strong><?= e($primaryEmail) ?></strong>.</p>
+        <p>Majitel má aktivní účet (heslo nastaveno). Přihlašuje se e-mailem <strong><?= e($primaryEmail) ?></strong>.</p>
     <?php else: ?>
         <?php if (!empty($account['has_invite']) && empty($account['invite_expired'])): ?>
-            <p class="muted">Pozvanka byla odeslana na <?= e($primaryEmail) ?> a ceka na nastaveni hesla.</p>
+            <p class="muted">Pozvánka byla odeslána na <?= e($primaryEmail) ?> a čeká na nastavení hesla.</p>
         <?php elseif (!empty($account['invite_expired'])): ?>
-            <p class="muted">Predchozi pozvanka vyprsela.</p>
+            <p class="muted">Předchozí pozvánka vypršela.</p>
         <?php endif; ?>
         <form method="post" action="/admin/owners/<?= (int) $owner['id'] ?>/send-password">
             <?= \App\Core\Csrf::field() ?>
             <button type="submit" class="btn btn--primary">
                 <?= !empty($account['has_invite']) ? 'Odeslat heslo znovu' : 'Odeslat heslo' ?>
             </button>
-            <span class="muted">Posle na <?= e($primaryEmail) ?> odkaz pro nastaveni hesla (plati 1 mesic).</span>
+            <span class="muted">Pošle na <?= e($primaryEmail) ?> odkaz pro nastavení hesla (platí 1 měsíc).</span>
         </form>
     <?php endif; ?>
 </div>
 
 <div class="card">
-    <h2>Kontaktni udaje</h2>
+    <h2>Kontaktní údaje</h2>
     <table class="table">
-        <tr><th style="width:200px">Jmeno</th><td><?= e(trim(($owner['first_name'] ?? '') . ' ' . ($owner['last_name'] ?? ''))) ?: e($owner['display_name']) ?></td></tr>
+        <tr><th style="width:200px">Jméno</th><td><?= e(trim(($owner['first_name'] ?? '') . ' ' . ($owner['last_name'] ?? ''))) ?: e($owner['display_name']) ?></td></tr>
         <tr><th>Adresa</th><td><?= e($owner['address'] ?? '') ?></td></tr>
-        <tr><th>Preferovany kontakt</th><td><?= e($owner['preferred_contact_method']) ?></td></tr>
+        <tr><th>Preferovaný kontakt</th><td><?= e($owner['preferred_contact_method']) ?></td></tr>
         <tr><th>Souhlas s kontaktem</th><td><?= ((int) $owner['contact_consent']) === 1 ? 'ano' : 'ne' ?></td></tr>
     </table>
 
     <h3>E-maily</h3>
-    <?php if ($emails === []): ?><p class="muted">Zadne e-maily.</p><?php else: ?>
+    <?php if ($emails === []): ?><p class="muted">Žádné e-maily.</p><?php else: ?>
         <ul>
             <?php foreach ($emails as $em): ?>
-                <li><?= e($em['email']) ?><?= ((int) $em['is_primary']) === 1 ? ' <strong>(primarni)</strong>' : '' ?></li>
+                <li><?= e($em['email']) ?><?= ((int) $em['is_primary']) === 1 ? ' <strong>(primární)</strong>' : '' ?></li>
             <?php endforeach; ?>
         </ul>
     <?php endif; ?>
 
     <h3>Telefony</h3>
-    <?php if ($phones === []): ?><p class="muted">Zadne telefony.</p><?php else: ?>
+    <?php if ($phones === []): ?><p class="muted">Žádné telefony.</p><?php else: ?>
         <ul>
             <?php foreach ($phones as $ph): ?>
                 <li><?= e($ph['phone']) ?><?= !empty($ph['label']) ? ' (' . e($ph['label']) . ')' : '' ?></li>
@@ -58,20 +58,20 @@
         </ul>
     <?php endif; ?>
 
-    <?php if (!empty($owner['note'])): ?><p><strong>Poznamka:</strong><br><?= nl2br(e($owner['note'])) ?></p><?php endif; ?>
+    <?php if (!empty($owner['note'])): ?><p><strong>Poznámka:</strong><br><?= nl2br(e($owner['note'])) ?></p><?php endif; ?>
 </div>
 
 <div class="card">
     <h2>Psi</h2>
-    <?php if ($dogs === []): ?><p class="muted">Tento majitel nema zadne psy.</p><?php else: ?>
+    <?php if ($dogs === []): ?><p class="muted">Tento majitel nemá žádné psy.</p><?php else: ?>
         <table class="table">
-            <thead><tr><th>Jmeno</th><th>Plemeno</th><th>Vztah</th></tr></thead>
+            <thead><tr><th>Jméno</th><th>Plemeno</th><th>Vztah</th></tr></thead>
             <tbody>
             <?php foreach ($dogs as $d): ?>
                 <tr>
                     <td><a href="/admin/dogs/<?= (int) $d['id'] ?>"><?= e($d['name']) ?></a></td>
                     <td><?= e($d['breed_name']) ?></td>
-                    <td><?= ((int) $d['is_current']) === 1 ? 'aktualni' : 'byvaly' ?></td>
+                    <td><?= ((int) $d['is_current']) === 1 ? 'aktuální' : 'bývalý' ?></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>
@@ -79,4 +79,4 @@
     <?php endif; ?>
 </div>
 
-<p><a href="/admin/owners">&larr; Zpet na seznam</a></p>
+<p><a href="/admin/owners">&larr; Zpět na seznam</a></p>

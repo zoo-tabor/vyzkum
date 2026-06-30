@@ -17,14 +17,14 @@ final class SetPasswordController
         $invite = (new InviteRepository())->findActiveByHash(TokenService::hash($token));
         if ($invite === null) {
             return view('auth/set_password', [
-                'title' => 'Nastaveni hesla',
+                'title' => 'Nastavení hesla',
                 'invalid' => true,
                 'token' => $token,
             ]);
         }
 
         return view('auth/set_password', [
-            'title' => 'Nastaveni hesla',
+            'title' => 'Nastavení hesla',
             'invalid' => false,
             'token' => $token,
         ]);
@@ -37,18 +37,18 @@ final class SetPasswordController
         $invites = new InviteRepository();
         $invite = $invites->findActiveByHash(TokenService::hash($token));
         if ($invite === null) {
-            return view('auth/set_password', ['title' => 'Nastaveni hesla', 'invalid' => true, 'token' => $token]);
+            return view('auth/set_password', ['title' => 'Nastavení hesla', 'invalid' => true, 'token' => $token]);
         }
 
         $password = (string) input('password');
         $confirm = (string) input('password_confirm');
         if (strlen($password) < 10) {
-            return view('auth/set_password', ['title' => 'Nastaveni hesla', 'invalid' => false, 'token' => $token,
-                'error' => 'Heslo musi mit aspon 10 znaku.']);
+            return view('auth/set_password', ['title' => 'Nastavení hesla', 'invalid' => false, 'token' => $token,
+                'error' => 'Heslo musí mít alespoň 10 znaků.']);
         }
         if ($password !== $confirm) {
-            return view('auth/set_password', ['title' => 'Nastaveni hesla', 'invalid' => false, 'token' => $token,
-                'error' => 'Hesla se neshoduji.']);
+            return view('auth/set_password', ['title' => 'Nastavení hesla', 'invalid' => false, 'token' => $token,
+                'error' => 'Hesla se neshodují.']);
         }
 
         $users = new UserRepository();

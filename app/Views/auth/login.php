@@ -3,8 +3,8 @@
 /** @var string|null $email */
 ?>
 <div class="card card--auth">
-    <h1>Prihlaseni</h1>
-    <p class="muted">CRM pro vyzkum plemen psu</p>
+    <h1>Přihlášení</h1>
+    <p class="muted">CRM pro výzkum plemen psů</p>
 
     <?php if (!empty($error)): ?>
         <div class="alert alert--error"><?= e($error) ?></div>
@@ -18,6 +18,6 @@
         <label for="password">Heslo</label>
         <input type="password" id="password" name="password" required autocomplete="current-password">
 
-        <button type="submit" class="btn btn--primary">Prihlasit se</button>
+        <button type="submit" class="btn btn--primary">Přihlásit se</button>
     </form>
 </div>

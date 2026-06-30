@@ -5,15 +5,15 @@
 /** @var array<int, array{normalized_code:string, c:int}> $examinations */
 /** @var array<int, array<string, mixed>> $recent */
 ?>
-<div class="page-head"><h1>Zdravi</h1></div>
+<div class="page-head"><h1>Zdraví</h1></div>
 
 <?php if ($breedId === null): ?>
-    <div class="card"><p class="muted">Vyberte plemeno v prepinaci nahore pro zobrazeni zdravotnich statistik.</p></div>
+    <div class="card"><p class="muted">Vyberte plemeno v přepínači nahoře pro zobrazení zdravotních statistik.</p></div>
 <?php else: ?>
     <div class="card">
-        <h2>Cetnost typu udalosti</h2>
-        <?php if ($byType === []): ?><p class="muted">Zadne zdravotni udalosti.</p><?php else: ?>
-            <table class="table"><thead><tr><th>Typ</th><th>Pocet</th></tr></thead><tbody>
+        <h2>Četnost typů událostí</h2>
+        <?php if ($byType === []): ?><p class="muted">Žádné zdravotní události.</p><?php else: ?>
+            <table class="table"><thead><tr><th>Typ</th><th>Počet</th></tr></thead><tbody>
                 <?php foreach ($byType as $r): ?><tr><td><?= e($r['event_type']) ?></td><td><?= (int) $r['c'] ?></td></tr><?php endforeach; ?>
             </tbody></table>
         <?php endif; ?>
@@ -29,7 +29,7 @@
             <?php endif; ?>
         </div>
         <div class="card">
-            <h2>Vysetreni</h2>
+            <h2>Vyšetření</h2>
             <?php if ($examinations === []): ?><p class="muted">-</p><?php else: ?>
                 <table class="table"><tbody>
                     <?php foreach ($examinations as $r): ?><tr><td><?= e($r['normalized_code']) ?></td><td><?= (int) $r['c'] ?></td></tr><?php endforeach; ?>
@@ -39,10 +39,10 @@
     </div>
 
     <div class="card">
-        <h2>Posledni udalosti</h2>
-        <?php if ($recent === []): ?><p class="muted">Zadne.</p><?php else: ?>
+        <h2>Poslední události</h2>
+        <?php if ($recent === []): ?><p class="muted">Žádné.</p><?php else: ?>
             <table class="table">
-                <thead><tr><th>Pes</th><th>Typ</th><th>Kod</th><th>Datum</th><th>Zdroj</th></tr></thead>
+                <thead><tr><th>Pes</th><th>Typ</th><th>Kód</th><th>Datum</th><th>Zdroj</th></tr></thead>
                 <tbody>
                 <?php foreach ($recent as $h): ?>
                     <tr>

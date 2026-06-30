@@ -1,7 +1,7 @@
 <?php
 /** @var string|null $error */
 ?>
-<div class="page-head"><h1>Novy majitel</h1></div>
+<div class="page-head"><h1>Nový majitel</h1></div>
 
 <?php if (!empty($error)): ?><div class="alert alert--error"><?= e($error) ?></div><?php endif; ?>
 
@@ -9,15 +9,15 @@
     <form method="post" action="/admin/owners">
         <?= \App\Core\Csrf::field() ?>
 
-        <label for="display_name">Zobrazovane jmeno *</label>
+        <label for="display_name">Zobrazované jméno *</label>
         <input type="text" id="display_name" name="display_name" value="<?= old('display_name') ?>" required>
 
         <div class="form-row">
-            <div><label for="first_name">Jmeno</label>
+            <div><label for="first_name">Jméno</label>
                 <input type="text" id="first_name" name="first_name" value="<?= old('first_name') ?>"></div>
-            <div><label for="last_name">Prijmeni</label>
+            <div><label for="last_name">Příjmení</label>
                 <input type="text" id="last_name" name="last_name" value="<?= old('last_name') ?>"></div>
-            <div><label for="preferred_contact_method">Preferovany kontakt</label>
+            <div><label for="preferred_contact_method">Preferovaný kontakt</label>
                 <select id="preferred_contact_method" name="preferred_contact_method">
                     <option value="email">e-mail</option>
                     <option value="phone">telefon</option>
@@ -27,21 +27,21 @@
         <label for="address">Adresa</label>
         <input type="text" id="address" name="address" value="<?= old('address') ?>">
 
-        <label for="primary_email">Primarni e-mail</label>
+        <label for="primary_email">Primární e-mail</label>
         <input type="email" id="primary_email" name="primary_email" value="<?= old('primary_email') ?>">
 
-        <label for="secondary_emails">Dalsi e-maily (oddelte strednikem)</label>
+        <label for="secondary_emails">Další e-maily (oddělte středníkem)</label>
         <input type="text" id="secondary_emails" name="secondary_emails" value="<?= old('secondary_emails') ?>">
 
-        <label for="phones">Telefony (oddelte strednikem)</label>
+        <label for="phones">Telefony (oddělte středníkem)</label>
         <input type="text" id="phones" name="phones" value="<?= old('phones') ?>">
 
-        <label class="inline"><input type="checkbox" name="contact_consent" value="1"> Souhlas s kontaktovanim</label>
+        <label class="inline"><input type="checkbox" name="contact_consent" value="1"> Souhlas s kontaktováním</label>
 
-        <label for="note">Poznamka</label>
+        <label for="note">Poznámka</label>
         <textarea id="note" name="note" rows="2"><?= old('note') ?></textarea>
 
-        <button type="submit" class="btn btn--primary">Vytvorit majitele</button>
-        <a class="btn" href="/admin/owners">Zrusit</a>
+        <button type="submit" class="btn btn--primary">Vytvořit majitele</button>
+        <a class="btn" href="/admin/owners">Zrušit</a>
     </form>
 </div>

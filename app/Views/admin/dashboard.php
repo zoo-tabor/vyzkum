@@ -6,7 +6,7 @@
     <h1>Dashboard</h1>
     <p class="muted">
         Kontext plemene:
-        <strong><?= $currentBreedId === null ? 'Vsechna plemena' : ('#' . (int) $currentBreedId) ?></strong>
+        <strong><?= $currentBreedId === null ? 'Všechna plemena' : ('#' . (int) $currentBreedId) ?></strong>
     </p>
 </div>
 
@@ -17,23 +17,14 @@
     </div>
     <div class="card stat">
         <div class="stat__value"><?= (int) $stats['users'] ?></div>
-        <div class="stat__label">Uzivatele</div>
+        <div class="stat__label">Uživatelé</div>
     </div>
     <div class="card stat">
         <div class="stat__value"><?= (int) $stats['owners'] ?></div>
-        <div class="stat__label">Majitele</div>
+        <div class="stat__label">Majitelé</div>
     </div>
     <div class="card stat">
         <div class="stat__value"><?= (int) $stats['clubs'] ?></div>
-        <div class="stat__label">Klubove ucty</div>
+        <div class="stat__label">Klubové účty</div>
     </div>
-</div>
-
-<div class="card">
-    <h2>Fáze 1 hotová</h2>
-    <p class="muted">
-        Bezi skelet, prihlaseni, role, prepinac plemene a audit log.
-        Dalsi moduly (psi, majitele, vzorky, formulare, genetika) prijdou v
-        nasledujicich fazich podle <code>PLAN_VYVOJE.md</code>.
-    </p>
 </div>

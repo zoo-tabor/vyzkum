@@ -47,10 +47,10 @@ final class FileStorage
     public static function store(array $file, string $breedSlug, int $ownerId, int $dogId, string $category): array
     {
         if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-            throw new \RuntimeException('Nahrani souboru selhalo.');
+            throw new \RuntimeException('Nahrání souboru selhalo.');
         }
         if ((int) $file['size'] > self::MAX_BYTES) {
-            throw new \RuntimeException('Soubor je prilis velky (max 10 MB).');
+            throw new \RuntimeException('Soubor je příliš velký (max 10 MB).');
         }
         $mime = mime_content_type((string) $file['tmp_name']) ?: '';
         if (!isset(self::ALLOWED[$mime])) {

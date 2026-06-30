@@ -3,47 +3,47 @@
 /** @var string|null $error */
 /** @var string|null $name */
 ?>
-<div class="page-head"><h1>Import psu a majitelu (CSV)</h1></div>
+<div class="page-head"><h1>Import psů a majitelů (CSV)</h1></div>
 
 <?php if (!empty($error)): ?><div class="alert alert--error"><?= e($error) ?></div><?php endif; ?>
 
 <div class="card">
-    <h2>Nahrat CSV</h2>
+    <h2>Nahrát CSV</h2>
     <p class="muted">
-        Sloupce dle sablony (poradi nerozhoduje, hlavicka podle nazvu).
-        <a href="/admin/import/template.csv">Stahnout prazdnou sablonu</a>.
-        Plemena musi existovat predem (zalozte je v sekci Plemena). Vice e-mailu/telefonu
-        oddelte strednikem. Datumy ve formatu YYYY-MM-DD. Sloupce sample_* se zatim
-        neimportuji (modul vzorku prijde pozdeji), sample_received_at se ulozi u psa.
+        Sloupce dle šablony (pořadí nerozhoduje, hlavička podle názvu).
+        <a href="/admin/import/template.csv">Stáhnout prázdnou šablonu</a>.
+        Plemena musí existovat předem (založte je v sekci Plemena). Více e-mailů/telefonů
+        oddělte středníkem. Datumy ve formátu YYYY-MM-DD. Sloupce sample_* se zatím
+        neimportují (modul vzorků přijde později), sample_received_at se uloží u psa.
     </p>
     <form method="post" action="/admin/import" enctype="multipart/form-data">
         <?= \App\Core\Csrf::field() ?>
         <input type="file" name="file" accept=".csv,text/csv" required>
-        <button type="submit" class="btn btn--primary">Nahrat a zkontrolovat</button>
+        <button type="submit" class="btn btn--primary">Nahrát a zkontrolovat</button>
     </form>
 </div>
 
 <?php if ($preview !== null): ?>
     <div class="card">
-        <h2>Nahled importu<?= !empty($name) ? ' - ' . e($name) : '' ?></h2>
+        <h2>Náhled importu<?= !empty($name) ? ' - ' . e($name) : '' ?></h2>
         <p>
-            Celkem radku: <strong><?= (int) $preview['summary']['total'] ?></strong>,
-            v poradku: <strong style="color:var(--ok)"><?= (int) $preview['summary']['valid'] ?></strong>,
+            Celkem řádků: <strong><?= (int) $preview['summary']['total'] ?></strong>,
+            v pořádku: <strong style="color:var(--ok)"><?= (int) $preview['summary']['valid'] ?></strong>,
             s chybou: <strong style="color:var(--danger)"><?= (int) $preview['summary']['invalid'] ?></strong>.
         </p>
 
         <?php if ($preview['summary']['valid'] > 0): ?>
-            <form method="post" action="/admin/import/commit" onsubmit="return confirm('Naimportovat <?= (int) $preview['summary']['valid'] ?> platnych radku?');">
+            <form method="post" action="/admin/import/commit" onsubmit="return confirm('Naimportovat <?= (int) $preview['summary']['valid'] ?> platných řádků?');">
                 <?= \App\Core\Csrf::field() ?>
-                <button type="submit" class="btn btn--primary">Potvrdit import (<?= (int) $preview['summary']['valid'] ?> radku)</button>
-                <span class="muted">Radky s chybou se preskoci.</span>
+                <button type="submit" class="btn btn--primary">Potvrdit import (<?= (int) $preview['summary']['valid'] ?> řádků)</button>
+                <span class="muted">Řádky s chybou se přeskočí.</span>
             </form>
         <?php else: ?>
-            <div class="alert alert--error">Zadny platny radek k importu. Opravte chyby a nahrajte znovu.</div>
+            <div class="alert alert--error">Žádný platný řádek k importu. Opravte chyby a nahrajte znovu.</div>
         <?php endif; ?>
 
         <table class="table" style="margin-top:1rem">
-            <thead><tr><th>Radek</th><th>Plemeno</th><th>Pes</th><th>Majitel</th><th>Stav</th></tr></thead>
+            <thead><tr><th>Řádek</th><th>Plemeno</th><th>Pes</th><th>Majitel</th><th>Stav</th></tr></thead>
             <tbody>
             <?php foreach (array_slice($preview['rows'], 0, 1000) as $row): ?>
                 <tr>
@@ -63,7 +63,7 @@
             </tbody>
         </table>
         <?php if (count($preview['rows']) > 1000): ?>
-            <p class="muted">Zobrazeno prvnich 1000 radku z <?= count($preview['rows']) ?>.</p>
+            <p class="muted">Zobrazeno prvních 1000 řádků z <?= count($preview['rows']) ?>.</p>
         <?php endif; ?>
     </div>
 <?php endif; ?>

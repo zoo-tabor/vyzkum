@@ -5,9 +5,9 @@
 /** @var string|null $notice */
 ?>
 <div class="page-head">
-    <h1>Vlakno - <?= e($thread['dog_name'] ?? ('#' . (int) $thread['entity_id'])) ?></h1>
+    <h1>Vlákno - <?= e($thread['dog_name'] ?? ('#' . (int) $thread['entity_id'])) ?></h1>
     <p>
-        <a href="/admin/messages">&larr; Zpet</a>
+        <a href="/admin/messages">&larr; Zpět</a>
         <?php if (($thread['entity_type'] ?? '') === 'dog'): ?>
             &middot; <a href="/admin/dogs/<?= (int) $thread['entity_id'] ?>">Detail psa</a>
         <?php endif; ?>
@@ -25,17 +25,17 @@
                 <option value="<?= e($s) ?>"<?= $thread['status'] === $s ? ' selected' : '' ?>><?= e($s) ?></option>
             <?php endforeach; ?>
         </select>
-        <button class="btn" type="submit">Ulozit stav</button>
+        <button class="btn" type="submit">Uložit stav</button>
     </form>
 </div>
 
 <div class="card">
     <?php if ($messages === []): ?>
-        <p class="muted">Zatim zadne zpravy.</p>
+        <p class="muted">Zatím žádné zprávy.</p>
     <?php else: ?>
         <?php foreach ($messages as $m): ?>
             <div style="border-top:1px solid var(--line); padding:0.5rem 0;">
-                <strong><?= ($m['sender_role'] ?? '') === 'owner' ? 'Majitel' : 'Vyzkumny tym' ?></strong>
+                <strong><?= ($m['sender_role'] ?? '') === 'owner' ? 'Majitel' : 'Výzkumný tým' ?></strong>
                 <span class="muted"><?= e($m['sender_email'] ?? '') ?> &middot; <?= e(\App\Support\Dates::toCz(substr((string) $m['created_at'], 0, 10))) ?></span>
                 <div><?= nl2br(e((string) $m['body'])) ?></div>
             </div>
@@ -44,8 +44,8 @@
 
     <form method="post" action="/admin/messages/<?= (int) $thread['id'] ?>/reply" style="margin-top:0.75rem">
         <?= \App\Core\Csrf::field() ?>
-        <label for="body">Odpoved</label>
+        <label for="body">Odpověď</label>
         <textarea id="body" name="body" rows="3" required></textarea>
-        <button type="submit" class="btn btn--primary">Odeslat odpoved</button>
+        <button type="submit" class="btn btn--primary">Odeslat odpověď</button>
     </form>
 </div>

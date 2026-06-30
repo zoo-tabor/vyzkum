@@ -27,7 +27,7 @@ final class OwnerController
         $rows = $repo->paginate($search, $pager->perPage, $pager->offset);
 
         return view('admin/owners/index', [
-            'title' => 'Majitele',
+            'title' => 'Majitelé',
             'owners' => $rows,
             'pager' => $pager,
             'search' => $search,
@@ -84,7 +84,7 @@ final class OwnerController
     public function create(): string
     {
         return view('admin/owners/form', [
-            'title' => 'Novy majitel',
+            'title' => 'Nový majitel',
             'error' => Session::flash('owner_error'),
         ]);
     }
@@ -95,13 +95,13 @@ final class OwnerController
 
         $displayName = trim((string) input('display_name'));
         if ($displayName === '') {
-            Session::flash('owner_error', 'Vyplnte jmeno majitele.');
+            Session::flash('owner_error', 'Vyplňte jméno majitele.');
             redirect('/admin/owners/new');
         }
 
         $primaryEmail = trim((string) input('primary_email'));
         if ($primaryEmail !== '' && !filter_var($primaryEmail, FILTER_VALIDATE_EMAIL)) {
-            Session::flash('owner_error', 'Primarni e-mail nema platny format.');
+            Session::flash('owner_error', 'Primární e-mail nemá platný formát.');
             redirect('/admin/owners/new');
         }
 
@@ -129,7 +129,7 @@ final class OwnerController
         }
 
         AuditService::log(Auth::id(), Auth::role(), 'owner_created', 'owner', (string) $id, null, ['display_name' => $displayName]);
-        Session::flash('owner_notice', 'Majitel byl vytvoren.');
+        Session::flash('owner_notice', 'Majitel byl vytvořen.');
         redirect('/admin/owners/' . $id);
     }
 

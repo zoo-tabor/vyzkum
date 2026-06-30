@@ -25,12 +25,12 @@ $qs = static function (array $over) use ($filters, $sort, $dir): string {
 
 <?php if (!empty($notice)): ?><div class="alert alert--ok"><?= e($notice) ?></div><?php endif; ?>
 <?php if (!empty($error)): ?><div class="alert alert--error"><?= e($error) ?></div><?php endif; ?>
-<p class="muted">PCR / geneticke vysledky jsou viditelne jen vyzkumnemu tymu a klubum, nikdy majitelum.</p>
+<p class="muted">PCR / genetické výsledky jsou viditelné jen výzkumnému týmu a klubům, nikdy majitelům.</p>
 
 <form method="get" action="/admin/genetics" class="card filters">
-    <input type="text" name="q" value="<?= e($filters['q']) ?>" placeholder="Jmeno psa">
+    <input type="text" name="q" value="<?= e($filters['q']) ?>" placeholder="Jméno psa">
     <select name="marker_id">
-        <option value="">Marker: vse</option>
+        <option value="">Marker: vše</option>
         <?php foreach ($markers as $m): ?>
             <option value="<?= (int) $m['id'] ?>"<?= (int) $filters['marker_id'] === (int) $m['id'] ? ' selected' : '' ?>><?= e($m['marker_code']) ?></option>
         <?php endforeach; ?>
@@ -42,15 +42,15 @@ $qs = static function (array $over) use ($filters, $sort, $dir): string {
         <?php endforeach; ?>
     </select>
     <select name="dir">
-        <option value="asc"<?= $dir === 'asc' ? ' selected' : '' ?>>vzestupne</option>
-        <option value="desc"<?= $dir === 'desc' ? ' selected' : '' ?>>sestupne</option>
+        <option value="asc"<?= $dir === 'asc' ? ' selected' : '' ?>>vzestupně</option>
+        <option value="desc"<?= $dir === 'desc' ? ' selected' : '' ?>>sestupně</option>
     </select>
     <button class="btn" type="submit">Filtrovat</button>
 </form>
 
 <div class="card">
     <?php if ($rows === []): ?>
-        <p class="muted">Zadne genotypy.</p>
+        <p class="muted">Žádné genotypy.</p>
     <?php else: ?>
         <table class="table">
             <thead><tr><th>Pes</th><th>Plemeno</th><th>Gen / marker</th><th>Genotyp</th><th>Datum testu</th><th>Stav</th></tr></thead>
@@ -70,15 +70,15 @@ $qs = static function (array $over) use ($filters, $sort, $dir): string {
         <div class="pager">
             <span class="muted"><?= $pager->from() ?>-<?= $pager->to() ?> z <?= $pager->total ?></span>
             <span>
-                <?php if ($pager->hasPrev()): ?><a class="btn" href="<?= e($qs(['page' => $pager->page - 1])) ?>">&larr; Predchozi</a><?php endif; ?>
-                <?php if ($pager->hasNext()): ?><a class="btn" href="<?= e($qs(['page' => $pager->page + 1])) ?>">Dalsi &rarr;</a><?php endif; ?>
+                <?php if ($pager->hasPrev()): ?><a class="btn" href="<?= e($qs(['page' => $pager->page - 1])) ?>">&larr; Předchozí</a><?php endif; ?>
+                <?php if ($pager->hasNext()): ?><a class="btn" href="<?= e($qs(['page' => $pager->page + 1])) ?>">Další &rarr;</a><?php endif; ?>
             </span>
         </div>
     <?php endif; ?>
 </div>
 
 <div class="card">
-    <h2>Rucni zadani genotypu</h2>
+    <h2>Ruční zadání genotypu</h2>
     <form method="post" action="/admin/genetics/manual" class="form-row">
         <?= \App\Core\Csrf::field() ?>
         <div><label for="dog_id">ID psa</label><input type="number" id="dog_id" name="dog_id" required></div>
@@ -92,7 +92,7 @@ $qs = static function (array $over) use ($filters, $sort, $dir): string {
             </select>
         </div>
         <div><label for="genotype">Genotyp</label><input type="text" id="genotype" name="genotype" placeholder="GG" required></div>
-        <div class="form-row__action"><button type="submit" class="btn btn--primary">Ulozit</button></div>
+        <div class="form-row__action"><button type="submit" class="btn btn--primary">Uložit</button></div>
     </form>
-    <p class="muted">ID psa najdete v sekci Psi (v URL detailu). Marker musite mit zalozeny (nebo vznikne pri CSV importu).</p>
+    <p class="muted">ID psa najdete v sekci Psi (v URL detailu). Marker musíte mít založený (nebo vznikne při CSV importu).</p>
 </div>

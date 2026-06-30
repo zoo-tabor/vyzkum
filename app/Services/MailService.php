@@ -65,19 +65,19 @@ final class MailService
 
         try {
             if ($host === '') {
-                throw new \RuntimeException('SMTP_HOST neni nastaven.');
+                throw new \RuntimeException('SMTP_HOST není nastaven.');
             }
             $t0 = microtime(true);
             $fp = @stream_socket_client("tcp://{$host}:{$port}", $errno, $errstr, 12);
             if ($fp === false) {
                 $add('connect ' . $host . ':' . $port, false, "{$errstr} ({$errno})");
-                throw new \RuntimeException('Spojeni se nepodarilo navazat (port nejspis blokovan).');
+                throw new \RuntimeException('Spojení se nepodařilo navázat (port nejspíš blokován).');
             }
             $add('connect ' . $host . ':' . $port, true, sprintf('%.0f ms', (microtime(true) - $t0) * 1000));
             stream_set_timeout($fp, 12);
 
             $banner = trim((string) fgets($fp, 515));
-            $add('banner', str_starts_with($banner, '220'), $banner !== '' ? $banner : '(zadna odpoved - timeout)');
+            $add('banner', str_starts_with($banner, '220'), $banner !== '' ? $banner : '(žádná odpověď - timeout)');
 
             fwrite($fp, "EHLO {$ehlo}\r\n");
             $caps = self::readAll($fp);
@@ -105,7 +105,7 @@ final class MailService
                 fgets($fp, 515);
                 fwrite($fp, base64_encode($pass) . "\r\n");
                 $r = trim((string) fgets($fp, 515));
-                $add('AUTH LOGIN', str_starts_with($r, '235'), str_starts_with($r, '235') ? '235 prihlaseni OK' : $r);
+                $add('AUTH LOGIN', str_starts_with($r, '235'), str_starts_with($r, '235') ? '235 přihlášení OK' : $r);
             }
 
             fwrite($fp, "QUIT\r\n");
@@ -122,7 +122,7 @@ final class MailService
                 'host' => $host,
                 'port' => $port,
                 'starttls' => $startTls,
-                'user' => $user !== '' ? '(nastaven)' : '(prazdny)',
+                'user' => $user !== '' ? '(nastaven)' : '(prázdný)',
             ],
             'steps' => $steps,
             'error' => $error,
@@ -151,7 +151,7 @@ final class MailService
     private static function mailSend(Config $cfg, string $to, string $subject, string $body): void
     {
         $from = (string) $cfg->get('SMTP_FROM', 'vyzkum@zootabor.eu');
-        $fromName = (string) $cfg->get('SMTP_FROM_NAME', 'Vyzkum Zoo Tabor');
+        $fromName = (string) $cfg->get('SMTP_FROM_NAME', 'Výzkum Zoo Tábor');
 
         $headers = [
             'From: =?UTF-8?B?' . base64_encode($fromName) . '?= <' . $from . '>',
@@ -165,7 +165,7 @@ final class MailService
         // -f nastavi obalku odesilatele (SPF). Doména je hostovana na uctu, takze povoleno.
         $ok = @mail($to, $encodedSubject, $body, implode("\r\n", $headers), '-f' . $from);
         if ($ok !== true) {
-            throw new \RuntimeException('PHP mail() vratila false (MTA odmitlo nebo neni k dispozici).');
+            throw new \RuntimeException('PHP mail() vrátila false (MTA odmítlo nebo není k dispozici).');
         }
     }
 
@@ -177,16 +177,16 @@ final class MailService
         $pass = (string) $cfg->get('SMTP_PASS', '');
         $startTls = (bool) $cfg->get('SMTP_USE_STARTTLS', true);
         $from = (string) $cfg->get('SMTP_FROM', 'vyzkum@zootabor.eu');
-        $fromName = (string) $cfg->get('SMTP_FROM_NAME', 'Vyzkum Zoo Tabor');
+        $fromName = (string) $cfg->get('SMTP_FROM_NAME', 'Výzkum Zoo Tábor');
         $ehlo = parse_url((string) $cfg->get('APP_URL', 'localhost'), PHP_URL_HOST) ?: 'localhost';
 
         if ($host === '') {
-            throw new \RuntimeException('SMTP_HOST neni nastaven.');
+            throw new \RuntimeException('SMTP_HOST není nastaven.');
         }
 
         $fp = @stream_socket_client("tcp://{$host}:{$port}", $errno, $errstr, 15);
         if ($fp === false) {
-            throw new \RuntimeException("SMTP pripojeni selhalo: {$errstr} ({$errno})");
+            throw new \RuntimeException("SMTP připojení selhalo: {$errstr} ({$errno})");
         }
         stream_set_timeout($fp, 15);
 
@@ -202,7 +202,7 @@ final class MailService
                 $crypto |= STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
             }
             if (!stream_socket_enable_crypto($fp, true, $crypto)) {
-                throw new \RuntimeException('STARTTLS se nepodarilo navazat.');
+                throw new \RuntimeException('STARTTLS se nepodařilo navázat.');
             }
             self::cmd($fp, "EHLO {$ehlo}");
             self::readMultiline($fp, '250');
@@ -242,7 +242,7 @@ final class MailService
     {
         $line = (string) fgets($fp, 515);
         if (strncmp($line, $code, 3) !== 0) {
-            throw new \RuntimeException("SMTP: ocekavano {$code}, server vratil: " . trim($line));
+            throw new \RuntimeException("SMTP: očekáváno {$code}, server vrátil: " . trim($line));
         }
     }
 
@@ -252,7 +252,7 @@ final class MailService
         do {
             $line = (string) fgets($fp, 515);
             if ($line === '' || strncmp($line, $code, 3) !== 0) {
-                throw new \RuntimeException("SMTP: ocekavano {$code}, server vratil: " . trim($line));
+                throw new \RuntimeException("SMTP: očekáváno {$code}, server vrátil: " . trim($line));
             }
             $continued = isset($line[3]) && $line[3] === '-';
         } while ($continued);

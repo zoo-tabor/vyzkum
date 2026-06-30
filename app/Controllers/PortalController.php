@@ -70,12 +70,12 @@ final class PortalController
         Csrf::verify();
         [$owner, $dog] = $this->ownerAndDog((int) $id, true);
         if ($dog === null) {
-            Session::flash('portal_error', 'K tomuto psovi nemate pristup.');
+            Session::flash('portal_error', 'K tomuto psovi nemáte přístup.');
             redirect('/portal');
         }
         $body = trim((string) input('body'));
         if ($body === '') {
-            Session::flash('portal_error', 'Zprava nesmi byt prazdna.');
+            Session::flash('portal_error', 'Zpráva nesmí být prázdná.');
             redirect('/portal/dogs/' . $id);
         }
 
@@ -83,7 +83,7 @@ final class PortalController
         $threadId = $messages->findOrCreateDogThread((int) $id, Auth::id());
         $messages->addMessage($threadId, Auth::id(), 'owner', $body, 'open');
         AuditService::log(Auth::id(), 'owner', 'message_sent', 'dog', $id);
-        Session::flash('portal_notice', 'Zprava odeslana vyzkumnemu tymu.');
+        Session::flash('portal_notice', 'Zpráva odeslána výzkumnému týmu.');
         redirect('/portal/dogs/' . $id);
     }
 
@@ -92,14 +92,14 @@ final class PortalController
         Csrf::verify();
         [$owner, $dog] = $this->ownerAndDog((int) $id, true);
         if ($dog === null) {
-            Session::flash('portal_error', 'K tomuto psovi nemate pristup.');
+            Session::flash('portal_error', 'K tomuto psovi nemáte přístup.');
             redirect('/portal');
         }
 
         $name = trim((string) input('new_owner_name'));
         $email = trim((string) input('new_owner_email'));
         if ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            Session::flash('portal_error', 'Zadejte jmeno a platny e-mail noveho majitele.');
+            Session::flash('portal_error', 'Zadejte jméno a platný e-mail nového majitele.');
             redirect('/portal/dogs/' . $id);
         }
 
@@ -121,7 +121,7 @@ final class PortalController
         $def = $forms->findDefinition((int) $defId);
         $version = $forms->publishedVersion((int) $defId);
         if ($def === null || $version === null || (int) $def['breed_id'] !== (int) $dog['breed_id']) {
-            Session::flash('portal_error', 'Dotaznik neni dostupny.');
+            Session::flash('portal_error', 'Dotazník není dostupný.');
             redirect('/portal/dogs/' . $id);
         }
 
@@ -140,7 +140,7 @@ final class PortalController
         Csrf::verify();
         [$owner, $dog] = $this->ownerAndDog((int) $id, true);
         if ($dog === null) {
-            Session::flash('portal_error', 'K tomuto psovi nemate pristup.');
+            Session::flash('portal_error', 'K tomuto psovi nemáte přístup.');
             redirect('/portal');
         }
 
@@ -148,7 +148,7 @@ final class PortalController
         $def = $forms->findDefinition((int) $defId);
         $version = $forms->publishedVersion((int) $defId);
         if ($def === null || $version === null || (int) $def['breed_id'] !== (int) $dog['breed_id']) {
-            Session::flash('portal_error', 'Dotaznik neni dostupny.');
+            Session::flash('portal_error', 'Dotazník není dostupný.');
             redirect('/portal/dogs/' . $id);
         }
 
@@ -168,7 +168,7 @@ final class PortalController
         $alive = (string) input('builtin_alive') !== 'no';
         $deathIso = $alive ? null : Dates::fromCz((string) input('builtin_death_date'));
         if (!$alive && $deathIso === null) {
-            Session::flash('portal_error', 'Zadejte platne datum umrti (DD.MM.RRRR).');
+            Session::flash('portal_error', 'Zadejte platné datum úmrtí (DD.MM.RRRR).');
             redirect('/portal/dogs/' . $id . '/forms/' . $defId);
         }
         $dogsRepo = new DogRepository();
@@ -188,7 +188,7 @@ final class PortalController
         }
 
         AuditService::log(Auth::id(), 'owner', 'form_submitted', 'form_response', (string) $responseId, null, ['dog_id' => (int) $id]);
-        Session::flash('portal_notice', 'Dekujeme, dotaznik byl odeslan.');
+        Session::flash('portal_notice', 'Děkujeme, dotazník byl odeslán.');
         redirect('/portal/dogs/' . $id);
     }
 
@@ -279,13 +279,13 @@ final class PortalController
         Csrf::verify();
         [$owner, $dog] = $this->ownerAndDog((int) $id, true);
         if ($dog === null) {
-            Session::flash('portal_error', 'K tomuto psovi nemate pristup.');
+            Session::flash('portal_error', 'K tomuto psovi nemáte přístup.');
             redirect('/portal');
         }
 
         (new DogRepository())->confirmOwnership((int) $id, (int) $owner['id']);
         AuditService::log(Auth::id(), 'owner', 'dog_confirmed', 'dog', $id);
-        Session::flash('portal_notice', 'Potvrdili jste, ze pes je stale vas. Dekujeme.');
+        Session::flash('portal_notice', 'Potvrdili jste, že pes je stále váš. Děkujeme.');
         redirect('/portal/dogs/' . $id);
     }
 
@@ -294,7 +294,7 @@ final class PortalController
         Csrf::verify();
         [$owner, $dog] = $this->ownerAndDog((int) $id, true);
         if ($dog === null) {
-            Session::flash('portal_error', 'K tomuto psovi nemate pristup.');
+            Session::flash('portal_error', 'K tomuto psovi nemáte přístup.');
             redirect('/portal');
         }
 
@@ -304,16 +304,16 @@ final class PortalController
         if (!$alive) {
             $deathIso = Dates::fromCz((string) input('death_date'));
             if ($deathIso === null) {
-                Session::flash('portal_error', 'Zadejte platne datum umrti ve formatu DD.MM.RRRR.');
+                Session::flash('portal_error', 'Zadejte platné datum úmrtí ve formátu DD.MM.RRRR.');
                 redirect('/portal/dogs/' . $id);
             }
             (new DogRepository())->setAliveStatus((int) $id, (int) $owner['id'], false, $deathIso, $note);
             AuditService::log(Auth::id(), 'owner', 'dog_death_reported', 'dog', $id, null, ['death_date' => $deathIso]);
-            Session::flash('portal_notice', 'Dekujeme, zaznamenali jsme datum umrti.');
+            Session::flash('portal_notice', 'Děkujeme, zaznamenali jsme datum úmrtí.');
         } else {
             (new DogRepository())->setAliveStatus((int) $id, (int) $owner['id'], true, null, $note);
             AuditService::log(Auth::id(), 'owner', 'dog_alive_confirmed', 'dog', $id);
-            Session::flash('portal_notice', 'Dekujeme za potvrzeni, ze pes zije.');
+            Session::flash('portal_notice', 'Děkujeme za potvrzení, že pes žije.');
         }
         redirect('/portal/dogs/' . $id);
     }
@@ -323,7 +323,7 @@ final class PortalController
         Csrf::verify();
         [$owner, $dog] = $this->ownerAndDog((int) $id, true);
         if ($dog === null) {
-            Session::flash('portal_error', 'K tomuto psovi nemate pristup.');
+            Session::flash('portal_error', 'K tomuto psovi nemáte přístup.');
             redirect('/portal');
         }
 
@@ -332,9 +332,9 @@ final class PortalController
             $fileId = (new FilesRepository())->create('dog', (int) $id, $stored['original'], $stored['relative'], $stored['mime'], $stored['size'], Auth::id());
             (new DogRepository())->addHealthDocument((int) $id, (int) $owner['id'], $fileId, trim((string) input('document_type')) ?: null, Dates::fromCz((string) input('document_date')), trim((string) input('note')) ?: null);
             AuditService::log(Auth::id(), 'owner', 'health_document_uploaded', 'dog', $id, null, ['file_id' => $fileId]);
-            Session::flash('portal_notice', 'Dokument byl nahran.');
+            Session::flash('portal_notice', 'Dokument byl nahrán.');
         } catch (\Throwable $e) {
-            Session::flash('portal_error', 'Nahrani se nepodarilo: ' . $e->getMessage());
+            Session::flash('portal_error', 'Nahrání se nepodařilo: ' . $e->getMessage());
         }
         redirect('/portal/dogs/' . $id);
     }
@@ -348,7 +348,7 @@ final class PortalController
         }
 
         return view('portal/contacts', [
-            'title' => 'Moje kontaktni udaje',
+            'title' => 'Moje kontaktní údaje',
             'owner' => $owner,
             'primaryEmail' => $repo->primaryEmail((int) $owner['id']),
             'secondaryEmails' => array_values(array_filter($repo->emails((int) $owner['id']), static fn ($e) => (int) $e['is_primary'] === 0)),
@@ -372,7 +372,7 @@ final class PortalController
         $repo->replaceSecondaryEmails((int) $owner['id'], $this->splitList((string) input('secondary_emails')));
 
         AuditService::log(Auth::id(), 'owner', 'owner_contacts_updated', 'owner', (string) $owner['id']);
-        Session::flash('portal_notice', 'Kontaktni udaje byly ulozeny.');
+        Session::flash('portal_notice', 'Kontaktní údaje byly uloženy.');
         redirect('/portal/contacts');
     }
 

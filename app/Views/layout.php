@@ -2,7 +2,7 @@
 /** @var string $content */
 /** @var string|null $title */
 $user = \App\Services\Auth::user();
-$pageTitle = isset($title) ? $title . ' - Vyzkum Zoo Tabor' : 'Vyzkum Zoo Tabor';
+$pageTitle = isset($title) ? $title . ' - Výzkum Zoo Tábor' : 'Výzkum Zoo Tábor';
 $isOwner = $user !== null && ($user['role'] ?? '') === 'owner';
 $isClub = $user !== null && ($user['role'] ?? '') === 'club_viewer';
 
@@ -17,12 +17,12 @@ if ($user !== null && !$isOwner) {
 $nav = [
     ['/admin', 'Dashboard', true],
     ['/admin/dogs', 'Psi', true],
-    ['/admin/owners', 'Majitele', true],
+    ['/admin/owners', 'Majitelé', true],
     ['/admin/samples', 'Vzorky', true],
-    ['/admin/forms', 'Formulare', true],
-    ['/admin/health', 'Zdravi', true],
+    ['/admin/forms', 'Formuláře', true],
+    ['/admin/health', 'Zdraví', true],
     ['/admin/genetics', 'Genetika', true],
-    ['/admin/messages', 'Zpravy', true],
+    ['/admin/messages', 'Zprávy', true],
     ['#', 'Statistiky', false],
 ];
 $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
@@ -38,12 +38,12 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
 <body>
 <?php if ($user !== null && $isOwner): ?>
     <header class="topbar">
-        <div class="topbar__brand"><a href="/portal">Vyzkum <span>Zoo Tabor</span></a></div>
+        <div class="topbar__brand"><a href="/portal">Výzkum <span>Zoo Tábor</span></a></div>
         <div class="topbar__user">
             <span class="topbar__email"><?= e($user['email']) ?></span>
             <form method="post" action="/logout" class="inline">
                 <?= \App\Core\Csrf::field() ?>
-                <button type="submit" class="btn btn--ghost">Odhlasit</button>
+                <button type="submit" class="btn btn--ghost">Odhlásit</button>
             </form>
         </div>
     </header>
@@ -52,20 +52,20 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
     </main>
 <?php elseif ($user !== null && $isClub): ?>
     <header class="topbar">
-        <div class="topbar__brand"><a href="/club">Vyzkum <span>Zoo Tabor</span></a></div>
+        <div class="topbar__brand"><a href="/club">Výzkum <span>Zoo Tábor</span></a></div>
         <div class="topbar__user">
             <span class="topbar__email"><?= e($user['email']) ?></span>
             <span class="topbar__role">klub</span>
             <form method="post" action="/logout" class="inline">
                 <?= \App\Core\Csrf::field() ?>
-                <button type="submit" class="btn btn--ghost">Odhlasit</button>
+                <button type="submit" class="btn btn--ghost">Odhlásit</button>
             </form>
         </div>
     </header>
     <div class="shell">
         <nav class="sidebar">
             <ul>
-                <li><a href="/club" class="<?= $currentPath === '/club' ? 'active' : '' ?>">Prehled</a></li>
+                <li><a href="/club" class="<?= $currentPath === '/club' ? 'active' : '' ?>">Přehled</a></li>
                 <li><a href="/club/dogs" class="<?= $currentPath === '/club/dogs' ? 'active' : '' ?>">Psi</a></li>
             </ul>
         </nav>
@@ -74,21 +74,21 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
 <?php elseif ($user !== null): ?>
     <header class="topbar">
         <div class="topbar__brand">
-            <a href="/admin">Vyzkum <span>Zoo Tabor</span></a>
+            <a href="/admin">Výzkum <span>Zoo Tábor</span></a>
         </div>
 
         <form class="breed-switch" method="post" action="/admin/breed-context">
             <?= \App\Core\Csrf::field() ?>
             <label for="breed_id">Plemeno:</label>
             <select id="breed_id" name="breed_id" onchange="this.form.submit()">
-                <option value="all"<?= $currentBreedId === null ? ' selected' : '' ?>>Vsechna plemena</option>
+                <option value="all"<?= $currentBreedId === null ? ' selected' : '' ?>>Všechna plemena</option>
                 <?php foreach ($accessibleBreeds as $breed): ?>
                     <option value="<?= (int) $breed['id'] ?>"<?= $currentBreedId === (int) $breed['id'] ? ' selected' : '' ?>>
                         <?= e($breed['name']) ?>
                     </option>
                 <?php endforeach; ?>
             </select>
-            <noscript><button type="submit">Prepnout</button></noscript>
+            <noscript><button type="submit">Přepnout</button></noscript>
         </form>
 
         <div class="topbar__user">
@@ -96,7 +96,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
             <span class="topbar__role"><?= e($user['role']) ?></span>
             <form method="post" action="/logout" class="inline">
                 <?= \App\Core\Csrf::field() ?>
-                <button type="submit" class="btn btn--ghost">Odhlasit</button>
+                <button type="submit" class="btn btn--ghost">Odhlásit</button>
             </form>
         </div>
     </header>
@@ -114,17 +114,17 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
                     <li>
                         <a href="<?= e($href) ?>"
                            class="<?= $active ? 'active' : '' ?> <?= $enabled ? '' : 'disabled' ?>"
-                           <?= $enabled ? '' : 'title="Pripravuje se v dalsi fazi"' ?>>
+                           <?= $enabled ? '' : 'title="Připravuje se v další fázi"' ?>>
                             <?= e($label) ?>
                         </a>
                     </li>
                 <?php endforeach; ?>
                 <?php if (($user['role'] ?? '') === 'research_admin'): ?>
-                    <li class="sidebar__section">Nastaveni</li>
+                    <li class="sidebar__section">Nastavení</li>
                     <li><a href="/admin/breeds" class="<?= $currentPath === '/admin/breeds' ? 'active' : '' ?>">Plemena</a></li>
                     <li><a href="/admin/clubs" class="<?= str_starts_with((string) $currentPath, '/admin/clubs') ? 'active' : '' ?>">Kluby</a></li>
                     <li><a href="/admin/import" class="<?= str_starts_with((string) $currentPath, '/admin/import') ? 'active' : '' ?>">Import CSV</a></li>
-                    <li><a href="/admin/security" class="<?= $currentPath === '/admin/security' ? 'active' : '' ?>">Zabezpeceni</a></li>
+                    <li><a href="/admin/security" class="<?= $currentPath === '/admin/security' ? 'active' : '' ?>">Zabezpečení</a></li>
                 <?php endif; ?>
             </ul>
         </nav>

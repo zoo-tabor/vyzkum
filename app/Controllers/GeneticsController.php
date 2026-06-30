@@ -89,7 +89,7 @@ final class GeneticsController
         $split = Genetics::splitGenotype($value);
 
         if ($dog === null || $markerId <= 0 || $split === null) {
-            Session::flash('genetics_error', 'Zadejte platne ID psa, marker a genotyp.');
+            Session::flash('genetics_error', 'Zadejte platné ID psa, marker a genotyp.');
             redirect('/admin/genetics');
         }
 
@@ -104,7 +104,7 @@ final class GeneticsController
             'manual'
         );
         AuditService::log(Auth::id(), Auth::role(), 'genotype_manual', 'dog', (string) $dogId, null, ['marker_id' => $markerId, 'genotype' => $split['genotype']]);
-        Session::flash('genetics_notice', 'Genotyp ulozen.');
+        Session::flash('genetics_notice', 'Genotyp uložen.');
         redirect('/admin/genetics');
     }
 
@@ -129,7 +129,7 @@ final class GeneticsController
             redirect('/admin/genetics/markers');
         }
         (new GeneRepository())->createGene($symbol, trim((string) input('name')) ?: null, trim((string) input('description')) ?: null);
-        Session::flash('genetics_notice', 'Gen pridan.');
+        Session::flash('genetics_notice', 'Gen přidán.');
         redirect('/admin/genetics/markers');
     }
 
@@ -139,7 +139,7 @@ final class GeneticsController
         $geneId = (int) input('gene_id');
         $code = trim((string) input('marker_code'));
         if ($geneId <= 0 || $code === '') {
-            Session::flash('genetics_error', 'Vyberte gen a zadejte kod markeru.');
+            Session::flash('genetics_error', 'Vyberte gen a zadejte kód markeru.');
             redirect('/admin/genetics/markers');
         }
         (new GeneRepository())->createMarker(
@@ -150,14 +150,14 @@ final class GeneticsController
             trim((string) input('alternate_allele')) ?: null,
             trim((string) input('allowed_values')) ?: null
         );
-        Session::flash('genetics_notice', 'Marker pridan.');
+        Session::flash('genetics_notice', 'Marker přidán.');
         redirect('/admin/genetics/markers');
     }
 
     public function importForm(): string
     {
         return view('admin/genetics/import', [
-            'title' => 'Import genotypu',
+            'title' => 'Import genotypů',
             'preview' => null,
             'error' => Session::flash('genetics_error'),
         ]);
@@ -172,7 +172,7 @@ final class GeneticsController
             redirect('/admin/genetics/import');
         }
         if ((int) $file['size'] > 2 * 1024 * 1024) {
-            Session::flash('genetics_error', 'Soubor je prilis velky (max 2 MB).');
+            Session::flash('genetics_error', 'Soubor je příliš velký (max 2 MB).');
             redirect('/admin/genetics/import');
         }
 
@@ -182,7 +182,7 @@ final class GeneticsController
         $preview = (new GeneticsImportService())->preview($parsed);
 
         return view('admin/genetics/import', [
-            'title' => 'Import genotypu - nahled',
+            'title' => 'Import genotypů - náhled',
             'preview' => $preview,
             'error' => null,
         ]);
@@ -193,7 +193,7 @@ final class GeneticsController
         Csrf::verify();
         $content = Session::get('genetics_csv');
         if (!is_string($content) || $content === '') {
-            Session::flash('genetics_error', 'Relace importu vyprsela, nahrajte soubor znovu.');
+            Session::flash('genetics_error', 'Relace importu vypršela, nahrajte soubor znovu.');
             redirect('/admin/genetics/import');
         }
         $result = (new GeneticsImportService())->commit(Csv::parse($content), Auth::id());
@@ -201,7 +201,7 @@ final class GeneticsController
         Session::forget('genetics_csv');
 
         Session::flash('genetics_notice', sprintf(
-            'Import: %d testu, %d genotypu, %d radku preskoceno (nenalezeny sample_id).',
+            'Import: %d testů, %d genotypů, %d řádků přeskočeno (nenalezeny sample_id).',
             $result['tests'],
             $result['genotypes'],
             $result['skipped']

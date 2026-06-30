@@ -10,23 +10,23 @@ $qs = static function (array $over) use ($search): string {
 };
 ?>
 <div class="page-head" style="display:flex; justify-content:space-between; align-items:center;">
-    <h1>Majitele</h1>
-    <a class="btn btn--primary" href="/admin/owners/new">+ Novy majitel</a>
+    <h1>Majitelé</h1>
+    <a class="btn btn--primary" href="/admin/owners/new">+ Nový majitel</a>
 </div>
 
 <?php if (!empty($notice)): ?><div class="alert alert--ok"><?= e($notice) ?></div><?php endif; ?>
 
 <form method="get" action="/admin/owners" class="card filters">
-    <input type="text" name="q" value="<?= e($search) ?>" placeholder="Jmeno majitele">
+    <input type="text" name="q" value="<?= e($search) ?>" placeholder="Jméno majitele">
     <button class="btn" type="submit">Hledat</button>
 </form>
 
 <div class="card">
     <?php if ($owners === []): ?>
-        <p class="muted">Zadni majitele.</p>
+        <p class="muted">Žádní majitelé.</p>
     <?php else: ?>
         <table class="table">
-            <thead><tr><th>Jmeno</th><th>Primarni e-mail</th><th>Aktualni psi</th></tr></thead>
+            <thead><tr><th>Jméno</th><th>Primární e-mail</th><th>Aktuální psi</th></tr></thead>
             <tbody>
             <?php foreach ($owners as $o): ?>
                 <tr>
@@ -41,8 +41,8 @@ $qs = static function (array $over) use ($search): string {
         <div class="pager">
             <span class="muted"><?= $pager->from() ?>-<?= $pager->to() ?> z <?= $pager->total ?></span>
             <span>
-                <?php if ($pager->hasPrev()): ?><a class="btn" href="<?= e($qs(['page' => $pager->page - 1])) ?>">&larr; Predchozi</a><?php endif; ?>
-                <?php if ($pager->hasNext()): ?><a class="btn" href="<?= e($qs(['page' => $pager->page + 1])) ?>">Dalsi &rarr;</a><?php endif; ?>
+                <?php if ($pager->hasPrev()): ?><a class="btn" href="<?= e($qs(['page' => $pager->page - 1])) ?>">&larr; Předchozí</a><?php endif; ?>
+                <?php if ($pager->hasNext()): ?><a class="btn" href="<?= e($qs(['page' => $pager->page + 1])) ?>">Další &rarr;</a><?php endif; ?>
             </span>
         </div>
     <?php endif; ?>

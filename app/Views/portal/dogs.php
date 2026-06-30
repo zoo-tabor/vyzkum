@@ -16,22 +16,22 @@
 
 <?php if ($owner === null): ?>
     <div class="card">
-        <p>Vas ucet zatim neni propojen s zadnym majitelem v evidenci. Kontaktujte prosim vyzkumny tym.</p>
+        <p>Váš účet zatím není propojen s žádným majitelem v evidenci. Kontaktujte prosím výzkumný tým.</p>
     </div>
 <?php else: ?>
     <div class="card">
         <h2>Psi</h2>
         <?php if ($dogs === []): ?>
-            <p class="muted">Zatim u vas nemame evidovane zadne psy.</p>
+            <p class="muted">Zatím u vás nemáme evidované žádné psy.</p>
         <?php else: ?>
             <table class="table">
-                <thead><tr><th>Jmeno</th><th>Plemeno</th><th>Vztah</th><th></th></tr></thead>
+                <thead><tr><th>Jméno</th><th>Plemeno</th><th>Vztah</th><th></th></tr></thead>
                 <tbody>
                 <?php foreach ($dogs as $d): ?>
                     <tr>
                         <td><a href="/portal/dogs/<?= (int) $d['id'] ?>"><?= e($d['name']) ?></a></td>
                         <td><?= e($d['breed_name']) ?></td>
-                        <td><?= ((int) $d['is_current']) === 1 ? 'aktualni' : 'byvaly' ?></td>
+                        <td><?= ((int) $d['is_current']) === 1 ? 'aktuální' : 'bývalý' ?></td>
                         <td><a href="/portal/dogs/<?= (int) $d['id'] ?>">Detail &rarr;</a></td>
                     </tr>
                 <?php endforeach; ?>
@@ -41,13 +41,13 @@
     </div>
 
     <div class="card">
-        <h2>Moje kontaktni udaje</h2>
+        <h2>Moje kontaktní údaje</h2>
         <p><strong>E-maily:</strong>
             <?= $emails === [] ? '-' : e(implode(', ', array_map(static fn ($e) => $e['email'], $emails))) ?>
         </p>
         <p><strong>Telefony:</strong>
             <?= $phones === [] ? '-' : e(implode(', ', array_map(static fn ($p) => $p['phone'], $phones))) ?>
         </p>
-        <p><a class="btn" href="/portal/contacts">Upravit kontaktni udaje</a></p>
+        <p><a class="btn" href="/portal/contacts">Upravit kontaktní údaje</a></p>
     </div>
 <?php endif; ?>

@@ -32,7 +32,7 @@ final class InviteService
 
         $email = $this->owners->primaryEmail($ownerId);
         if ($email === null || $email === '') {
-            return ['ok' => false, 'message' => 'Majitel nema primarni e-mail - nejdrive ho doplnte.'];
+            return ['ok' => false, 'message' => 'Majitel nemá primární e-mail - nejdříve ho doplňte.'];
         }
 
         $userId = $this->users->ensureUser($email, 'owner');
@@ -63,22 +63,22 @@ final class InviteService
         $appUrl = rtrim((string) Config::instance()->get('APP_URL', ''), '/');
         $link = $appUrl . '/set-password/' . $token;
 
-        $sent = MailService::send($email, 'Nastaveni hesla - Vyzkum Zoo Tabor', $this->buildBody($name, $link), 'set_password');
+        $sent = MailService::send($email, 'Nastavení hesla - Výzkum Zoo Tábor', $this->buildBody($name, $link), 'set_password');
 
         if (!$sent) {
-            return ['ok' => false, 'message' => 'Pozvanka vytvorena, ale e-mail se nepodarilo odeslat (viz email log).'];
+            return ['ok' => false, 'message' => 'Pozvánka vytvořena, ale e-mail se nepodařilo odeslat (viz email log).'];
         }
 
-        return ['ok' => true, 'message' => 'Odkaz pro nastaveni hesla byl odeslan na ' . $email . '.'];
+        return ['ok' => true, 'message' => 'Odkaz pro nastavení hesla byl odeslán na ' . $email . '.'];
     }
 
     private function buildBody(string $name, string $link): string
     {
-        return "Dobry den,\n\n"
-            . "do systemu vyzkumu plemen psu Zoo Tabor vam byl zalozen ucet.\n"
-            . "Pro nastaveni hesla pouzijte tento odkaz (plati 1 mesic):\n\n"
+        return "Dobrý den,\n\n"
+            . "do systému výzkumu plemen psů Zoo Tábor vám byl založen účet.\n"
+            . "Pro nastavení hesla použijte tento odkaz (platí 1 měsíc):\n\n"
             . $link . "\n\n"
-            . "Po nastaveni hesla se budete moci prihlasit a videt sve psy.\n\n"
-            . "S pozdravem\nVyzkumny tym Zoo Tabor";
+            . "Po nastavení hesla se budete moci přihlásit a vidět své psy.\n\n"
+            . "S pozdravem\nVýzkumný tým Zoo Tábor";
     }
 }

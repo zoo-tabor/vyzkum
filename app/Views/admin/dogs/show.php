@@ -16,39 +16,39 @@ $row = static function (string $label, mixed $value): void {
 <?php if (!empty($notice)): ?><div class="alert alert--ok"><?= e($notice) ?></div><?php endif; ?>
 
 <div class="card">
-    <h2>Zakladni udaje</h2>
+    <h2>Základní údaje</h2>
     <table class="table">
         <?php
-        $row('Chovna stanice', $dog['kennel_name']);
-        $row('Cislo cipu', $dog['chip_number']);
-        $row('Cislo prukazu', $dog['pedigree_number']);
-        $row('Pohlavi', $dog['sex']);
-        $row('Datum narozeni', $dog['birth_date']);
+        $row('Chovná stanice', $dog['kennel_name']);
+        $row('Číslo čipu', $dog['chip_number']);
+        $row('Číslo průkazu', $dog['pedigree_number']);
+        $row('Pohlaví', $dog['sex']);
+        $row('Datum narození', $dog['birth_date']);
         $row('Barva', $dog['color']);
-        $row('Testovaci skupina', $dog['test_group']);
-        $row('Datum umrti', $dog['death_date']);
-        $row('Pricina umrti', $dog['death_cause']);
-        $row('Stav', empty($dog['death_date']) ? 'zivy' : 'uhynuly');
+        $row('Testovací skupina', $dog['test_group']);
+        $row('Datum úmrtí', $dog['death_date']);
+        $row('Příčina úmrtí', $dog['death_cause']);
+        $row('Stav', empty($dog['death_date']) ? 'živý' : 'uhynulý');
         ?>
     </table>
     <?php if (!empty($dog['health_summary'])): ?>
-        <p><strong>Zdravotni shrnuti:</strong><br><?= nl2br(e($dog['health_summary'])) ?></p>
+        <p><strong>Zdravotní shrnutí:</strong><br><?= nl2br(e($dog['health_summary'])) ?></p>
     <?php endif; ?>
 </div>
 
 <div class="card">
-    <h2>Aktualni majitel</h2>
+    <h2>Aktuální majitel</h2>
     <?php if ($currentOwner !== null): ?>
         <p><a href="/admin/owners/<?= (int) $currentOwner['id'] ?>"><?= e($currentOwner['display_name']) ?></a></p>
     <?php else: ?>
-        <p class="muted">Pes nema prirazeneho majitele.</p>
+        <p class="muted">Pes nemá přiřazeného majitele.</p>
     <?php endif; ?>
 </div>
 
 <div class="card">
-    <h2>Historie majitelu</h2>
+    <h2>Historie majitelů</h2>
     <?php if ($history === []): ?>
-        <p class="muted">Zatim bez zaznamu.</p>
+        <p class="muted">Zatím bez záznamu.</p>
     <?php else: ?>
         <table class="table">
             <thead><tr><th>Majitel</th><th>Stav</th><th>Od</th><th>Do</th><th>Zdroj</th></tr></thead>
@@ -56,7 +56,7 @@ $row = static function (string $label, mixed $value): void {
             <?php foreach ($history as $h): ?>
                 <tr>
                     <td><a href="/admin/owners/<?= (int) $h['id'] ?>"><?= e($h['display_name']) ?></a></td>
-                    <td><?= ((int) $h['is_current']) === 1 ? 'aktualni' : 'byvaly' ?></td>
+                    <td><?= ((int) $h['is_current']) === 1 ? 'aktuální' : 'bývalý' ?></td>
                     <td><?= e($h['valid_from'] ?? '') ?></td>
                     <td><?= e($h['valid_to'] ?? '') ?></td>
                     <td><?= e($h['source']) ?></td>
@@ -68,12 +68,12 @@ $row = static function (string $label, mixed $value): void {
 </div>
 
 <div class="card">
-    <h2>Zdravotni udalosti</h2>
+    <h2>Zdravotní události</h2>
     <?php if (empty($healthEvents)): ?>
-        <p class="muted">Zadne zdravotni udalosti.</p>
+        <p class="muted">Žádné zdravotní události.</p>
     <?php else: ?>
         <table class="table">
-            <thead><tr><th>Typ</th><th>Kod</th><th>Datum</th><th>Zdroj</th><th>Poznamka</th></tr></thead>
+            <thead><tr><th>Typ</th><th>Kód</th><th>Datum</th><th>Zdroj</th><th>Poznámka</th></tr></thead>
             <tbody>
             <?php foreach ($healthEvents as $h): ?>
                 <tr>
@@ -92,7 +92,7 @@ $row = static function (string $label, mixed $value): void {
 <div class="card">
     <h2>Genetika</h2>
     <?php if (empty($genotypes)): ?>
-        <p class="muted">Zadne genotypy.</p>
+        <p class="muted">Žádné genotypy.</p>
     <?php else: ?>
         <table class="table">
             <thead><tr><th>Gen / marker</th><th>Genotyp</th><th>Datum testu</th><th>Stav</th></tr></thead>
@@ -111,12 +111,12 @@ $row = static function (string $label, mixed $value): void {
 </div>
 
 <div class="card">
-    <h2>Dotazniky (odpovedi)</h2>
+    <h2>Dotazníky (odpovědi)</h2>
     <?php if (empty($responses)): ?>
-        <p class="muted">Zatim zadne odeslane dotazniky.</p>
+        <p class="muted">Zatím žádné odeslané dotazníky.</p>
     <?php else: ?>
         <table class="table">
-            <thead><tr><th>Dotaznik</th><th>Verze</th><th>Odeslano</th><th></th></tr></thead>
+            <thead><tr><th>Dotazník</th><th>Verze</th><th>Odesláno</th><th></th></tr></thead>
             <tbody>
             <?php foreach ($responses as $r): ?>
                 <tr>
@@ -131,4 +131,4 @@ $row = static function (string $label, mixed $value): void {
     <?php endif; ?>
 </div>
 
-<p><a href="/admin/dogs">&larr; Zpet na seznam</a></p>
+<p><a href="/admin/dogs">&larr; Zpět na seznam</a></p>

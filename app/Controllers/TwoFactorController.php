@@ -13,7 +13,7 @@ use App\Services\Totp;
 
 final class TwoFactorController
 {
-    private const ISSUER = 'Vyzkum Zoo Tabor';
+    private const ISSUER = 'Výzkum Zoo Tábor';
     private const MAX_ATTEMPTS = 5;
     private const DECAY_SECONDS = 900;
 
@@ -24,7 +24,7 @@ final class TwoFactorController
         if (!is_int(Session::get('2fa_pending_user_id'))) {
             redirect('/login');
         }
-        return view('auth/two_factor', ['title' => 'Overeni 2FA']);
+        return view('auth/two_factor', ['title' => 'Ověření 2FA']);
     }
 
     public function verifyChallenge(): string
@@ -38,7 +38,7 @@ final class TwoFactorController
 
         $key = '2fa:' . ($_SERVER['REMOTE_ADDR'] ?? '') . ':' . $pendingId;
         if (RateLimiter::tooMany($key, self::MAX_ATTEMPTS, self::DECAY_SECONDS)) {
-            return view('auth/two_factor', ['title' => 'Overeni 2FA', 'error' => 'Prilis mnoho pokusu. Zkuste to za chvili.']);
+            return view('auth/two_factor', ['title' => 'Ověření 2FA', 'error' => 'Příliš mnoho pokusů. Zkuste to za chvíli.']);
         }
 
         $user = (new UserRepository())->findById($pendingId);
@@ -50,7 +50,7 @@ final class TwoFactorController
         if (!Totp::verify((string) $user['totp_secret'], (string) input('code'))) {
             RateLimiter::hit($key, self::DECAY_SECONDS);
             AuditService::log($pendingId, (string) $user['role'], '2fa_failed', 'user', (string) $pendingId);
-            return view('auth/two_factor', ['title' => 'Overeni 2FA', 'error' => 'Neplatny overovaci kod.']);
+            return view('auth/two_factor', ['title' => 'Ověření 2FA', 'error' => 'Neplatný ověřovací kód.']);
         }
 
         RateLimiter::clear($key);
@@ -80,7 +80,7 @@ final class TwoFactorController
         }
 
         return view('admin/security', [
-            'title' => 'Zabezpeceni',
+            'title' => 'Zabezpečení',
             'enabled' => $enabled,
             'secret' => $secret,
             'uri' => $uri,
@@ -95,12 +95,12 @@ final class TwoFactorController
 
         $secret = Session::get('2fa_setup_secret');
         if (!is_string($secret)) {
-            Session::flash('security_error', 'Relace pro nastaveni 2FA vyprsela, zkuste to znovu.');
+            Session::flash('security_error', 'Relace pro nastavení 2FA vypršela, zkuste to znovu.');
             redirect('/admin/security');
         }
 
         if (!Totp::verify($secret, (string) input('code'))) {
-            Session::flash('security_error', 'Kod nesedi. Zkontrolujte cas v aplikaci a zkuste znovu.');
+            Session::flash('security_error', 'Kód nesedí. Zkontrolujte čas v aplikaci a zkuste znovu.');
             redirect('/admin/security');
         }
 
@@ -109,7 +109,7 @@ final class TwoFactorController
         AuditService::log(Auth::id(), Auth::role(), '2fa_enabled', 'user', (string) Auth::id());
         Auth::flush();
 
-        Session::flash('security_notice', 'Dvoufaktorove overeni bylo aktivovano.');
+        Session::flash('security_notice', 'Dvoufaktorové ověření bylo aktivováno.');
         redirect('/admin/security');
     }
 
@@ -119,7 +119,7 @@ final class TwoFactorController
 
         $user = Auth::user();
         if (empty($user['totp_secret']) || !Totp::verify((string) $user['totp_secret'], (string) input('code'))) {
-            Session::flash('security_error', 'Pro vypnuti 2FA zadejte platny aktualni kod.');
+            Session::flash('security_error', 'Pro vypnutí 2FA zadejte platný aktuální kód.');
             redirect('/admin/security');
         }
 
@@ -127,7 +127,7 @@ final class TwoFactorController
         AuditService::log(Auth::id(), Auth::role(), '2fa_disabled', 'user', (string) Auth::id());
         Auth::flush();
 
-        Session::flash('security_notice', 'Dvoufaktorove overeni bylo vypnuto.');
+        Session::flash('security_notice', 'Dvoufaktorové ověření bylo vypnuto.');
         redirect('/admin/security');
     }
 
@@ -141,15 +141,15 @@ final class TwoFactorController
         $confirm = (string) input('new_password_confirm');
 
         if (empty($user['password_hash']) || !password_verify($current, (string) $user['password_hash'])) {
-            Session::flash('security_error', 'Soucasne heslo nesedi.');
+            Session::flash('security_error', 'Současné heslo nesedí.');
             redirect('/admin/security');
         }
         if (strlen($new) < 10) {
-            Session::flash('security_error', 'Nove heslo musi mit aspon 10 znaku.');
+            Session::flash('security_error', 'Nové heslo musí mít alespoň 10 znaků.');
             redirect('/admin/security');
         }
         if ($new !== $confirm) {
-            Session::flash('security_error', 'Nova hesla se neshoduji.');
+            Session::flash('security_error', 'Nová hesla se neshodují.');
             redirect('/admin/security');
         }
 
@@ -157,7 +157,7 @@ final class TwoFactorController
         AuditService::log(Auth::id(), Auth::role(), 'password_changed', 'user', (string) Auth::id());
         Auth::flush();
 
-        Session::flash('security_notice', 'Heslo bylo zmeneno.');
+        Session::flash('security_notice', 'Heslo bylo změněno.');
         redirect('/admin/security');
     }
 }

@@ -7,11 +7,11 @@ final class FormSchema
 {
     /** typ => popisek pro UI */
     public const TYPES = [
-        'short_text' => 'Kratka odpoved',
-        'long_text' => 'Dlouha odpoved',
+        'short_text' => 'Krátká odpověď',
+        'long_text' => 'Dlouhá odpověď',
         'single_choice' => 'Jedna volba (radio)',
-        'multiple_choice' => 'Vice voleb (checkbox)',
-        'number' => 'Cislo',
+        'multiple_choice' => 'Více voleb (checkbox)',
+        'number' => 'Číslo',
         'date' => 'Datum',
         'yes_no' => 'Ano / Ne',
         'file' => 'Soubor',

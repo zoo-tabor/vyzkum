@@ -18,7 +18,7 @@ final class DiagnosticsController
         $transport = strtolower((string) $cfg->get('MAIL_TRANSPORT', 'mail'));
 
         return view('admin/diagnostics/smtp', [
-            'title' => 'Mailova diagnostika',
+            'title' => 'Mailová diagnostika',
             'transport' => $transport,
             'mailEnabled' => (bool) $cfg->get('MAIL_ENABLED', false),
             'from' => (string) $cfg->get('SMTP_FROM', ''),
@@ -35,22 +35,22 @@ final class DiagnosticsController
 
         $to = trim((string) input('to'));
         if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
-            Session::flash('mail_test_error', 'Zadejte platny e-mail.');
+            Session::flash('mail_test_error', 'Zadejte platný e-mail.');
             redirect('/admin/diagnostics/smtp');
         }
 
         $ok = MailService::send(
             $to,
-            'Test e-mail - Vyzkum Zoo Tabor',
-            "Toto je testovaci e-mail z CRM Vyzkum Zoo Tabor.\nCas: " . date('Y-m-d H:i:s') . "\n",
+            'Test e-mail - Výzkum Zoo Tábor',
+            "Toto je testovací e-mail z CRM Výzkum Zoo Tábor.\nČas: " . date('Y-m-d H:i:s') . "\n",
             'test'
         );
         AuditService::log(Auth::id(), Auth::role(), 'mail_test', 'email', $to, null, ['ok' => $ok]);
 
         if ($ok) {
-            Session::flash('mail_test_notice', 'Pokus o odeslani na ' . $to . ' probehl. Stav najdete v email_log (pri MAIL_ENABLED=false se jen zalogoval do mail.log).');
+            Session::flash('mail_test_notice', 'Pokus o odeslání na ' . $to . ' proběhl. Stav najdete v email_log (při MAIL_ENABLED=false se jen zalogoval do mail.log).');
         } else {
-            Session::flash('mail_test_error', 'Odeslani selhalo - viz email_log / storage/logs/mail.log.');
+            Session::flash('mail_test_error', 'Odeslání selhalo - viz email_log / storage/logs/mail.log.');
         }
         redirect('/admin/diagnostics/smtp');
     }

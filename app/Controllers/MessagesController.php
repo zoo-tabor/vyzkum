@@ -17,7 +17,7 @@ final class MessagesController
         $repo = new MessageRepository();
         $status = (string) input('status');
         return view('admin/messages/index', [
-            'title' => 'Zpravy',
+            'title' => 'Zprávy',
             'threads' => $repo->threadsList(in_array($status, self::STATUSES, true) ? $status : ''),
             'status' => $status,
             'statuses' => self::STATUSES,
@@ -31,10 +31,10 @@ final class MessagesController
         $thread = $repo->thread((int) $id);
         if ($thread === null) {
             http_response_code(404);
-            return view('errors/404', ['title' => 'Vlakno nenalezeno']);
+            return view('errors/404', ['title' => 'Vlákno nenalezeno']);
         }
         return view('admin/messages/show', [
-            'title' => 'Vlakno',
+            'title' => 'Vlákno',
             'thread' => $thread,
             'messages' => $repo->messages((int) $id),
             'statuses' => self::STATUSES,
@@ -49,7 +49,7 @@ final class MessagesController
         $thread = $repo->thread((int) $id);
         $body = trim((string) input('body'));
         if ($thread === null || $body === '') {
-            Session::flash('msg_notice', 'Zprava nesmi byt prazdna.');
+            Session::flash('msg_notice', 'Zpráva nesmí být prázdná.');
             redirect('/admin/messages/' . $id);
         }
         $repo->addMessage((int) $id, Auth::id(), Auth::role(), $body, 'waiting_owner');
@@ -62,7 +62,7 @@ final class MessagesController
         $status = (string) input('status');
         if (in_array($status, self::STATUSES, true)) {
             (new MessageRepository())->setStatus((int) $id, $status);
-            Session::flash('msg_notice', 'Stav vlakna zmenen.');
+            Session::flash('msg_notice', 'Stav vlákna změněn.');
         }
         redirect('/admin/messages/' . $id);
     }

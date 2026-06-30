@@ -4,7 +4,7 @@
 
 $labels = [];
 foreach ($rows as $row) {
-    $labels[] = ['sample_id' => $row['sample_id'], 'role' => 'Veterinar', 'url' => $row['vet_url'] ?? null];
+    $labels[] = ['sample_id' => $row['sample_id'], 'role' => 'Veterinář', 'url' => $row['vet_url'] ?? null];
     $labels[] = ['sample_id' => $row['sample_id'], 'role' => 'Majitel', 'url' => $row['owner_url'] ?? null];
 }
 ?>
@@ -13,7 +13,7 @@ foreach ($rows as $row) {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Tisk stitku - davka #<?= (int) $batch['id'] ?></title>
+    <title>Tisk štítků - dávka #<?= (int) $batch['id'] ?></title>
     <style>
         :root { --line:#d8dee4; --muted:#6b7280; }
         * { box-sizing: border-box; }
@@ -23,7 +23,7 @@ foreach ($rows as $row) {
         .toolbar .primary { background:#1f6f43; color:#fff; border-color:#1f6f43; }
         .notice { margin:1rem 1.5rem; padding:0.75rem 1rem; background:#eef4f3; border-radius:8px; color:#13503a; }
 
-        /* Etikety - obrazovkovy nahled */
+        /* Etikety - obrazovkový náhled */
         .label-page { background:#fff; margin:1rem auto; box-shadow:0 1px 4px rgba(0,0,0,.1); }
         .labels { display:grid; grid-template-columns:repeat(5, 38.1mm); grid-auto-rows:21.2mm; gap:0 3mm; }
         .label-sheet { width:38.1mm; height:21.2mm; padding:1.4mm; overflow:hidden; display:grid; grid-template-columns:17mm 1fr; gap:1.2mm; align-items:center; border:0.2mm dashed #ccc; }
@@ -48,18 +48,18 @@ foreach ($rows as $row) {
 <body>
 <div class="toolbar no-print">
     <div>
-        <strong>Tisk stitku</strong> - davka #<?= (int) $batch['id'] ?><?= !empty($batch['label']) ? ' / ' . e($batch['label']) : '' ?>
+        <strong>Tisk štítků</strong> - dávka #<?= (int) $batch['id'] ?><?= !empty($batch['label']) ? ' / ' . e($batch['label']) : '' ?>
     </div>
     <div>
         <button type="button" class="primary" onclick="window.print()">Tisk</button>
-        <a href="/admin/batches">Davky</a>
+        <a href="/admin/batches">Dávky</a>
         <a href="/admin/samples">Hotovo</a>
     </div>
 </div>
 
 <div class="notice no-print">
-    Etikety jsou ve formatu 38,1 &times; 21,2 mm (Avery 65 na A4). V tiskovem dialogu zvolte A4,
-    meritko 100 % a okraje "zadne" / bez prizpusobeni strance. QR kody se generuji lokalne v prohlizeci.
+    Etikety jsou ve formátu 38,1 &times; 21,2 mm (Avery 65 na A4). V tiskovém dialogu zvolte A4,
+    měřítko 100 % a okraje "žádné" / bez přizpůsobení stránce. QR kódy se generují lokálně v prohlížeči.
 </div>
 
 <?php foreach (array_chunk($labels, 65) as $pageLabels): ?>
@@ -72,10 +72,10 @@ foreach ($rows as $row) {
                         <div class="label-copy">
                             <strong><?= e($label['sample_id']) ?></strong>
                             <span><?= e($label['role']) ?></span>
-                            <small>Vyzkum plemen psu - Zoo Tabor</small>
+                            <small>Výzkum plemen psů - Zoo Tábor</small>
                         </div>
                     <?php else: ?>
-                        <div class="label-missing">QR odkaz neni dostupny.</div>
+                        <div class="label-missing">QR odkaz není dostupný.</div>
                     <?php endif; ?>
                 </article>
             <?php endforeach; ?>

@@ -31,42 +31,42 @@ if ($exportParams !== []) {
     <span>
         <a class="btn" href="/admin/import">Import CSV</a>
         <a class="btn" href="<?= e($exportUrl) ?>">Export CSV</a>
-        <a class="btn btn--primary" href="/admin/dogs/new">+ Novy pes</a>
+        <a class="btn btn--primary" href="/admin/dogs/new">+ Nový pes</a>
     </span>
 </div>
 
 <?php if (!empty($notice)): ?><div class="alert alert--ok"><?= e($notice) ?></div><?php endif; ?>
 <?php if ($currentBreedId === null): ?>
-    <p class="muted">Zobrazuji vsechna plemena. Pro filtr podle plemene pouzijte prepinac nahore.</p>
+    <p class="muted">Zobrazuji všechna plemena. Pro filtr podle plemene použijte přepínač nahoře.</p>
 <?php endif; ?>
 
 <form method="get" action="/admin/dogs" class="card filters">
-    <input type="text" name="q" value="<?= e($filters['q']) ?>" placeholder="Jmeno psa">
-    <input type="text" name="code" value="<?= e($filters['code']) ?>" placeholder="Cip / cislo prukazu">
+    <input type="text" name="q" value="<?= e($filters['q']) ?>" placeholder="Jméno psa">
+    <input type="text" name="code" value="<?= e($filters['code']) ?>" placeholder="Čip / číslo průkazu">
     <select name="status">
-        <option value="">Stav: vse</option>
-        <option value="alive"<?= $filters['status'] === 'alive' ? ' selected' : '' ?>>Zivy</option>
-        <option value="dead"<?= $filters['status'] === 'dead' ? ' selected' : '' ?>>Uhynuly</option>
+        <option value="">Stav: vše</option>
+        <option value="alive"<?= $filters['status'] === 'alive' ? ' selected' : '' ?>>Živý</option>
+        <option value="dead"<?= $filters['status'] === 'dead' ? ' selected' : '' ?>>Uhynulý</option>
     </select>
     <select name="sort">
-        <?php foreach (['name' => 'Jmeno', 'breed' => 'Plemeno', 'birth' => 'Narozeni', 'updated' => 'Aktualizace'] as $k => $lbl): ?>
+        <?php foreach (['name' => 'Jméno', 'breed' => 'Plemeno', 'birth' => 'Narození', 'updated' => 'Aktualizace'] as $k => $lbl): ?>
             <option value="<?= $k ?>"<?= $sort === $k ? ' selected' : '' ?>><?= $lbl ?></option>
         <?php endforeach; ?>
     </select>
     <select name="dir">
-        <option value="asc"<?= $dir === 'asc' ? ' selected' : '' ?>>vzestupne</option>
-        <option value="desc"<?= $dir === 'desc' ? ' selected' : '' ?>>sestupne</option>
+        <option value="asc"<?= $dir === 'asc' ? ' selected' : '' ?>>vzestupně</option>
+        <option value="desc"<?= $dir === 'desc' ? ' selected' : '' ?>>sestupně</option>
     </select>
     <button class="btn" type="submit">Filtrovat</button>
 </form>
 
 <div class="card">
     <?php if ($dogs === []): ?>
-        <p class="muted">Zadni psi neodpovidaji filtru.</p>
+        <p class="muted">Žádní psi neodpovídají filtru.</p>
     <?php else: ?>
         <table class="table">
             <thead>
-            <tr><th>Jmeno</th><th>Plemeno</th><th>Pohlavi</th><th>Narozeni</th><th>Majitel</th><th>Stav</th></tr>
+            <tr><th>Jméno</th><th>Plemeno</th><th>Pohlaví</th><th>Narození</th><th>Majitel</th><th>Stav</th></tr>
             </thead>
             <tbody>
             <?php foreach ($dogs as $d): ?>
@@ -82,7 +82,7 @@ if ($exportParams !== []) {
                             <a href="/admin/owners/<?= (int) $d['owner_id'] ?>"><?= e($d['owner_name']) ?></a>
                         <?php else: ?><span class="muted">-</span><?php endif; ?>
                     </td>
-                    <td><?= empty($d['death_date']) ? 'zivy' : 'uhynuly' ?></td>
+                    <td><?= empty($d['death_date']) ? 'živý' : 'uhynulý' ?></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>
@@ -91,8 +91,8 @@ if ($exportParams !== []) {
         <div class="pager">
             <span class="muted"><?= $pager->from() ?>-<?= $pager->to() ?> z <?= $pager->total ?></span>
             <span>
-                <?php if ($pager->hasPrev()): ?><a class="btn" href="<?= e($qs(['page' => $pager->page - 1])) ?>">&larr; Predchozi</a><?php endif; ?>
-                <?php if ($pager->hasNext()): ?><a class="btn" href="<?= e($qs(['page' => $pager->page + 1])) ?>">Dalsi &rarr;</a><?php endif; ?>
+                <?php if ($pager->hasPrev()): ?><a class="btn" href="<?= e($qs(['page' => $pager->page - 1])) ?>">&larr; Předchozí</a><?php endif; ?>
+                <?php if ($pager->hasNext()): ?><a class="btn" href="<?= e($qs(['page' => $pager->page + 1])) ?>">Další &rarr;</a><?php endif; ?>
             </span>
         </div>
     <?php endif; ?>

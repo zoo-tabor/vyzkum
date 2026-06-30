@@ -8,10 +8,10 @@
 /** @var array<int, array{gene_symbol:string, marker_code:string, genotype:string, c:int}> $genetics */
 /** @var array<int, array{event_type:string, c:int}> $healthFreq */
 ?>
-<div class="page-head"><h1>Klubovy prehled</h1></div>
+<div class="page-head"><h1>Klubový přehled</h1></div>
 
 <?php if ($breeds === []): ?>
-    <div class="card"><p>Vas ucet zatim nema prirazene zadne plemeno. Kontaktujte vyzkumny tym.</p></div>
+    <div class="card"><p>Váš účet zatím nemá přiřazené žádné plemeno. Kontaktujte výzkumný tým.</p></div>
 <?php else: ?>
     <form method="get" action="/club" class="card filters">
         <label for="breed">Plemeno:</label>
@@ -25,13 +25,13 @@
 
     <div class="cards">
         <div class="card stat"><div class="stat__value"><?= (int) $counts['total'] ?></div><div class="stat__label">Psi celkem</div></div>
-        <div class="card stat"><div class="stat__value"><?= (int) $counts['alive'] ?></div><div class="stat__label">Zivi</div></div>
-        <div class="card stat"><div class="stat__value"><?= (int) $counts['dead'] ?></div><div class="stat__label">Uhynuli</div></div>
-        <div class="card stat"><div class="stat__value"><?= $avgAge !== null ? e((string) $avgAge) : '-' ?></div><div class="stat__label">Prumerny vek (let)</div></div>
+        <div class="card stat"><div class="stat__value"><?= (int) $counts['alive'] ?></div><div class="stat__label">Živí</div></div>
+        <div class="card stat"><div class="stat__value"><?= (int) $counts['dead'] ?></div><div class="stat__label">Uhynulí</div></div>
+        <div class="card stat"><div class="stat__value"><?= $avgAge !== null ? e((string) $avgAge) : '-' ?></div><div class="stat__label">Průměrný věk (let)</div></div>
     </div>
 
     <div class="card">
-        <h2>Vekova struktura</h2>
+        <h2>Věková struktura</h2>
         <table class="table">
             <thead><tr><th>&lt; 1 rok</th><th>1-3 roky</th><th>3-7 let</th><th>7+ let</th></tr></thead>
             <tbody><tr>
@@ -42,10 +42,10 @@
     </div>
 
     <div class="card">
-        <h2>Priciny umrti</h2>
-        <?php if ($deathCauses === []): ?><p class="muted">Zadne zaznamy.</p><?php else: ?>
+        <h2>Příčiny úmrtí</h2>
+        <?php if ($deathCauses === []): ?><p class="muted">Žádné záznamy.</p><?php else: ?>
             <table class="table">
-                <thead><tr><th>Pricina</th><th>Pocet</th></tr></thead>
+                <thead><tr><th>Příčina</th><th>Počet</th></tr></thead>
                 <tbody>
                 <?php foreach ($deathCauses as $d): ?>
                     <tr><td><?= e($d['cause']) ?></td><td><?= (int) $d['c'] ?></td></tr>
@@ -56,10 +56,10 @@
     </div>
 
     <div class="card">
-        <h2>Zdravotni udalosti (cetnost)</h2>
-        <?php if ($healthFreq === []): ?><p class="muted">Zadne zdravotni udalosti.</p><?php else: ?>
+        <h2>Zdravotní události (četnost)</h2>
+        <?php if ($healthFreq === []): ?><p class="muted">Žádné zdravotní události.</p><?php else: ?>
             <table class="table">
-                <thead><tr><th>Typ udalosti</th><th>Pocet</th></tr></thead>
+                <thead><tr><th>Typ události</th><th>Počet</th></tr></thead>
                 <tbody>
                 <?php foreach ($healthFreq as $h): ?>
                     <tr><td><?= e($h['event_type']) ?></td><td><?= (int) $h['c'] ?></td></tr>
@@ -70,10 +70,10 @@
     </div>
 
     <div class="card">
-        <h2>Geneticke rozlozeni</h2>
-        <?php if ($genetics === []): ?><p class="muted">Zadna geneticka data.</p><?php else: ?>
+        <h2>Genetické rozložení</h2>
+        <?php if ($genetics === []): ?><p class="muted">Žádná genetická data.</p><?php else: ?>
             <table class="table">
-                <thead><tr><th>Gen / marker</th><th>Genotyp</th><th>Pocet</th></tr></thead>
+                <thead><tr><th>Gen / marker</th><th>Genotyp</th><th>Počet</th></tr></thead>
                 <tbody>
                 <?php foreach ($genetics as $g): ?>
                     <tr><td><?= e($g['gene_symbol']) ?> / <code><?= e($g['marker_code']) ?></code></td><td><strong><?= e($g['genotype']) ?></strong></td><td><?= (int) $g['c'] ?></td></tr>

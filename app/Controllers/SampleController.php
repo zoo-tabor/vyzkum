@@ -61,7 +61,7 @@ final class SampleController
     public function newBatch(): string
     {
         return view('admin/samples/new_batch', [
-            'title' => 'Nova davka vzorku',
+            'title' => 'Nová dávka vzorků',
             'breeds' => (new BreedRepository())->all(),
             'vets' => (new VetRepository())->all(),
             'currentBreedId' => BreedContext::current(),
@@ -74,7 +74,7 @@ final class SampleController
         Csrf::verify();
         $count = (int) input('count');
         if ($count < 1 || $count > 200) {
-            Session::flash('sample_error', 'Pocet sad musi byt 1 az 200.');
+            Session::flash('sample_error', 'Počet sad musí být 1 až 200.');
             redirect('/admin/samples/new-batch');
         }
 
@@ -85,14 +85,14 @@ final class SampleController
         $result = (new SampleRepository())->createBatch($count, $breedId, $vetId, trim((string) input('label')) ?: null, $appUrl, Auth::id());
         AuditService::log(Auth::id(), Auth::role(), 'sample_batch_created', 'sample_batch', (string) $result['batch']['id'], null, ['count' => $count]);
 
-        Session::flash('sample_notice', 'Davka vytvorena - vytisknete stitky.');
+        Session::flash('sample_notice', 'Dávka vytvořena - vytiskněte štítky.');
         redirect('/admin/batches/' . (int) $result['batch']['id'] . '/labels');
     }
 
     public function batches(): string
     {
         return view('admin/samples/batches', [
-            'title' => 'Davky vzorku',
+            'title' => 'Dávky vzorků',
             'batches' => (new SampleRepository())->batches(),
             'notice' => Session::flash('sample_notice'),
         ]);
@@ -104,7 +104,7 @@ final class SampleController
         $data = (new SampleRepository())->batchLabels((int) $batchId, $appUrl);
         if ($data === null) {
             http_response_code(404);
-            return view('errors/404', ['title' => 'Davka nenalezena']);
+            return view('errors/404', ['title' => 'Dávka nenalezena']);
         }
 
         // Samostatna tiskova stranka (bez admin chrome) - presny format etiket.
@@ -136,19 +136,19 @@ final class SampleController
         Csrf::verify();
         $status = (string) input('status');
         if (!in_array($status, self::STATUSES, true)) {
-            Session::flash('sample_error', 'Neplatny stav.');
+            Session::flash('sample_error', 'Neplatný stav.');
             redirect('/admin/samples/' . $sampleId);
         }
         (new SampleRepository())->updateStatus($sampleId, $status);
         AuditService::log(Auth::id(), Auth::role(), 'sample_status_changed', 'sample', $sampleId, null, ['status' => $status]);
-        Session::flash('sample_notice', 'Stav vzorku aktualizovan.');
+        Session::flash('sample_notice', 'Stav vzorku aktualizován.');
         redirect('/admin/samples/' . $sampleId);
     }
 
     public function vets(): string
     {
         return view('admin/samples/vets', [
-            'title' => 'Veterinari',
+            'title' => 'Veterináři',
             'vets' => (new VetRepository())->all(),
             'notice' => Session::flash('sample_notice'),
             'error' => Session::flash('sample_error'),
@@ -160,7 +160,7 @@ final class SampleController
         Csrf::verify();
         $name = trim((string) input('name'));
         if ($name === '') {
-            Session::flash('sample_error', 'Zadejte jmeno veterinare.');
+            Session::flash('sample_error', 'Zadejte jméno veterináře.');
             redirect('/admin/vets');
         }
         (new VetRepository())->create(
@@ -169,7 +169,7 @@ final class SampleController
             trim((string) input('email')) ?: null,
             trim((string) input('phone')) ?: null
         );
-        Session::flash('sample_notice', 'Veterinar pridan.');
+        Session::flash('sample_notice', 'Veterinář přidán.');
         redirect('/admin/vets');
     }
 }

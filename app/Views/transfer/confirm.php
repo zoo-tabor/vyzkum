@@ -4,16 +4,16 @@
 /** @var array<string, mixed>|null $request */
 ?>
 <div class="card">
-    <h1>Prevzeti psa</h1>
+    <h1>Převzetí psa</h1>
     <?php if (!empty($invalid)): ?>
-        <div class="alert alert--error">Odkaz je neplatny nebo vyprsel. Pozadejte puvodniho majitele o nove zaslani.</div>
+        <div class="alert alert--error">Odkaz je neplatný nebo vypršel. Požádejte původního majitele o nové zaslání.</div>
     <?php else: ?>
-        <p>Pes <span class="sample-code"><?= e($request['dog_name']) ?></span> vam ma byt preveden jako novemu majiteli
+        <p>Pes <span class="sample-code"><?= e($request['dog_name']) ?></span> vám má být převeden jako novému majiteli
             (<?= e($request['new_owner_email']) ?>).</p>
-        <p>Potvrzenim prevezmete psa do sve sprava. Nasledne vam prijde e-mail s odkazem pro nastaveni hesla do portalu.</p>
+        <p>Potvrzením převezmete psa do své správy. Následně vám přijde e-mail s odkazem pro nastavení hesla do portálu.</p>
         <form method="post" action="/transfer/<?= e($token) ?>">
             <?= \App\Core\Csrf::field() ?>
-            <button type="submit" class="btn btn--primary">Potvrdit prevzeti psa</button>
+            <button type="submit" class="btn btn--primary">Potvrdit převzetí psa</button>
         </form>
     <?php endif; ?>
 </div>

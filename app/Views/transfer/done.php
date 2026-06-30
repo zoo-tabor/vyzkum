@@ -3,7 +3,7 @@
 ?>
 <div class="card">
     <h1>Hotovo</h1>
-    <div class="alert alert--ok">Prevzeti psa <strong><?= e($request['dog_name'] ?? '') ?></strong> bylo potvrzeno a vlastnictvi prevedeno.</div>
-    <p>Na vas e-mail jsme poslali odkaz pro <strong>nastaveni hesla</strong>. Po prihlaseni uvidite sveho psa v portalu.</p>
-    <p class="muted">Tuto stranku muzete zavrit.</p>
+    <div class="alert alert--ok">Převzetí psa <strong><?= e($request['dog_name'] ?? '') ?></strong> bylo potvrzeno a vlastnictví převedeno.</div>
+    <p>Na váš e-mail jsme poslali odkaz pro <strong>nastavení hesla</strong>. Po přihlášení uvidíte svého psa v portálu.</p>
+    <p class="muted">Tuto stránku můžete zavřít.</p>
 </div>

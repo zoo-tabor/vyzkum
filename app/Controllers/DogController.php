@@ -124,7 +124,7 @@ final class DogController
     public function create(): string
     {
         return view('admin/dogs/form', [
-            'title' => 'Novy pes',
+            'title' => 'Nový pes',
             'dog' => null,
             'breeds' => (new BreedRepository())->all(false),
             'owners' => (new OwnerRepository())->allForSelect(),
@@ -139,7 +139,7 @@ final class DogController
 
         $data = $this->fromInput();
         if ($data['name'] === '' || (int) $data['breed_id'] <= 0) {
-            Session::flash('dog_error', 'Vyplnte jmeno psa a plemeno.');
+            Session::flash('dog_error', 'Vyplňte jméno psa a plemeno.');
             redirect('/admin/dogs/new');
         }
 
@@ -155,7 +155,7 @@ final class DogController
             'name' => $data['name'],
             'breed_id' => $data['breed_id'],
         ]);
-        Session::flash('dog_notice', 'Pes byl vytvoren.');
+        Session::flash('dog_notice', 'Pes byl vytvořen.');
         redirect('/admin/dogs/' . $id);
     }
 
@@ -190,13 +190,13 @@ final class DogController
 
         $data = $this->fromInput();
         if ($data['name'] === '' || (int) $data['breed_id'] <= 0) {
-            Session::flash('dog_error', 'Vyplnte jmeno psa a plemeno.');
+            Session::flash('dog_error', 'Vyplňte jméno psa a plemeno.');
             redirect('/admin/dogs/' . $id . '/edit');
         }
 
         $repo->update((int) $id, $data);
         AuditService::log(Auth::id(), Auth::role(), 'dog_updated', 'dog', (string) $id, null, ['name' => $data['name']]);
-        Session::flash('dog_notice', 'Zmeny byly ulozeny.');
+        Session::flash('dog_notice', 'Změny byly uloženy.');
         redirect('/admin/dogs/' . $id);
     }
 

@@ -15,7 +15,7 @@ $defId = (int) $def['id'];
 ?>
 <div class="page-head">
     <h1><?= e($def['name']) ?> <span class="muted">/ <?= e($def['breed_name']) ?></span></h1>
-    <p><a href="/admin/forms">&larr; Zpet na seznam</a></p>
+    <p><a href="/admin/forms">&larr; Zpět na seznam</a></p>
 </div>
 
 <?php if (!empty($notice)): ?><div class="alert alert--ok"><?= e($notice) ?></div><?php endif; ?>
@@ -24,36 +24,36 @@ $defId = (int) $def['id'];
 <div class="card">
     <p>
         <?php if ($editing !== null): ?>
-            Upravovana verze: <strong>v<?= (int) $editing['version'] ?> (<?= e($editing['status']) ?>)</strong>.
+            Upravovaná verze: <strong>v<?= (int) $editing['version'] ?> (<?= e($editing['status']) ?>)</strong>.
         <?php endif; ?>
         <?php if ($published !== null): ?>
-            Publikovana verze: <strong>v<?= (int) $published['version'] ?></strong>.
+            Publikovaná verze: <strong>v<?= (int) $published['version'] ?></strong>.
         <?php else: ?>
-            <span class="muted">Zatim nepublikovano.</span>
+            <span class="muted">Zatím nepublikováno.</span>
         <?php endif; ?>
     </p>
     <?php if ($canEdit): ?>
         <form method="post" action="/admin/forms/<?= $defId ?>/publish" class="inline"
-              onsubmit="return confirm('Publikovat tuto verzi? Po publikaci uz nepujde menit (vznikne nova verze az pri dalsi uprave).');">
+              onsubmit="return confirm('Publikovat tuto verzi? Po publikaci už nepůjde měnit (vznikne nová verze až při další úpravě).');">
             <?= \App\Core\Csrf::field() ?>
             <button type="submit" class="btn btn--primary">Publikovat verzi</button>
         </form>
     <?php else: ?>
         <form method="post" action="/admin/forms/<?= $defId ?>/new-version" class="inline">
             <?= \App\Core\Csrf::field() ?>
-            <button type="submit" class="btn">Vytvorit novou verzi (pro upravy)</button>
+            <button type="submit" class="btn">Vytvořit novou verzi (pro úpravy)</button>
         </form>
-        <span class="muted">Publikovana verze je zamcena.</span>
+        <span class="muted">Publikovaná verze je zamčená.</span>
     <?php endif; ?>
 </div>
 
 <div class="card">
-    <h2>Otazky (<?= count($questions) ?>)</h2>
+    <h2>Otázky (<?= count($questions) ?>)</h2>
     <?php if ($questions === []): ?>
-        <p class="muted">Zatim zadne otazky.</p>
+        <p class="muted">Zatím žádné otázky.</p>
     <?php else: ?>
         <table class="table">
-            <thead><tr><th>#</th><th>Otazka</th><th>Typ</th><th>Povinna</th><th>Detail</th><?php if ($canEdit): ?><th>Akce</th><?php endif; ?></tr></thead>
+            <thead><tr><th>#</th><th>Otázka</th><th>Typ</th><th>Povinná</th><th>Detail</th><?php if ($canEdit): ?><th>Akce</th><?php endif; ?></tr></thead>
             <tbody>
             <?php foreach ($questions as $i => $q): ?>
                 <?php
@@ -68,10 +68,10 @@ $defId = (int) $def['id'];
                     <td><?= ((int) $q['is_required']) === 1 ? 'ano' : 'ne' ?></td>
                     <td>
                         <?php if ($qOptions !== []): ?>
-                            <span class="muted">moznosti: <?= e(implode(', ', array_map(static fn ($o) => $o['label'], $qOptions))) ?></span><br>
+                            <span class="muted">možnosti: <?= e(implode(', ', array_map(static fn ($o) => $o['label'], $qOptions))) ?></span><br>
                         <?php endif; ?>
                         <?php if ($visibleIf !== null): ?>
-                            <span class="muted">zobrazit kdyz <code><?= e($visibleIf['q']) ?></code> = <code><?= e($visibleIf['eq']) ?></code></span>
+                            <span class="muted">zobrazit když <code><?= e($visibleIf['q']) ?></code> = <code><?= e($visibleIf['eq']) ?></code></span>
                         <?php endif; ?>
                     </td>
                     <?php if ($canEdit): ?>
@@ -84,7 +84,7 @@ $defId = (int) $def['id'];
                             </form>
                             <a class="btn btn--ghost" href="/admin/forms/<?= $defId ?>/questions/<?= (int) $q['id'] ?>/edit">Upravit</a>
                             <form method="post" action="/admin/forms/<?= $defId ?>/questions/<?= (int) $q['id'] ?>/delete" class="inline"
-                                  onsubmit="return confirm('Smazat otazku?');">
+                                  onsubmit="return confirm('Smazat otázku?');">
                                 <?= \App\Core\Csrf::field() ?><button class="btn btn--ghost" type="submit">Smazat</button>
                             </form>
                         </td>
@@ -98,11 +98,11 @@ $defId = (int) $def['id'];
 
 <?php if ($canEdit): ?>
     <div class="card">
-        <h2>Pridat otazku</h2>
+        <h2>Přidat otázku</h2>
         <form method="post" action="/admin/forms/<?= $defId ?>/questions">
             <?= \App\Core\Csrf::field() ?>
 
-            <label for="label">Text otazky *</label>
+            <label for="label">Text otázky *</label>
             <input type="text" id="label" name="label" required>
 
             <div class="form-row">
@@ -115,34 +115,34 @@ $defId = (int) $def['id'];
                     </select>
                 </div>
                 <div>
-                    <label for="help_text">Napoveda (nepovinne)</label>
+                    <label for="help_text">Nápověda (nepovinné)</label>
                     <input type="text" id="help_text" name="help_text">
                 </div>
                 <div>
                     <label>&nbsp;</label>
-                    <label class="inline"><input type="checkbox" name="is_required" value="1"> Povinna</label>
+                    <label class="inline"><input type="checkbox" name="is_required" value="1"> Povinná</label>
                 </div>
             </div>
 
-            <label for="options">Moznosti (jen pro "volby") - jedna na radek, volitelne <code>klic|popisek</code></label>
+            <label for="options">Možnosti (jen pro "volby") - jedna na řádek, volitelně <code>klíč|popisek</code></label>
             <textarea id="options" name="options" rows="3" placeholder="Ano&#10;Ne"></textarea>
 
             <div class="form-row">
                 <div>
-                    <label for="visible_if_question">Zobrazit jen kdyz otazka (klic)</label>
+                    <label for="visible_if_question">Zobrazit jen když otázka (klíč)</label>
                     <select id="visible_if_question" name="visible_if_question">
-                        <option value="">- vzdy zobrazit -</option>
+                        <option value="">- vždy zobrazit -</option>
                         <?php foreach ($questions as $q): ?>
                             <option value="<?= e($q['question_key']) ?>"><?= e($q['question_key']) ?> (<?= e($q['label']) ?>)</option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 <div>
-                    <label for="visible_if_value">ma hodnotu (klic moznosti / "yes" / "no")</label>
+                    <label for="visible_if_value">má hodnotu (klíč možnosti / "yes" / "no")</label>
                     <input type="text" id="visible_if_value" name="visible_if_value">
                 </div>
                 <div>
-                    <label for="health_event_type">Zaznamenat jako zdravotni udalost</label>
+                    <label for="health_event_type">Zaznamenat jako zdravotní událost</label>
                     <select id="health_event_type" name="health_event_type">
                         <option value="">- ne -</option>
                         <?php foreach (\App\Repositories\HealthEventRepository::TYPES as $t): ?>
@@ -152,8 +152,8 @@ $defId = (int) $def['id'];
                 </div>
             </div>
 
-            <button type="submit" class="btn btn--primary">Pridat otazku</button>
+            <button type="submit" class="btn btn--primary">Přidat otázku</button>
         </form>
-        <p class="muted">Priklad podminene otazky: "datum umrti" se zobrazi jen kdyz otazka <code>je_pes_nazivu</code> = <code>no</code>.</p>
+        <p class="muted">Příklad podmíněné otázky: "datum úmrtí" se zobrazí jen když otázka <code>je_pes_nazivu</code> = <code>no</code>.</p>
     </div>
 <?php endif; ?>

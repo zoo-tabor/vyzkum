@@ -30,17 +30,17 @@ final class OwnershipTransferService
 
         $appUrl = rtrim((string) Config::instance()->get('APP_URL', ''), '/');
         $link = $appUrl . '/transfer/' . $token;
-        $body = "Dobry den,\n\n"
-            . "stavajici majitel vas uvedl jako noveho majitele psa v ramci vyzkumu plemen psu Zoo Tabor.\n"
-            . "Pro potvrzeni prevzeti psa pouzijte tento odkaz (plati 1 mesic):\n\n"
+        $body = "Dobrý den,\n\n"
+            . "stávající majitel vás uvedl jako nového majitele psa v rámci výzkumu plemen psů Zoo Tábor.\n"
+            . "Pro potvrzení převzetí psa použijte tento odkaz (platí 1 měsíc):\n\n"
             . $link . "\n\n"
-            . "Po potvrzeni vam prijde odkaz pro nastaveni hesla do portalu.\n\n"
-            . "S pozdravem\nVyzkumny tym Zoo Tabor";
+            . "Po potvrzení vám přijde odkaz pro nastavení hesla do portálu.\n\n"
+            . "S pozdravem\nVýzkumný tým Zoo Tábor";
 
-        $sent = MailService::send($email, 'Prevzeti psa - Vyzkum Zoo Tabor', $body, 'ownership_transfer');
+        $sent = MailService::send($email, 'Převzetí psa - Výzkum Zoo Tábor', $body, 'ownership_transfer');
         return ['ok' => $sent, 'message' => $sent
-            ? 'Novemu majiteli (' . $email . ') byl odeslan potvrzovaci odkaz.'
-            : 'Zadost vytvorena, ale e-mail se nepodarilo odeslat (viz email log).'];
+            ? 'Novému majiteli (' . $email . ') byl odeslán potvrzovací odkaz.'
+            : 'Žádost vytvořena, ale e-mail se nepodařilo odeslat (viz email log).'];
     }
 
     /**

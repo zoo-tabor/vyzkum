@@ -22,7 +22,7 @@ final class FormController
         $breedId = BreedContext::current();
 
         return view('admin/forms/index', [
-            'title' => 'Formulare',
+            'title' => 'Formuláře',
             'forms' => $repo->listByBreed($breedId),
             'breeds' => (new BreedRepository())->all(false),
             'currentBreedId' => $breedId,
@@ -37,13 +37,13 @@ final class FormController
         $breedId = (int) input('breed_id');
         $name = trim((string) input('name'));
         if ($breedId <= 0 || $name === '') {
-            Session::flash('form_error', 'Vyberte plemeno a zadejte nazev dotazniku.');
+            Session::flash('form_error', 'Vyberte plemeno a zadejte název dotazníku.');
             redirect('/admin/forms');
         }
 
         $id = (new FormRepository())->createDefinition($breedId, $name, trim((string) input('description')) ?: null, Auth::id());
         AuditService::log(Auth::id(), Auth::role(), 'form_created', 'form_definition', (string) $id, null, ['name' => $name]);
-        Session::flash('form_notice', 'Dotaznik vytvoren. Pridejte otazky a publikujte.');
+        Session::flash('form_notice', 'Dotazník vytvořen. Přidejte otázky a publikujte.');
         redirect('/admin/forms/' . $id);
     }
 
@@ -53,7 +53,7 @@ final class FormController
         $def = $repo->findDefinition((int) $id);
         if ($def === null) {
             http_response_code(404);
-            return view('errors/404', ['title' => 'Dotaznik nenalezen']);
+            return view('errors/404', ['title' => 'Dotazník nenalezen']);
         }
 
         $draft = $repo->draftVersion((int) $id);
@@ -88,7 +88,7 @@ final class FormController
         $type = (string) input('type');
         $label = trim((string) input('label'));
         if (!FormSchema::isValidType($type) || $label === '') {
-            Session::flash('form_error', 'Vyberte typ a zadejte text otazky.');
+            Session::flash('form_error', 'Vyberte typ a zadejte text otázky.');
             redirect('/admin/forms/' . $id);
         }
 
@@ -110,7 +110,7 @@ final class FormController
         }
 
         AuditService::log(Auth::id(), Auth::role(), 'form_question_added', 'form_version', (string) $version['id'], null, ['key' => $key]);
-        Session::flash('form_notice', 'Otazka pridana.');
+        Session::flash('form_notice', 'Otázka přidána.');
         redirect('/admin/forms/' . $id);
     }
 
@@ -120,15 +120,15 @@ final class FormController
         $q = $repo->findQuestion((int) $qid);
         if ($q === null || (int) $q['form_definition_id'] !== (int) $id) {
             http_response_code(404);
-            return view('errors/404', ['title' => 'Otazka nenalezena']);
+            return view('errors/404', ['title' => 'Otázka nenalezena']);
         }
         if ($q['version_status'] !== 'draft') {
-            Session::flash('form_error', 'Publikovanou verzi nelze upravovat. Vytvorte novou verzi.');
+            Session::flash('form_error', 'Publikovanou verzi nelze upravovat. Vytvořte novou verzi.');
             redirect('/admin/forms/' . $id);
         }
 
         return view('admin/forms/question', [
-            'title' => 'Upravit otazku',
+            'title' => 'Upravit otázku',
             'defId' => (int) $id,
             'question' => $q,
             'options' => $repo->optionsFor((int) $qid),
@@ -143,14 +143,14 @@ final class FormController
         $repo = new FormRepository();
         $q = $repo->findQuestion((int) $qid);
         if ($q === null || (int) $q['form_definition_id'] !== (int) $id || $q['version_status'] !== 'draft') {
-            Session::flash('form_error', 'Otazku nelze upravit.');
+            Session::flash('form_error', 'Otázku nelze upravit.');
             redirect('/admin/forms/' . $id);
         }
 
         $type = (string) input('type');
         $label = trim((string) input('label'));
         if (!FormSchema::isValidType($type) || $label === '') {
-            Session::flash('form_error', 'Vyberte typ a zadejte text otazky.');
+            Session::flash('form_error', 'Vyberte typ a zadejte text otázky.');
             redirect('/admin/forms/' . $id . '/questions/' . $qid . '/edit');
         }
 
@@ -163,7 +163,7 @@ final class FormController
         ]);
         $repo->replaceOptions((int) $qid, FormSchema::needsOptions($type) ? FormSchema::parseOptions((string) input('options')) : []);
 
-        Session::flash('form_notice', 'Otazka ulozena.');
+        Session::flash('form_notice', 'Otázka uložena.');
         redirect('/admin/forms/' . $id);
     }
 
@@ -174,7 +174,7 @@ final class FormController
         $q = $repo->findQuestion((int) $qid);
         if ($q !== null && (int) $q['form_definition_id'] === (int) $id && $q['version_status'] === 'draft') {
             $repo->deleteQuestion((int) $qid);
-            Session::flash('form_notice', 'Otazka smazana.');
+            Session::flash('form_notice', 'Otázka smazána.');
         }
         redirect('/admin/forms/' . $id);
     }
@@ -196,7 +196,7 @@ final class FormController
         try {
             (new FormRepository())->publish((int) $id);
             AuditService::log(Auth::id(), Auth::role(), 'form_published', 'form_definition', $id);
-            Session::flash('form_notice', 'Dotaznik byl publikovan.');
+            Session::flash('form_notice', 'Dotazník byl publikován.');
         } catch (\Throwable $e) {
             Session::flash('form_error', $e->getMessage());
         }
@@ -207,7 +207,7 @@ final class FormController
     {
         Csrf::verify();
         (new FormRepository())->ensureDraft((int) $id);
-        Session::flash('form_notice', 'Vytvorena nova (draft) verze - muzete upravovat.');
+        Session::flash('form_notice', 'Vytvořena nová (draft) verze - můžete upravovat.');
         redirect('/admin/forms/' . $id);
     }
 
@@ -217,11 +217,11 @@ final class FormController
         $response = $repo->find((int) $id);
         if ($response === null) {
             http_response_code(404);
-            return view('errors/404', ['title' => 'Odpoved nenalezena']);
+            return view('errors/404', ['title' => 'Odpověď nenalezena']);
         }
 
         return view('admin/forms/response', [
-            'title' => 'Odpoved dotazniku',
+            'title' => 'Odpověď dotazníku',
             'response' => $response,
             'answers' => $repo->answers((int) $id),
         ]);

@@ -9,10 +9,10 @@
 <div class="page-head" style="display:flex; justify-content:space-between; align-items:center;">
     <h1>Vzorky</h1>
     <span>
-        <a class="btn" href="/admin/batches">Davky</a>
-        <a class="btn" href="/admin/vets">Veterinari</a>
+        <a class="btn" href="/admin/batches">Dávky</a>
+        <a class="btn" href="/admin/vets">Veterináři</a>
         <a class="btn" href="/admin/samples/export.csv<?= $status !== '' ? '?status=' . e(urlencode($status)) : '' ?>">Export CSV</a>
-        <a class="btn btn--primary" href="/admin/samples/new-batch">+ Nova davka</a>
+        <a class="btn btn--primary" href="/admin/samples/new-batch">+ Nová dávka</a>
     </span>
 </div>
 
@@ -21,7 +21,7 @@
 
 <form method="get" action="/admin/samples" class="card filters">
     <select name="status">
-        <option value="">Stav: vse</option>
+        <option value="">Stav: vše</option>
         <?php foreach ($statuses as $s): ?>
             <option value="<?= e($s) ?>"<?= $status === $s ? ' selected' : '' ?>><?= e($s) ?></option>
         <?php endforeach; ?>
@@ -31,10 +31,10 @@
 
 <div class="card">
     <?php if ($samples === []): ?>
-        <p class="muted">Zadne vzorky.</p>
+        <p class="muted">Žádné vzorky.</p>
     <?php else: ?>
         <table class="table">
-            <thead><tr><th>Sample ID</th><th>Plemeno</th><th>Pes</th><th>Veterinar</th><th>Odber</th><th>Stav</th></tr></thead>
+            <thead><tr><th>Sample ID</th><th>Plemeno</th><th>Pes</th><th>Veterinář</th><th>Odběr</th><th>Stav</th></tr></thead>
             <tbody>
             <?php foreach ($samples as $s): ?>
                 <tr>

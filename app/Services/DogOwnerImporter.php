@@ -65,33 +65,33 @@ final class DogOwnerImporter
 
             $slug = strtolower(trim($r['breed_slug'] ?? ''));
             if ($slug === '') {
-                $errors[] = 'chybi breed_slug';
+                $errors[] = 'chybí breed_slug';
             } elseif (!isset($breedBySlug[$slug])) {
-                $errors[] = "plemeno '{$slug}' neexistuje (zalozte ho v Plemena)";
+                $errors[] = "plemeno '{$slug}' neexistuje (založte ho v Plemena)";
             }
 
             if (trim($r['dog_name'] ?? '') === '') {
-                $errors[] = 'chybi dog_name';
+                $errors[] = 'chybí dog_name';
             }
 
             foreach (['birth_date', 'death_date', 'sample_received_at'] as $df) {
                 $dv = trim($r[$df] ?? '');
                 if ($dv !== '' && !self::isDate($dv)) {
-                    $errors[] = "{$df} neni ve formatu YYYY-MM-DD";
+                    $errors[] = "{$df} není ve formátu YYYY-MM-DD";
                 }
             }
 
             $email = strtolower(trim($r['owner_primary_email'] ?? ''));
             if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $errors[] = 'neplatny owner_primary_email';
+                $errors[] = 'neplatný owner_primary_email';
             }
 
             $chip = trim($r['chip_number'] ?? '');
             if ($chip !== '') {
                 if (isset($seenChips[$chip])) {
-                    $errors[] = "duplicitni cip v souboru ({$chip})";
+                    $errors[] = "duplicitní čip v souboru ({$chip})";
                 } elseif ($this->dogs->chipExists($chip)) {
-                    $errors[] = "cip uz existuje v databazi ({$chip})";
+                    $errors[] = "čip už existuje v databázi ({$chip})";
                 }
                 $seenChips[$chip] = true;
             }
@@ -99,9 +99,9 @@ final class DogOwnerImporter
             $pedigree = trim($r['pedigree_number'] ?? '');
             if ($pedigree !== '') {
                 if (isset($seenPedigrees[$pedigree])) {
-                    $errors[] = "duplicitni cislo prukazu v souboru ({$pedigree})";
+                    $errors[] = "duplicitní číslo průkazu v souboru ({$pedigree})";
                 } elseif ($this->dogs->pedigreeExists($pedigree)) {
-                    $errors[] = "cislo prukazu uz existuje v databazi ({$pedigree})";
+                    $errors[] = "číslo průkazu už existuje v databázi ({$pedigree})";
                 }
                 $seenPedigrees[$pedigree] = true;
             }

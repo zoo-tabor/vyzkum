@@ -25,7 +25,7 @@ final class ImportController
     public function form(): string
     {
         return view('admin/import/form', [
-            'title' => 'Import psu a majitelu',
+            'title' => 'Import psů a majitelů',
             'preview' => null,
             'error' => Session::flash('import_error'),
         ]);
@@ -41,7 +41,7 @@ final class ImportController
             redirect('/admin/import');
         }
         if ((int) $file['size'] > self::MAX_BYTES) {
-            Session::flash('import_error', 'Soubor je prilis velky (max 2 MB).');
+            Session::flash('import_error', 'Soubor je příliš velký (max 2 MB).');
             redirect('/admin/import');
         }
         $ext = strtolower(pathinfo((string) $file['name'], PATHINFO_EXTENSION));
@@ -58,7 +58,7 @@ final class ImportController
         $preview = (new DogOwnerImporter())->preview($parsed['rows']);
 
         return view('admin/import/form', [
-            'title' => 'Import - nahled',
+            'title' => 'Import - náhled',
             'preview' => $preview,
             'header' => $parsed['header'],
             'name' => Session::get('import_name'),
@@ -72,7 +72,7 @@ final class ImportController
 
         $content = Session::get('import_csv');
         if (!is_string($content) || $content === '') {
-            Session::flash('import_error', 'Relace importu vyprsela, nahrajte soubor znovu.');
+            Session::flash('import_error', 'Relace importu vypršela, nahrajte soubor znovu.');
             redirect('/admin/import');
         }
 
@@ -84,7 +84,7 @@ final class ImportController
         Session::forget('import_name');
 
         Session::flash('dog_notice', sprintf(
-            'Import dokoncen: %d psu, %d novych majitelu (%d znovu pouzito), %d radku preskoceno.',
+            'Import dokončen: %d psů, %d nových majitelů (%d znovu použito), %d řádků přeskočeno.',
             $result['dogs'],
             $result['owners_created'],
             $result['owners_reused'],

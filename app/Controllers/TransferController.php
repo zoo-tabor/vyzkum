@@ -14,9 +14,9 @@ final class TransferController
     {
         $request = (new TransferRepository())->findActiveByHash(TokenService::hash($token));
         if ($request === null) {
-            return view('transfer/confirm', ['title' => 'Prevzeti psa', 'invalid' => true, 'token' => $token, 'request' => null, '_layout' => 'public']);
+            return view('transfer/confirm', ['title' => 'Převzetí psa', 'invalid' => true, 'token' => $token, 'request' => null, '_layout' => 'public']);
         }
-        return view('transfer/confirm', ['title' => 'Prevzeti psa', 'invalid' => false, 'token' => $token, 'request' => $request, '_layout' => 'public']);
+        return view('transfer/confirm', ['title' => 'Převzetí psa', 'invalid' => false, 'token' => $token, 'request' => $request, '_layout' => 'public']);
     }
 
     public function confirm(string $token): string
@@ -25,10 +25,10 @@ final class TransferController
         $repo = new TransferRepository();
         $request = $repo->findActiveByHash(TokenService::hash($token));
         if ($request === null) {
-            return view('transfer/confirm', ['title' => 'Prevzeti psa', 'invalid' => true, 'token' => $token, 'request' => null, '_layout' => 'public']);
+            return view('transfer/confirm', ['title' => 'Převzetí psa', 'invalid' => true, 'token' => $token, 'request' => null, '_layout' => 'public']);
         }
 
         (new OwnershipTransferService())->confirm($request);
-        return view('transfer/done', ['title' => 'Prevzeti potvrzeno', 'request' => $request, '_layout' => 'public']);
+        return view('transfer/done', ['title' => 'Převzetí potvrzeno', 'request' => $request, '_layout' => 'public']);
     }
 }
