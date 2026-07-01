@@ -33,7 +33,8 @@ commit ASCII (viz memory styl-cestina-repo).
   (naseptavac). Strankovani dole, razeni + filtry. Bez migrace.
 
 ## Faze 4 - genetika: model + dashboard (gene-centric)
-- Migrace 013: dog_genotypes.gene_id (backfill z markeru), unikat (dog_id, gene_id).
+- Migrace 014: dog_genotypes.gene_id (backfill z markeru), unikat (dog_id, gene_id).
+  (013 pouzita pro onboarding majitele - viz nize.)
   UI prestane pracovat s markery; CSV import ponechan (hlavicky <KOD>_genotype = symbol
   genu). Dashboard /admin/genetics: radek = pes, sloupec = gen plemene, bunka = genotyp;
   zuzit prvni sloupec; + datatabulka z faze 1. Sloupce genu propsat i do seznamu Psi.
@@ -41,3 +42,14 @@ commit ASCII (viz memory styl-cestina-repo).
 ## Faze 5 - genetika: detail /admin/genetics/{} s editaci
 - Nova stranka jen s genetikou psa: pridat/upravit/smazat genotyp per gen + metadata
   testu (lab, datum). Proklik z dashboardu. Doplneni chybejici editace.
+
+## Vlozeny pozadavek - onboarding majitele  [HOTOVO]
+Mimo 5 datatable/genetika fazi (na zadost uzivatele). Migrace 013:
+owners.onboarding_completed_at + ownership_transfer_requests.new_owner_phone.
+Po nastaveni hesla se majitel presmeruje na /portal/onboarding (jednorazove; dokud
+nedokonci, v portalu banner). Stranka: kontrola kontaktu (primarni e-mail read-only,
+sekundarni e-maily/telefony/adresa editovatelne), seznam aktualnich psu s otazkou
+"Jste stale majitelem?" Ano/Ne; Ne -> pole novy majitel (jmeno, e-mail, telefon) ->
+OwnershipTransferService::request (rozsireno o telefon), parovani dle e-mailu; jeden
+souhlas (odkaz /gdpr + kontaktovani). Ano -> confirmOwnership. markOnboarded ulozi
+contact_consent + onboarding_completed_at.

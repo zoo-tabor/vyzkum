@@ -13,15 +13,15 @@ final class TransferRepository
         return Database::pdo();
     }
 
-    public function create(int $dogId, ?int $fromOwnerId, string $newName, string $newEmail, string $tokenHash, string $expiresAt, ?int $createdBy): int
+    public function create(int $dogId, ?int $fromOwnerId, string $newName, string $newEmail, ?string $newPhone, string $tokenHash, string $expiresAt, ?int $createdBy): int
     {
         $stmt = $this->pdo()->prepare(
             'INSERT INTO ownership_transfer_requests
-                (dog_id, from_owner_id, new_owner_name, new_owner_email, invite_token_hash, expires_at, created_by_user_id)
-             VALUES (:d, :fo, :n, :e, :h, :exp, :by)'
+                (dog_id, from_owner_id, new_owner_name, new_owner_email, new_owner_phone, invite_token_hash, expires_at, created_by_user_id)
+             VALUES (:d, :fo, :n, :e, :ph, :h, :exp, :by)'
         );
         $stmt->execute([
-            'd' => $dogId, 'fo' => $fromOwnerId, 'n' => $newName, 'e' => $newEmail,
+            'd' => $dogId, 'fo' => $fromOwnerId, 'n' => $newName, 'e' => $newEmail, 'ph' => $newPhone,
             'h' => $tokenHash, 'exp' => $expiresAt, 'by' => $createdBy,
         ]);
         return (int) $this->pdo()->lastInsertId();

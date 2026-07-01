@@ -21,12 +21,13 @@ final class OwnershipTransferService
     }
 
     /** Puvodni majitel zada noveho; posle se mu potvrzovaci odkaz. */
-    public function request(int $dogId, ?int $fromOwnerId, string $newName, string $newEmail, ?int $createdBy): array
+    public function request(int $dogId, ?int $fromOwnerId, string $newName, string $newEmail, ?string $newPhone, ?int $createdBy): array
     {
         $email = strtolower(trim($newEmail));
+        $phone = $newPhone !== null && trim($newPhone) !== '' ? trim($newPhone) : null;
         $token = TokenService::generate();
         $expiresAt = (new \DateTimeImmutable('+1 month'))->format('Y-m-d H:i:s');
-        $this->transfers->create($dogId, $fromOwnerId, trim($newName), $email, TokenService::hash($token), $expiresAt, $createdBy);
+        $this->transfers->create($dogId, $fromOwnerId, trim($newName), $email, $phone, TokenService::hash($token), $expiresAt, $createdBy);
 
         $appUrl = rtrim((string) Config::instance()->get('APP_URL', ''), '/');
         $link = $appUrl . '/transfer/' . $token;
@@ -60,6 +61,10 @@ final class OwnershipTransferService
                 'preferred_contact_method' => 'email',
             ]);
             $this->owners->addEmail($ownerId, $email, true);
+            $phone = trim((string) ($request['new_owner_phone'] ?? ''));
+            if ($phone !== '') {
+                $this->owners->addPhone($ownerId, $phone, null, true);
+            }
         }
 
         // Atomicka vymena aktualniho vlastnictvi (uzavre stare, zalozi nove).

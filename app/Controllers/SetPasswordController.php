@@ -64,6 +64,10 @@ final class SetPasswordController
         Auth::login($user);
         AuditService::log($userId, (string) $user['role'], 'password_set_via_invite', 'user', (string) $userId);
 
+        // Majitel projde jednorazovym onboardingem (kontrola udaju + potvrzeni psu).
+        if (($user['role'] ?? '') === 'owner') {
+            redirect('/portal/onboarding');
+        }
         redirect(home_for((string) $user['role']));
     }
 }

@@ -78,6 +78,8 @@ $router->group([new RequireRole('club_viewer')], function (Router $router): void
 $router->group([new RequireRole('owner')], function (Router $router): void {
     $portal = new PortalController();
     $router->get('/portal', [$portal, 'index']);
+    $router->get('/portal/onboarding', [$portal, 'onboarding']);
+    $router->post('/portal/onboarding', [$portal, 'onboardingSubmit']);
     $router->get('/portal/contacts', [$portal, 'contacts']);
     $router->post('/portal/contacts', [$portal, 'updateContacts']);
     $router->get('/portal/dogs/{id}', [$portal, 'dog']);

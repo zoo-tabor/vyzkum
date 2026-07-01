@@ -104,7 +104,7 @@ final class PortalController
             redirect('/portal/dogs/' . $id);
         }
 
-        $result = (new OwnershipTransferService())->request((int) $id, (int) $owner['id'], $name, $email, Auth::id());
+        $result = (new OwnershipTransferService())->request((int) $id, (int) $owner['id'], $name, $email, trim((string) input('new_owner_phone')) ?: null, Auth::id());
         AuditService::log(Auth::id(), 'owner', 'ownership_transfer_requested', 'dog', $id, null, ['new_owner_email' => strtolower($email)]);
         Session::flash($result['ok'] ? 'portal_notice' : 'portal_error', $result['message']);
         redirect('/portal/dogs/' . $id);
@@ -378,6 +378,86 @@ final class PortalController
         AuditService::log(Auth::id(), 'owner', 'owner_contacts_updated', 'owner', (string) $owner['id']);
         Session::flash('portal_notice', 'Kontaktní údaje byly uloženy.');
         redirect('/portal/contacts');
+    }
+
+    /** Jednorazovy onboarding po nastaveni hesla: kontrola udaju + potvrzeni psu. */
+    public function onboarding(): string
+    {
+        $repo = new OwnerRepository();
+        $owner = $repo->findByUserId((int) Auth::id());
+        if ($owner === null) {
+            redirect('/portal');
+        }
+        if (!empty($owner['onboarding_completed_at'])) {
+            redirect('/portal');
+        }
+
+        $ownerId = (int) $owner['id'];
+        $currentDogs = array_values(array_filter(
+            $repo->dogsOf($ownerId),
+            static fn (array $d): bool => (int) $d['is_current'] === 1
+        ));
+
+        return view('portal/onboarding', [
+            'title' => 'Kontrola údajů',
+            'owner' => $owner,
+            'primaryEmail' => $repo->primaryEmail($ownerId),
+            'secondaryEmails' => array_values(array_filter($repo->emails($ownerId), static fn ($e) => (int) $e['is_primary'] === 0)),
+            'phones' => $repo->phones($ownerId),
+            'dogs' => $currentDogs,
+            'error' => Session::flash('portal_error'),
+        ]);
+    }
+
+    public function onboardingSubmit(): string
+    {
+        Csrf::verify();
+        $repo = new OwnerRepository();
+        $owner = $repo->findByUserId((int) Auth::id());
+        if ($owner === null) {
+            redirect('/portal');
+        }
+        $ownerId = (int) $owner['id'];
+
+        if (empty(input('main_consent'))) {
+            Session::flash('portal_error', 'Bez souhlasu se zpracováním údajů nelze pokračovat.');
+            redirect('/portal/onboarding');
+        }
+
+        // Kontaktni udaje (primarni e-mail se nemeni - je to prihlasovaci jmeno).
+        $repo->updateContactInfo($ownerId, trim((string) input('address')) ?: null);
+        $repo->replacePhones($ownerId, $this->splitList((string) input('phones')));
+        $repo->replaceSecondaryEmails($ownerId, $this->splitList((string) input('secondary_emails')));
+
+        // Psi: Ano = potvrdit vlastnictvi, Ne = zalozit zadost o prevod na noveho majitele.
+        $dogs = new DogRepository();
+        $transfers = new OwnershipTransferService();
+        $confirmed = 0;
+        $handedOver = 0;
+        foreach ($repo->dogsOf($ownerId) as $d) {
+            if ((int) $d['is_current'] !== 1) {
+                continue;
+            }
+            $dogId = (int) $d['id'];
+            if ((string) input('dog_' . $dogId) === 'transfer') {
+                $name = trim((string) input('new_owner_name_' . $dogId));
+                $email = trim((string) input('new_owner_email_' . $dogId));
+                $phone = trim((string) input('new_owner_phone_' . $dogId));
+                if ($name !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $transfers->request($dogId, $ownerId, $name, $email, $phone ?: null, Auth::id());
+                    $handedOver++;
+                }
+                // Neuplne zadani noveho majitele: psa zatim nemenime (lze doresit v portalu).
+            } else {
+                $dogs->confirmOwnership($dogId, $ownerId);
+                $confirmed++;
+            }
+        }
+
+        $repo->markOnboarded($ownerId, true);
+        AuditService::log(Auth::id(), 'owner', 'owner_onboarding_completed', 'owner', (string) $ownerId, null, ['confirmed' => $confirmed, 'transfer' => $handedOver]);
+        Session::flash('portal_notice', 'Děkujeme, vaše údaje byly uloženy.');
+        redirect('/portal');
     }
 
     /**

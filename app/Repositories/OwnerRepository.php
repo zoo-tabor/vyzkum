@@ -218,6 +218,15 @@ final class OwnerRepository
         $stmt->execute(['a' => $address, 'id' => $ownerId]);
     }
 
+    /** Oznaci onboarding majitele za dokonceny a ulozi souhlas s kontaktovanim. */
+    public function markOnboarded(int $ownerId, bool $contactConsent): void
+    {
+        $stmt = $this->pdo()->prepare(
+            'UPDATE owners SET onboarding_completed_at = NOW(), contact_consent = :c, updated_at = NOW() WHERE id = :id'
+        );
+        $stmt->execute(['c' => $contactConsent ? 1 : 0, 'id' => $ownerId]);
+    }
+
     /** @param array<int, string> $phones nahradi vsechny telefony */
     public function replacePhones(int $ownerId, array $phones): void
     {

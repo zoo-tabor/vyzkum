@@ -540,10 +540,16 @@ CREATE TABLE IF NOT EXISTS form_assignments (
   CONSTRAINT form_assignments_owner_fk FOREIGN KEY (owner_id) REFERENCES owners(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+ALTER TABLE owners
+  ADD COLUMN IF NOT EXISTS onboarding_completed_at DATETIME NULL;
+
+ALTER TABLE ownership_transfer_requests
+  ADD COLUMN IF NOT EXISTS new_owner_phone VARCHAR(40) NULL AFTER new_owner_email;
+
 -- Oznaceni migraci jako provedenych (bez chyby, kdyz uz tam jsou).
 INSERT IGNORE INTO schema_migrations (version)
 VALUES ('001_core.sql'), ('002_dogs_owners.sql'), ('003_invites_mail.sql'),
        ('004_forms.sql'), ('005_form_responses.sql'), ('006_samples.sql'),
        ('007_genetics.sql'), ('008_messages.sql'), ('009_ownership_transfer.sql'),
        ('010_health_events.sql'), ('011_dogs_extra_colours.sql'),
-       ('012_form_assignments.sql');
+       ('012_form_assignments.sql'), ('013_owner_onboarding.sql');

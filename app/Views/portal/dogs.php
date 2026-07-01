@@ -19,6 +19,12 @@
         <p>Váš účet zatím není propojen s žádným majitelem v evidenci. Kontaktujte prosím výzkumný tým.</p>
     </div>
 <?php else: ?>
+    <?php if (empty($owner['onboarding_completed_at'])): ?>
+        <div class="alert alert--ok">
+            Zkontrolujte prosím své údaje a potvrďte u svých psů, že jste stále jejich majitelem.
+            <a href="/portal/onboarding">Přejít na kontrolu údajů &rarr;</a>
+        </div>
+    <?php endif; ?>
     <div class="card">
         <h2>Psi</h2>
         <?php if ($dogs === []): ?>
