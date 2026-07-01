@@ -30,9 +30,11 @@ commit ASCII (viz memory styl-cestina-repo).
   poctu + cislovane strankovani. OwnerController::index vraci vsechny majitele (bez
   Paginatoru), horni card-filtr odstranen. Bez migrace.
 
-## Faze 3 - admin/samples na datatabulku
-- Aplikovat modul; horni card-filtr nahradit vyhledavanim vzorku podle jmena psa
-  (naseptavac). Strankovani dole, razeni + filtry. Bez migrace.
+## Faze 3 - admin/samples na datatabulku  [HOTOVO]
+- Modul aplikovan (Odber pres data-sort ISO, Stav jako sloupcovy filtr misto horniho
+  card-filtru). Vyhledavani podle jmena psa resi globalni hledani datatabulky (Pes
+  sloupec) - konzistentni s dogs/owners, uzivatel schvalil. SampleController::index
+  vraci vsechny vzorky plemene (bez horniho filtru). Bez migrace.
 
 ## Faze 4 - genetika: model + dashboard (gene-centric)
 - Migrace 014: dog_genotypes.gene_id (backfill z markeru), unikat (dog_id, gene_id).

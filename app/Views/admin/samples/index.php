@@ -1,7 +1,5 @@
 <?php
 /** @var array<int, array<string, mixed>> $samples */
-/** @var string $status */
-/** @var array<int, string> $statuses */
 /** @var int|null $currentBreedId */
 /** @var string|null $notice */
 /** @var string|null $error */
@@ -11,7 +9,7 @@
     <span>
         <a class="btn" href="/admin/batches">Dávky</a>
         <a class="btn" href="/admin/vets">Veterináři</a>
-        <a class="btn" href="/admin/samples/export.csv<?= $status !== '' ? '?status=' . e(urlencode($status)) : '' ?>">Export CSV</a>
+        <a class="btn" href="/admin/samples/export.csv">Export CSV</a>
         <a class="btn" href="/admin/samples/manual">+ Ruční vzorek</a>
         <a class="btn btn--primary" href="/admin/samples/new-batch">+ Nová dávka</a>
     </span>
@@ -20,34 +18,36 @@
 <?php if (!empty($notice)): ?><div class="alert alert--ok"><?= e($notice) ?></div><?php endif; ?>
 <?php if (!empty($error)): ?><div class="alert alert--error"><?= e($error) ?></div><?php endif; ?>
 
-<form method="get" action="/admin/samples" class="card filters">
-    <select name="status">
-        <option value="">Stav: vše</option>
-        <?php foreach ($statuses as $s): ?>
-            <option value="<?= e($s) ?>"<?= $status === $s ? ' selected' : '' ?>><?= e($s) ?></option>
-        <?php endforeach; ?>
-    </select>
-    <button class="btn" type="submit">Filtrovat</button>
-</form>
-
 <div class="card">
     <?php if ($samples === []): ?>
         <p class="muted">Žádné vzorky.</p>
     <?php else: ?>
-        <table class="table">
-            <thead><tr><th>Sample ID</th><th>Plemeno</th><th>Pes</th><th>Veterinář</th><th>Odběr</th><th>Stav</th></tr></thead>
+        <table class="table" data-datatable data-per-page="25" data-per-page-options="25,50,100,all">
+            <thead>
+            <tr>
+                <th>Sample ID</th>
+                <th>Plemeno</th>
+                <th>Pes</th>
+                <th>Veterinář</th>
+                <th>Odběr</th>
+                <th>Stav</th>
+            </tr>
+            </thead>
             <tbody>
             <?php foreach ($samples as $s): ?>
                 <tr>
                     <td><a href="/admin/samples/<?= e(rawurlencode($s['sample_id'])) ?>"><code><?= e($s['sample_id']) ?></code></a></td>
-                    <td><?= e($s['breed_name'] ?? '') ?></td>
-                    <td><?= e($s['dog_name'] ?? '') ?: '<span class="muted">-</span>' ?></td>
-                    <td><?= e($s['vet_name'] ?? '') ?: '<span class="muted">-</span>' ?></td>
-                    <td><?= e(\App\Support\Dates::toCz($s['collection_date'] ?? null)) ?></td>
+                    <td><?= e($s['breed_name'] ?? '') ?: '-' ?></td>
+                    <td><?= e($s['dog_name'] ?? '') ?: '-' ?></td>
+                    <td><?= e($s['vet_name'] ?? '') ?: '-' ?></td>
+                    <td data-sort="<?= e(substr((string) ($s['collection_date'] ?? ''), 0, 10)) ?>"><?= e(\App\Support\Dates::toCz($s['collection_date'] ?? null)) ?></td>
                     <td><?= e($s['status']) ?></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>
         </table>
+        <p class="muted">Řazení: šipky ↑/↓ v záhlaví. Filtr sloupce (např. Stav): ikona ⌕. Nahoře vpravo hledání (i podle jména psa) a počet záznamů.</p>
     <?php endif; ?>
 </div>
+
+<script src="<?= e(asset('assets/datatable.js')) ?>"></script>

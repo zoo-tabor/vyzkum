@@ -22,15 +22,13 @@ final class SampleController
 
     public function index(): string
     {
-        $repo = new SampleRepository();
         $breedId = BreedContext::current();
-        $status = (string) input('status');
+        // Razeni/filtrovani/hledani (vc. dle jmena psa) + strankovani resi datatable.js.
+        $rows = (new SampleRepository())->listForBreed($breedId, '', 1000000);
 
         return view('admin/samples/index', [
             'title' => 'Vzorky',
-            'samples' => $repo->listForBreed($breedId, $status),
-            'status' => $status,
-            'statuses' => self::STATUSES,
+            'samples' => $rows,
             'currentBreedId' => $breedId,
             'notice' => Session::flash('sample_notice'),
             'error' => Session::flash('sample_error'),
