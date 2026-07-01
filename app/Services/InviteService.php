@@ -63,7 +63,7 @@ final class InviteService
         $appUrl = rtrim((string) Config::instance()->get('APP_URL', ''), '/');
         $link = $appUrl . '/set-password/' . $token;
 
-        $sent = MailService::send($email, 'Nastavení hesla - Výzkum Zoo Tábor', $this->buildBody($name, $link), 'set_password');
+        $sent = MailService::send($email, 'Nastavení hesla - Výzkum ZOO Tábor', $this->buildBody($name, $link), 'set_password');
 
         if (!$sent) {
             return ['ok' => false, 'message' => 'Pozvánka vytvořena, ale e-mail se nepodařilo odeslat (viz email log).'];
@@ -75,10 +75,10 @@ final class InviteService
     private function buildBody(string $name, string $link): string
     {
         return "Dobrý den,\n\n"
-            . "do systému výzkumu plemen psů Zoo Tábor vám byl založen účet.\n"
+            . "do systému výzkumu plemen psů ZOO Tábor vám byl založen účet.\n"
             . "Pro nastavení hesla použijte tento odkaz (platí 1 měsíc):\n\n"
             . $link . "\n\n"
             . "Po nastavení hesla se budete moci přihlásit a vidět své psy.\n\n"
-            . "S pozdravem\nVýzkumný tým Zoo Tábor";
+            . "S pozdravem\nVýzkumný tým ZOO Tábor";
     }
 }

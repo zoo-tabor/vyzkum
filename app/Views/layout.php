@@ -2,7 +2,7 @@
 /** @var string $content */
 /** @var string|null $title */
 $user = \App\Services\Auth::user();
-$pageTitle = isset($title) ? $title . ' - Výzkum Zoo Tábor' : 'Výzkum Zoo Tábor';
+$pageTitle = isset($title) ? $title . ' - Výzkum ZOO Tábor' : 'Výzkum ZOO Tábor';
 $isOwner = $user !== null && ($user['role'] ?? '') === 'owner';
 $isClub = $user !== null && ($user['role'] ?? '') === 'club_viewer';
 

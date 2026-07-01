@@ -32,13 +32,13 @@ final class OwnershipTransferService
         $appUrl = rtrim((string) Config::instance()->get('APP_URL', ''), '/');
         $link = $appUrl . '/transfer/' . $token;
         $body = "Dobrý den,\n\n"
-            . "stávající majitel vás uvedl jako nového majitele psa v rámci výzkumu plemen psů Zoo Tábor.\n"
+            . "stávající majitel vás uvedl jako nového majitele psa v rámci výzkumu plemen psů ZOO Tábor.\n"
             . "Pro potvrzení převzetí psa použijte tento odkaz (platí 1 měsíc):\n\n"
             . $link . "\n\n"
             . "Po potvrzení vám přijde odkaz pro nastavení hesla do portálu.\n\n"
-            . "S pozdravem\nVýzkumný tým Zoo Tábor";
+            . "S pozdravem\nVýzkumný tým ZOO Tábor";
 
-        $sent = MailService::send($email, 'Převzetí psa - Výzkum Zoo Tábor', $body, 'ownership_transfer');
+        $sent = MailService::send($email, 'Převzetí psa - Výzkum ZOO Tábor', $body, 'ownership_transfer');
         return ['ok' => $sent, 'message' => $sent
             ? 'Novému majiteli (' . $email . ') byl odeslán potvrzovací odkaz.'
             : 'Žádost vytvořena, ale e-mail se nepodařilo odeslat (viz email log).'];

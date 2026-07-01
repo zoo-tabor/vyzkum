@@ -72,7 +72,7 @@ foreach ($rows as $row) {
                         <div class="label-copy">
                             <strong><?= e($label['sample_id']) ?></strong>
                             <span><?= e($label['role']) ?></span>
-                            <small>Výzkum plemen psů - Zoo Tábor</small>
+                            <small>Výzkum plemen psů - ZOO Tábor</small>
                         </div>
                     <?php else: ?>
                         <div class="label-missing">QR odkaz není dostupný.</div>

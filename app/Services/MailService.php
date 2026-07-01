@@ -151,7 +151,7 @@ final class MailService
     private static function mailSend(Config $cfg, string $to, string $subject, string $body): void
     {
         $from = (string) $cfg->get('SMTP_FROM', 'vyzkum@zootabor.eu');
-        $fromName = (string) $cfg->get('SMTP_FROM_NAME', 'Výzkum Zoo Tábor');
+        $fromName = (string) $cfg->get('SMTP_FROM_NAME', 'Výzkum ZOO Tábor');
 
         $headers = [
             'From: =?UTF-8?B?' . base64_encode($fromName) . '?= <' . $from . '>',
@@ -177,7 +177,7 @@ final class MailService
         $pass = (string) $cfg->get('SMTP_PASS', '');
         $startTls = (bool) $cfg->get('SMTP_USE_STARTTLS', true);
         $from = (string) $cfg->get('SMTP_FROM', 'vyzkum@zootabor.eu');
-        $fromName = (string) $cfg->get('SMTP_FROM_NAME', 'Výzkum Zoo Tábor');
+        $fromName = (string) $cfg->get('SMTP_FROM_NAME', 'Výzkum ZOO Tábor');
         $ehlo = parse_url((string) $cfg->get('APP_URL', 'localhost'), PHP_URL_HOST) ?: 'localhost';
 
         if ($host === '') {

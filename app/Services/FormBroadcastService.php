@@ -20,16 +20,16 @@ final class FormBroadcastService
     ) {
     }
 
-    public const DEFAULT_SUBJECT = 'Dotazník k vašemu psovi - Výzkum Zoo Tábor';
+    public const DEFAULT_SUBJECT = 'Dotazník k vašemu psovi - Výzkum ZOO Tábor';
 
     public static function defaultBody(string $formName): string
     {
         return "Dobrý den,\n\n"
-            . "v rámci výzkumu dlouhověkosti psů Zoo Tábor vás prosíme o vyplnění dotazníku "
+            . "v rámci výzkumu dlouhověkosti psů ZOO Tábor vás prosíme o vyplnění dotazníku "
             . "\"{$formName}\" k vašemu psovi {pes}.\n\n"
             . "Dotazník vyplníte po přihlášení do portálu zde:\n{odkaz}\n\n"
             . "Předem děkujeme za spolupráci.\n\n"
-            . "S pozdravem\nVýzkumný tým Zoo Tábor";
+            . "S pozdravem\nVýzkumný tým ZOO Tábor";
     }
 
     /**

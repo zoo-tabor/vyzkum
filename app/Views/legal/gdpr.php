@@ -9,7 +9,7 @@
     <p class="muted"><em>Předběžné znění – konečný text doplní právní oddělení.</em></p>
 
     <h2>1. Správce údajů</h2>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum vestibulum. Cras venenatis euismod malesuada. Správcem osobních údajů je Zoo Tábor a. s., se sídlem lorem ipsum, IČO 00000000.</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum vestibulum. Cras venenatis euismod malesuada. Správcem osobních údajů je ZOO Tábor a. s., se sídlem lorem ipsum, IČO 00000000.</p>
 
     <h2>2. Jaké údaje zpracováváme</h2>
     <p>Nulla vitae elit libero, a pharetra augue. Zpracováváme zejména identifikační a kontaktní údaje majitele (jméno, e-mail, telefon, adresa), údaje o psovi (jméno, plemeno, číslo čipu, číslo průkazu původu, datum narození) a genetická data získaná z odebraných vzorků.</p>

@@ -41,8 +41,8 @@ final class DiagnosticsController
 
         $ok = MailService::send(
             $to,
-            'Test e-mail - Výzkum Zoo Tábor',
-            "Toto je testovací e-mail z CRM Výzkum Zoo Tábor.\nČas: " . date('Y-m-d H:i:s') . "\n",
+            'Test e-mail - Výzkum ZOO Tábor',
+            "Toto je testovací e-mail z CRM Výzkum ZOO Tábor.\nČas: " . date('Y-m-d H:i:s') . "\n",
             'test'
         );
         AuditService::log(Auth::id(), Auth::role(), 'mail_test', 'email', $to, null, ['ok' => $ok]);

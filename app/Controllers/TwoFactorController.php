@@ -13,7 +13,7 @@ use App\Services\Totp;
 
 final class TwoFactorController
 {
-    private const ISSUER = 'Výzkum Zoo Tábor';
+    private const ISSUER = 'Výzkum ZOO Tábor';
     private const MAX_ATTEMPTS = 5;
     private const DECAY_SECONDS = 900;
 
