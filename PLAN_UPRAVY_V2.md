@@ -24,9 +24,11 @@ commit ASCII (viz memory styl-cestina-repo).
   card-filtr (Stav je ted sloupcovy filtr) i naseptavac (nahrazen hledanim v tabulce).
   DogController::index zjednoduseno (bez Paginatoru). Bez migrace.
 
-## Faze 2 - admin/owners na datatabulku
-- Aplikovat modul (cislovane strankovani + pocet, A->Z/Z->A vsechny sloupce, sloupcove
-  filtry). Bez migrace.
+## Faze 2 - admin/owners na datatabulku  [HOTOVO]
+- Modul aplikovan: vsechny sloupce sortovatelne (Psi ciselne, Posledni aktualizace pres
+  data-sort ISO), sloupcove filtry (Poznamka data-nofilter), globalni hledani + vyber
+  poctu + cislovane strankovani. OwnerController::index vraci vsechny majitele (bez
+  Paginatoru), horni card-filtr odstranen. Bez migrace.
 
 ## Faze 3 - admin/samples na datatabulku
 - Aplikovat modul; horni card-filtr nahradit vyhledavanim vzorku podle jmena psa

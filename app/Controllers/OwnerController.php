@@ -11,26 +11,17 @@ use App\Repositories\UserRepository;
 use App\Services\Auth;
 use App\Services\AuditService;
 use App\Services\InviteService;
-use App\Support\Paginator;
 
 final class OwnerController
 {
-    private const PER_PAGE = 25;
-
     public function index(): string
     {
-        $repo = new OwnerRepository();
-        $search = trim((string) input('q'));
-
-        $total = $repo->count($search);
-        $pager = new Paginator($total, (int) input('page', 1), self::PER_PAGE);
-        $rows = $repo->paginate($search, $pager->perPage, $pager->offset);
+        // Razeni/filtrovani/strankovani resi klientska datatabulka (datatable.js).
+        $rows = (new OwnerRepository())->paginate('', 1000000, 0);
 
         return view('admin/owners/index', [
             'title' => 'Majitelé',
             'owners' => $rows,
-            'pager' => $pager,
-            'search' => $search,
             'notice' => Session::flash('owner_notice'),
         ]);
     }
