@@ -62,6 +62,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
         <nav class="sidebar">
             <ul>
                 <li><a href="/portal" class="<?= $portalActive('/portal') ?>">Moji psi</a></li>
+                <li><a href="/portal/messages" class="<?= $portalActive('/portal/messages') ?>">Zprávy</a></li>
                 <li><a href="/portal/contacts" class="<?= $portalActive('/portal/contacts') ?>">Moje údaje</a></li>
                 <li><a href="/portal/settings" class="<?= $portalActive('/portal/settings') ?>">Nastavení</a></li>
             </ul>

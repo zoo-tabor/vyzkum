@@ -4,12 +4,19 @@
 /** @var array<int, string> $statuses */
 /** @var string|null $notice */
 ?>
+<?php
+$threadLabel = !empty($thread['dog_name'])
+    ? $thread['dog_name']
+    : (!empty($thread['owner_name']) ? 'Obecná – ' . $thread['owner_name'] : '#' . (int) $thread['entity_id']);
+?>
 <div class="page-head">
-    <h1>Vlákno - <?= e($thread['dog_name'] ?? ('#' . (int) $thread['entity_id'])) ?></h1>
+    <h1>Vlákno - <?= e($threadLabel) ?></h1>
     <p>
         <a href="/admin/messages">&larr; Zpět</a>
         <?php if (($thread['entity_type'] ?? '') === 'dog'): ?>
             &middot; <a href="/admin/dogs/<?= (int) $thread['entity_id'] ?>">Detail psa</a>
+        <?php elseif (($thread['entity_type'] ?? '') === 'owner'): ?>
+            &middot; <a href="/admin/owners/<?= (int) $thread['entity_id'] ?>">Detail majitele</a>
         <?php endif; ?>
     </p>
 </div>

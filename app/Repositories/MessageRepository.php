@@ -38,6 +38,32 @@ final class MessageRepository
         return $row ?: null;
     }
 
+    /** Obecne (nikoliv ke psovi) vlakno majitele. */
+    public function findOrCreateOwnerThread(int $ownerId, ?int $userId): int
+    {
+        $existing = $this->ownerThread($ownerId);
+        if ($existing !== null) {
+            return (int) $existing['id'];
+        }
+        $stmt = $this->pdo()->prepare(
+            "INSERT INTO message_threads (entity_type, entity_id, subject, status, created_by_user_id)
+             VALUES ('owner', :o, NULL, 'open', :u)"
+        );
+        $stmt->execute(['o' => $ownerId, 'u' => $userId]);
+        return (int) $this->pdo()->lastInsertId();
+    }
+
+    /** @return array<string, mixed>|null */
+    public function ownerThread(int $ownerId): ?array
+    {
+        $stmt = $this->pdo()->prepare(
+            "SELECT * FROM message_threads WHERE entity_type = 'owner' AND entity_id = :o ORDER BY id DESC LIMIT 1"
+        );
+        $stmt->execute(['o' => $ownerId]);
+        $row = $stmt->fetch();
+        return $row ?: null;
+    }
+
     public function addMessage(int $threadId, ?int $userId, ?string $role, string $body, ?string $newStatus = null): void
     {
         $ins = $this->pdo()->prepare(
@@ -69,8 +95,9 @@ final class MessageRepository
     public function thread(int $id): ?array
     {
         $stmt = $this->pdo()->prepare(
-            "SELECT t.*, d.name AS dog_name FROM message_threads t
+            "SELECT t.*, d.name AS dog_name, o.display_name AS owner_name FROM message_threads t
              LEFT JOIN dogs d ON d.id = t.entity_id AND t.entity_type = 'dog'
+             LEFT JOIN owners o ON o.id = t.entity_id AND t.entity_type = 'owner'
              WHERE t.id = :id LIMIT 1"
         );
         $stmt->execute(['id' => $id]);
@@ -83,10 +110,12 @@ final class MessageRepository
     {
         $where = $status !== '' ? 'WHERE t.status = :status' : '';
         $sql =
-            "SELECT t.id, t.status, t.last_message_at, t.entity_id, d.name AS dog_name,
+            "SELECT t.id, t.status, t.last_message_at, t.entity_type, t.entity_id,
+                    d.name AS dog_name, o.display_name AS owner_name,
                     (SELECT COUNT(*) FROM messages m WHERE m.thread_id = t.id) AS msg_count
              FROM message_threads t
              LEFT JOIN dogs d ON d.id = t.entity_id AND t.entity_type = 'dog'
+             LEFT JOIN owners o ON o.id = t.entity_id AND t.entity_type = 'owner'
              {$where}
              ORDER BY t.last_message_at DESC LIMIT 300";
         $stmt = $this->pdo()->prepare($sql);

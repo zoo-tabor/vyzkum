@@ -23,11 +23,16 @@
         <p class="muted">Žádná vlákna.</p>
     <?php else: ?>
         <table class="table">
-            <thead><tr><th>Pes</th><th>Stav</th><th>Zpráv</th><th>Poslední</th><th></th></tr></thead>
+            <thead><tr><th>Vlákno</th><th>Stav</th><th>Zpráv</th><th>Poslední</th><th></th></tr></thead>
             <tbody>
             <?php foreach ($threads as $t): ?>
+                <?php
+                $label = !empty($t['dog_name'])
+                    ? $t['dog_name']
+                    : (!empty($t['owner_name']) ? 'Obecná – ' . $t['owner_name'] : '#' . (int) $t['entity_id']);
+                ?>
                 <tr>
-                    <td><?= e($t['dog_name'] ?? ('#' . (int) $t['entity_id'])) ?></td>
+                    <td><?= e($label) ?></td>
                     <td><?= e($t['status']) ?></td>
                     <td><?= (int) $t['msg_count'] ?></td>
                     <td><?= e(\App\Support\Dates::toCz(substr((string) $t['last_message_at'], 0, 10))) ?></td>
