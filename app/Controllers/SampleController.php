@@ -17,8 +17,7 @@ final class SampleController
 {
     public const STATUSES = [
         'created', 'assigned_to_vet', 'vet_submitted', 'owner_submitted',
-        'sample_received', 'data_validated', 'analysis_ready', 'analysis_done',
-        'archived', 'excluded',
+        'sample_received', 'data_validated', 'analysis_done',
     ];
 
     public function index(): string

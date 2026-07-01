@@ -16,6 +16,7 @@ use App\Controllers\AuthController;
 use App\Controllers\BreedController;
 use App\Controllers\ClubAdminController;
 use App\Controllers\ClubController;
+use App\Controllers\ColourController;
 use App\Controllers\DashboardController;
 use App\Controllers\DogController;
 use App\Controllers\FormController;
@@ -178,6 +179,12 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $router->post('/admin/genetics/import', [$genetics, 'importPreview']);
         $router->post('/admin/genetics/import/commit', [$genetics, 'importCommit']);
         $router->post('/admin/genetics/manual', [$genetics, 'manualStore']);
+
+        // Barvy plemen (ciselnik)
+        $colours = new ColourController();
+        $router->get('/admin/colours', [$colours, 'index']);
+        $router->post('/admin/colours', [$colours, 'create']);
+        $router->post('/admin/colours/{id}/delete', [$colours, 'delete']);
 
         // Klubove ucty + pristup k plemenum
         $clubAdmin = new ClubAdminController();

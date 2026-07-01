@@ -122,6 +122,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
                 <?php if (($user['role'] ?? '') === 'research_admin'): ?>
                     <li class="sidebar__section">Nastavení</li>
                     <li><a href="/admin/breeds" class="<?= $currentPath === '/admin/breeds' ? 'active' : '' ?>">Plemena</a></li>
+                    <li><a href="/admin/colours" class="<?= str_starts_with((string) $currentPath, '/admin/colours') ? 'active' : '' ?>">Barvy</a></li>
                     <li><a href="/admin/clubs" class="<?= str_starts_with((string) $currentPath, '/admin/clubs') ? 'active' : '' ?>">Kluby</a></li>
                     <li><a href="/admin/import" class="<?= str_starts_with((string) $currentPath, '/admin/import') ? 'active' : '' ?>">Import CSV</a></li>
                     <li><a href="/admin/security" class="<?= $currentPath === '/admin/security' ? 'active' : '' ?>">Zabezpečení</a></li>

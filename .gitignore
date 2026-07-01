@@ -6,6 +6,9 @@
 # ale do repa se nenahrava.
 /old_app/
 
+# Interni podklady (DB dump, datove exporty, poznamky) - necommitovat.
+/internal_docs/
+
 # Runtime storage
 /storage/logs/*
 /storage/uploads/*

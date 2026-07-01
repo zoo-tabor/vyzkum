@@ -262,7 +262,8 @@ final class DogRepository
         $pdo->beginTransaction();
         try {
             if ($alive) {
-                $stmt = $pdo->prepare('UPDATE dogs SET death_date = NULL, death_cause = NULL, updated_at = NOW() WHERE id = :d');
+                // Potvrzeni "pes zije" - ulozime datum (vstup pro vypocet veku).
+                $stmt = $pdo->prepare('UPDATE dogs SET death_date = NULL, death_cause = NULL, alive_confirmed_at = CURDATE(), updated_at = NOW() WHERE id = :d');
                 $stmt->execute(['d' => $dogId]);
             } else {
                 $report = $pdo->prepare(
