@@ -6,11 +6,13 @@ namespace App\Controllers;
 use App\Core\Csrf;
 use App\Core\Session;
 use App\Repositories\BreedRepository;
+use App\Repositories\ColourRepository;
 use App\Repositories\DogRepository;
 use App\Repositories\FormResponseRepository;
 use App\Repositories\GenotypeRepository;
 use App\Repositories\HealthEventRepository;
 use App\Repositories\OwnerRepository;
+use App\Repositories\SampleRepository;
 use App\Services\Auth;
 use App\Services\AuditService;
 use App\Services\BreedContext;
@@ -143,6 +145,7 @@ final class DogController
             'dog' => null,
             'breeds' => (new BreedRepository())->all(false),
             'owners' => (new OwnerRepository())->allForSelect(),
+            'coloursByBreed' => (new ColourRepository())->allGrouped(),
             'defaultBreedId' => BreedContext::current(),
             'error' => Session::flash('dog_error'),
         ]);
@@ -166,6 +169,12 @@ final class DogController
             $repo->setCurrentOwner($id, $ownerId, 'admin');
         }
 
+        // Volitelny inline vzorek (custom cislo) - rovnou spareny s psem.
+        $sampleId = trim((string) input('sample_id'));
+        if ($sampleId !== '') {
+            (new SampleRepository())->ensureImportedSample($sampleId, (int) $data['breed_id'], $id, trim((string) input('sample_received_at')) ?: null);
+        }
+
         AuditService::log(Auth::id(), Auth::role(), 'dog_created', 'dog', (string) $id, null, [
             'name' => $data['name'],
             'breed_id' => $data['breed_id'],
@@ -187,6 +196,7 @@ final class DogController
             'dog' => $dog,
             'breeds' => (new BreedRepository())->all(false),
             'owners' => (new OwnerRepository())->allForSelect(),
+            'coloursByBreed' => (new ColourRepository())->allGrouped(),
             'defaultBreedId' => (int) $dog['breed_id'],
             'error' => Session::flash('dog_error'),
         ]);
@@ -218,17 +228,23 @@ final class DogController
     /** @return array<string, mixed> */
     private function fromInput(): array
     {
+        $colorSelect = (string) input('color_select');
+        $color = $colorSelect === '__other__' ? trim((string) input('color_other')) : $colorSelect;
+
         return [
             'breed_id' => (int) input('breed_id'),
             'name' => trim((string) input('name')),
             'kennel_name' => (string) input('kennel_name'),
             'chip_number' => (string) input('chip_number'),
             'pedigree_number' => (string) input('pedigree_number'),
+            'country' => strtoupper(trim((string) input('country'))) ?: null,
             'sex' => (string) input('sex', 'unknown'),
             'birth_date' => (string) input('birth_date'),
             'death_date' => (string) input('death_date'),
             'death_cause' => (string) input('death_cause'),
-            'color' => (string) input('color'),
+            'dna_isolated_at' => (string) input('dna_isolated_at'),
+            'gwas_status' => trim((string) input('gwas_status')) ?: null,
+            'color' => $color,
             'test_group' => (string) input('test_group'),
             'health_summary' => (string) input('health_summary'),
             'status' => 'active',

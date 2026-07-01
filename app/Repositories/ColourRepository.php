@@ -27,6 +27,17 @@ final class ColourRepository
         return array_map(static fn (array $c): string => (string) $c['name'], $this->forBreed($breedId));
     }
 
+    /** @return array<int, array<int, string>> breed_id => [názvy barev] (pro JS výběr) */
+    public function allGrouped(): array
+    {
+        $rows = $this->pdo()->query('SELECT breed_id, name FROM colours ORDER BY breed_id ASC, position ASC, name ASC')->fetchAll();
+        $map = [];
+        foreach ($rows as $r) {
+            $map[(int) $r['breed_id']][] = (string) $r['name'];
+        }
+        return $map;
+    }
+
     public function create(int $breedId, string $name): int
     {
         $stmt = $this->pdo()->prepare('INSERT INTO colours (breed_id, name) VALUES (:b, :n)');

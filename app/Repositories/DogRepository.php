@@ -124,7 +124,8 @@ final class DogRepository
     public function find(int $id): ?array
     {
         $stmt = $this->pdo()->prepare(
-            'SELECT d.*, b.name AS breed_name, b.slug AS breed_slug
+            'SELECT d.*, b.name AS breed_name, b.slug AS breed_slug,
+                    (SELECT MAX(s.received_at) FROM samples s WHERE s.dog_id = d.id) AS newest_sample_received
              FROM dogs d JOIN breeds b ON b.id = d.breed_id
              WHERE d.id = :id LIMIT 1'
         );
@@ -166,13 +167,13 @@ final class DogRepository
     {
         $stmt = $this->pdo()->prepare(
             'INSERT INTO dogs
-                (breed_id, name, kennel_name, chip_number, pedigree_number, sex,
-                 birth_date, death_date, death_cause, color, test_group, health_summary,
-                 sample_received_at, status)
+                (breed_id, name, kennel_name, chip_number, pedigree_number, country, sex,
+                 birth_date, death_date, death_cause, dna_isolated_at, gwas_status,
+                 color, test_group, health_summary, sample_received_at, status)
              VALUES
-                (:breed_id, :name, :kennel_name, :chip_number, :pedigree_number, :sex,
-                 :birth_date, :death_date, :death_cause, :color, :test_group, :health_summary,
-                 :sample_received_at, :status)'
+                (:breed_id, :name, :kennel_name, :chip_number, :pedigree_number, :country, :sex,
+                 :birth_date, :death_date, :death_cause, :dna_isolated_at, :gwas_status,
+                 :color, :test_group, :health_summary, :sample_received_at, :status)'
         );
         $stmt->execute([
             'breed_id' => $d['breed_id'],
@@ -180,10 +181,13 @@ final class DogRepository
             'kennel_name' => self::nv($d['kennel_name'] ?? null),
             'chip_number' => self::nv($d['chip_number'] ?? null),
             'pedigree_number' => self::nv($d['pedigree_number'] ?? null),
+            'country' => self::nv($d['country'] ?? null),
             'sex' => in_array($d['sex'] ?? '', ['male', 'female', 'unknown'], true) ? $d['sex'] : 'unknown',
             'birth_date' => self::nv($d['birth_date'] ?? null),
             'death_date' => self::nv($d['death_date'] ?? null),
             'death_cause' => self::nv($d['death_cause'] ?? null),
+            'dna_isolated_at' => self::nv($d['dna_isolated_at'] ?? null),
+            'gwas_status' => self::nv($d['gwas_status'] ?? null),
             'color' => self::nv($d['color'] ?? null),
             'test_group' => self::nv($d['test_group'] ?? null),
             'health_summary' => self::nv($d['health_summary'] ?? null),
@@ -199,8 +203,9 @@ final class DogRepository
         $stmt = $this->pdo()->prepare(
             'UPDATE dogs SET
                 breed_id = :breed_id, name = :name, kennel_name = :kennel_name,
-                chip_number = :chip_number, pedigree_number = :pedigree_number, sex = :sex,
+                chip_number = :chip_number, pedigree_number = :pedigree_number, country = :country, sex = :sex,
                 birth_date = :birth_date, death_date = :death_date, death_cause = :death_cause,
+                dna_isolated_at = :dna_isolated_at, gwas_status = :gwas_status,
                 color = :color, test_group = :test_group, health_summary = :health_summary,
                 updated_at = NOW()
              WHERE id = :id'
@@ -212,10 +217,13 @@ final class DogRepository
             'kennel_name' => self::nv($d['kennel_name'] ?? null),
             'chip_number' => self::nv($d['chip_number'] ?? null),
             'pedigree_number' => self::nv($d['pedigree_number'] ?? null),
+            'country' => self::nv($d['country'] ?? null),
             'sex' => in_array($d['sex'] ?? '', ['male', 'female', 'unknown'], true) ? $d['sex'] : 'unknown',
             'birth_date' => self::nv($d['birth_date'] ?? null),
             'death_date' => self::nv($d['death_date'] ?? null),
             'death_cause' => self::nv($d['death_cause'] ?? null),
+            'dna_isolated_at' => self::nv($d['dna_isolated_at'] ?? null),
+            'gwas_status' => self::nv($d['gwas_status'] ?? null),
             'color' => self::nv($d['color'] ?? null),
             'test_group' => self::nv($d['test_group'] ?? null),
             'health_summary' => self::nv($d['health_summary'] ?? null),

@@ -7,6 +7,8 @@
 $row = static function (string $label, mixed $value): void {
     echo '<tr><th style="width:200px">' . e($label) . '</th><td>' . e((string) ($value ?? '')) . '</td></tr>';
 };
+$ageRef = \App\Support\Age::referenceDate($dog['death_date'] ?? null, $dog['alive_confirmed_at'] ?? null, $dog['newest_sample_received'] ?? null);
+$age = \App\Support\Age::years($dog['birth_date'] ?? null, $ageRef);
 ?>
 <div class="page-head" style="display:flex; justify-content:space-between; align-items:center;">
     <h1><?= e($dog['name']) ?> <span class="muted">/ <?= e($dog['breed_name']) ?></span></h1>
@@ -22,11 +24,15 @@ $row = static function (string $label, mixed $value): void {
         $row('Chovná stanice', $dog['kennel_name']);
         $row('Číslo čipu', $dog['chip_number']);
         $row('Číslo průkazu', $dog['pedigree_number']);
+        $row('Země původu', \App\Support\Countries::name($dog['country'] ?? null));
         $row('Pohlaví', $dog['sex']);
-        $row('Datum narození', $dog['birth_date']);
+        $row('Datum narození', \App\Support\Dates::toCz($dog['birth_date'] ?? null));
+        $row('Věk', $age !== null ? $age . ' let' : '-');
         $row('Barva', $dog['color']);
         $row('Testovací skupina', $dog['test_group']);
-        $row('Datum úmrtí', $dog['death_date']);
+        $row('Datum izolace DNA', \App\Support\Dates::toCz($dog['dna_isolated_at'] ?? null));
+        $row('GWAS', $dog['gwas_status']);
+        $row('Datum úmrtí', \App\Support\Dates::toCz($dog['death_date'] ?? null));
         $row('Příčina úmrtí', $dog['death_cause']);
         $row('Stav', empty($dog['death_date']) ? 'živý' : 'uhynulý');
         ?>
@@ -68,7 +74,7 @@ $row = static function (string $label, mixed $value): void {
 </div>
 
 <div class="card">
-    <h2>Zdravotní události</h2>
+    <h2>Zdravotní záznamy</h2>
     <?php if (empty($healthEvents)): ?>
         <p class="muted">Žádné zdravotní události.</p>
     <?php else: ?>

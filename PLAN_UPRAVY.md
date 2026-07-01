@@ -26,9 +26,11 @@ diakritikou; .md dokumenty, komentare a commit zpravy ASCII (viz memory styl-ces
 - Filtr: naseptavac jmena + "Chovatelska stanice" (JSON /admin/dogs/suggest);
   odebran filtr Cip/prukaz i razeni selecty. Bez nove migrace.
 
-## Faze 3 - admin/dogs/{} + admin/dogs/new
-- Detail: zeme, vek, "Zdravotni udalosti" -> "Zdravotni zaznamy".
-- Novy pes: inline pridani vzorku (custom cislo, spari se), barva z `colours` + "jine".
+## Faze 3 - admin/dogs/{} + admin/dogs/new  [HOTOVO]
+- Detail: zeme (nazev), vek, DNA izol., GWAS; "Zdravotni udalosti" -> "Zdravotni zaznamy".
+- Formular psa: vyber zeme (Countries), barva ze `colours` plemene + "jine" (JS dle
+  vybraneho plemene), DNA izol., GWAS. Novy pes: inline vzorek (custom cislo + datum
+  prijeti) -> ensureImportedSample spari se psem. DogRepository create/update rozsireno.
 
 ## Faze 4 - admin/owners + admin/owners/{}
 - Seznam: sloupce Tel. cislo, Datum posledni aktualizace (posledni kontakt), Poznamky.
