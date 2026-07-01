@@ -17,28 +17,18 @@ use App\Services\Auth;
 use App\Services\AuditService;
 use App\Services\BreedContext;
 use App\Support\DogQuery;
-use App\Support\Paginator;
 
 final class DogController
 {
-    private const PER_PAGE = 25;
-
     public function index(): string
     {
         $repo = new DogRepository();
         $breedId = BreedContext::current();
 
-        $filters = [
-            'q' => (string) input('q'),
-            'kennel' => (string) input('kennel'),
-            'status' => (string) input('status'),
-        ];
-        $built = DogQuery::filters($filters, $breedId);
-
-        $total = $repo->count($built['where'], $built['params']);
-        $pager = new Paginator($total, (int) input('page', 1), self::PER_PAGE);
-        // Razeni resi JS pres hlavicku tabulky; server vraci vychozi poradi dle jmena.
-        $rows = $repo->paginate($built['where'], $built['params'], 'd.name ASC, d.id ASC', $pager->perPage, $pager->offset);
+        // Razeni/filtrovani/strankovani resi klientska datatabulka (datatable.js),
+        // proto server vraci vsechny psy vybraneho plemene v jednom seznamu.
+        $built = DogQuery::filters(['q' => '', 'kennel' => '', 'status' => ''], $breedId);
+        $rows = $repo->paginate($built['where'], $built['params'], 'd.name ASC, d.id ASC', 1000000, 0);
 
         $dogIds = array_map(static fn (array $d): int => (int) $d['id'], $rows);
         $markers = $breedId !== null ? $repo->markersForBreed($breedId) : [];
@@ -46,8 +36,6 @@ final class DogController
         return view('admin/dogs/index', [
             'title' => 'Psi',
             'dogs' => $rows,
-            'pager' => $pager,
-            'filters' => $filters,
             'currentBreedId' => $breedId,
             'markers' => $markers,
             'samplesByDog' => $repo->samplesForDogs($dogIds),
