@@ -181,6 +181,7 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         // Interni zpravy (vlakna ke psovi)
         $messages = new MessagesController();
         $router->get('/admin/messages', [$messages, 'index']);
+        $router->get('/admin/messages/owner/{id}', [$messages, 'owner']);
         $router->get('/admin/messages/{id}', [$messages, 'show']);
         $router->post('/admin/messages/{id}/reply', [$messages, 'reply']);
         $router->post('/admin/messages/{id}/status', [$messages, 'setStatus']);

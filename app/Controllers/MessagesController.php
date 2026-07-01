@@ -6,37 +6,69 @@ namespace App\Controllers;
 use App\Core\Csrf;
 use App\Core\Session;
 use App\Repositories\MessageRepository;
+use App\Repositories\OwnerRepository;
 use App\Services\Auth;
 
 final class MessagesController
 {
     public const STATUSES = ['open', 'waiting_owner', 'resolved', 'archived'];
 
+    private static function isUnresolved(string $status): bool
+    {
+        return !in_array($status, ['resolved', 'archived'], true);
+    }
+
+    /** Prehled: seznam majitelu (jmeno tucne, kdyz ma nevyresene vlakno). */
     public function index(): string
     {
-        $repo = new MessageRepository();
-        $status = (string) input('status');
-        $threads = $repo->threadsList(in_array($status, self::STATUSES, true) ? $status : '');
+        $threads = (new MessageRepository())->threadsList('');
 
-        // Seskupeni dle majitele -> pak vlakna (obecne / konkretni pes).
-        $groups = [];
+        $owners = [];
         foreach ($threads as $t) {
-            $ownerId = $t['owner_id'] !== null ? (int) $t['owner_id'] : 0;
-            if (!isset($groups[$ownerId])) {
-                $groups[$ownerId] = [
+            $key = $t['owner_id'] !== null ? (int) $t['owner_id'] : 0;
+            if (!isset($owners[$key])) {
+                $owners[$key] = [
                     'owner_id' => $t['owner_id'] !== null ? (int) $t['owner_id'] : null,
                     'owner_name' => $t['owner_name'] ?: 'Neznámý majitel',
-                    'threads' => [],
+                    'count' => 0,
+                    'unresolved' => false,
+                    'last' => null,
                 ];
             }
-            $groups[$ownerId]['threads'][] = $t;
+            $owners[$key]['count']++;
+            if (self::isUnresolved((string) $t['status'])) {
+                $owners[$key]['unresolved'] = true;
+            }
+            $last = (string) ($t['last_message_at'] ?? '');
+            if ($owners[$key]['last'] === null || $last > $owners[$key]['last']) {
+                $owners[$key]['last'] = $last;
+            }
         }
 
         return view('admin/messages/index', [
             'title' => 'Zprávy',
-            'groups' => $groups,
-            'status' => $status,
-            'statuses' => self::STATUSES,
+            'owners' => $owners,
+            'notice' => Session::flash('msg_notice'),
+        ]);
+    }
+
+    /** Detail majitele: jeho vlakna (Obecna / konkretni pes), nevyresene tucne. */
+    public function owner(string $id): string
+    {
+        $ownerId = (int) $id;
+        $threads = array_values(array_filter(
+            (new MessageRepository())->threadsList(''),
+            static fn (array $t): bool => (int) ($t['owner_id'] ?? 0) === $ownerId
+        ));
+
+        $owner = $ownerId > 0 ? (new OwnerRepository())->find($ownerId) : null;
+        $ownerName = $owner['display_name'] ?? ($ownerId > 0 ? '#' . $ownerId : 'Neznámý majitel');
+
+        return view('admin/messages/owner', [
+            'title' => 'Zprávy - ' . $ownerName,
+            'ownerId' => $ownerId,
+            'ownerName' => $ownerName,
+            'threads' => $threads,
             'notice' => Session::flash('msg_notice'),
         ]);
     }
