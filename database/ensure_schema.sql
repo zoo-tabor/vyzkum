@@ -546,10 +546,22 @@ ALTER TABLE owners
 ALTER TABLE ownership_transfer_requests
   ADD COLUMN IF NOT EXISTS new_owner_phone VARCHAR(40) NULL AFTER new_owner_email;
 
+ALTER TABLE dog_genotypes
+  ADD COLUMN IF NOT EXISTS gene_id INT UNSIGNED NULL AFTER marker_id;
+
+UPDATE dog_genotypes g
+  JOIN genetic_markers m ON m.id = g.marker_id
+  SET g.gene_id = m.gene_id
+  WHERE g.gene_id IS NULL;
+
+ALTER TABLE dog_genotypes
+  ADD INDEX IF NOT EXISTS dog_genotypes_dog_gene_idx (dog_id, gene_id);
+
 -- Oznaceni migraci jako provedenych (bez chyby, kdyz uz tam jsou).
 INSERT IGNORE INTO schema_migrations (version)
 VALUES ('001_core.sql'), ('002_dogs_owners.sql'), ('003_invites_mail.sql'),
        ('004_forms.sql'), ('005_form_responses.sql'), ('006_samples.sql'),
        ('007_genetics.sql'), ('008_messages.sql'), ('009_ownership_transfer.sql'),
        ('010_health_events.sql'), ('011_dogs_extra_colours.sql'),
-       ('012_form_assignments.sql'), ('013_owner_onboarding.sql');
+       ('012_form_assignments.sql'), ('013_owner_onboarding.sql'),
+       ('014_genotype_gene.sql');

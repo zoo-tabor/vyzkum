@@ -31,17 +31,88 @@ final class GenotypeRepository
         return (int) $this->pdo()->lastInsertId();
     }
 
-    public function upsertGenotype(int $dogId, ?int $breedId, int $markerId, ?string $a1, ?string $a2, string $genotype, ?int $testId, string $status = 'imported'): void
+    public function upsertGenotype(int $dogId, ?int $breedId, int $markerId, ?string $a1, ?string $a2, string $genotype, ?int $testId, string $status = 'imported', ?int $geneId = null): void
     {
+        if ($geneId === null) {
+            $lookup = $this->pdo()->prepare('SELECT gene_id FROM genetic_markers WHERE id = :m LIMIT 1');
+            $lookup->execute(['m' => $markerId]);
+            $found = $lookup->fetchColumn();
+            $geneId = $found === false ? null : (int) $found;
+        }
+
         $stmt = $this->pdo()->prepare(
-            'INSERT INTO dog_genotypes (dog_id, breed_id, marker_id, allele_1, allele_2, genotype, genetic_test_id, validation_status)
-             VALUES (:d, :b, :m, :a1, :a2, :g, :t, :st)
+            'INSERT INTO dog_genotypes (dog_id, breed_id, marker_id, gene_id, allele_1, allele_2, genotype, genetic_test_id, validation_status)
+             VALUES (:d, :b, :m, :ge, :a1, :a2, :g, :t, :st)
              ON DUPLICATE KEY UPDATE
-                allele_1 = VALUES(allele_1), allele_2 = VALUES(allele_2), genotype = VALUES(genotype),
-                genetic_test_id = VALUES(genetic_test_id), validation_status = VALUES(validation_status),
-                updated_at = NOW()'
+                gene_id = VALUES(gene_id), allele_1 = VALUES(allele_1), allele_2 = VALUES(allele_2),
+                genotype = VALUES(genotype), genetic_test_id = VALUES(genetic_test_id),
+                validation_status = VALUES(validation_status), updated_at = NOW()'
         );
-        $stmt->execute(['d' => $dogId, 'b' => $breedId, 'm' => $markerId, 'a1' => $a1, 'a2' => $a2, 'g' => $genotype, 't' => $testId, 'st' => $status]);
+        $stmt->execute(['d' => $dogId, 'b' => $breedId, 'm' => $markerId, 'ge' => $geneId, 'a1' => $a1, 'a2' => $a2, 'g' => $genotype, 't' => $testId, 'st' => $status]);
+    }
+
+    /**
+     * Geny sledovane u plemene (maji genotypy). Kdyz breedId null, vsechny geny s genotypy.
+     *
+     * @return array<int, array{id:int, symbol:string}>
+     */
+    public function genesForBreed(?int $breedId): array
+    {
+        $sql = 'SELECT DISTINCT ge.id, ge.symbol
+                FROM dog_genotypes g JOIN genes ge ON ge.id = g.gene_id
+                WHERE g.gene_id IS NOT NULL';
+        $params = [];
+        if ($breedId !== null) {
+            $sql .= ' AND g.breed_id = :b';
+            $params['b'] = $breedId;
+        }
+        $sql .= ' ORDER BY ge.symbol ASC';
+        $stmt = $this->pdo()->prepare($sql);
+        $stmt->execute($params);
+        return array_map(static fn (array $r): array => ['id' => (int) $r['id'], 'symbol' => (string) $r['symbol']], $stmt->fetchAll());
+    }
+
+    /**
+     * Psi, kteri maji nejaky genotyp (volitelne dle plemene) - radky dashboardu.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function dogsWithGenotypes(?int $breedId): array
+    {
+        $sub = 'SELECT DISTINCT dog_id FROM dog_genotypes WHERE gene_id IS NOT NULL';
+        $params = [];
+        if ($breedId !== null) {
+            $sub .= ' AND breed_id = :b';
+            $params['b'] = $breedId;
+        }
+        $stmt = $this->pdo()->prepare(
+            "SELECT d.id, d.name, b.name AS breed_name
+             FROM dogs d JOIN breeds b ON b.id = d.breed_id
+             WHERE d.id IN ({$sub})
+             ORDER BY d.name ASC"
+        );
+        $stmt->execute($params);
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * @param array<int, int> $dogIds
+     * @return array<int, array<int, string>> dog_id => [gene_id => genotype]
+     */
+    public function genotypesByDogGene(array $dogIds): array
+    {
+        $ids = implode(',', array_values(array_unique(array_map('intval', $dogIds))));
+        if ($ids === '') {
+            return [];
+        }
+        $rows = $this->pdo()->query(
+            "SELECT dog_id, gene_id, genotype FROM dog_genotypes WHERE gene_id IS NOT NULL AND dog_id IN ({$ids})"
+        )->fetchAll();
+        $map = [];
+        foreach ($rows as $r) {
+            $map[(int) $r['dog_id']][(int) $r['gene_id']] = (string) $r['genotype'];
+        }
+        return $map;
     }
 
     /**

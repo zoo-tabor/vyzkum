@@ -31,15 +31,15 @@ final class DogController
         $rows = $repo->paginate($built['where'], $built['params'], 'd.name ASC, d.id ASC', 1000000, 0);
 
         $dogIds = array_map(static fn (array $d): int => (int) $d['id'], $rows);
-        $markers = $breedId !== null ? $repo->markersForBreed($breedId) : [];
+        $genes = $breedId !== null ? $repo->genesForBreed($breedId) : [];
 
         return view('admin/dogs/index', [
             'title' => 'Psi',
             'dogs' => $rows,
             'currentBreedId' => $breedId,
-            'markers' => $markers,
+            'genes' => $genes,
             'samplesByDog' => $repo->samplesForDogs($dogIds),
-            'genotypesByDog' => $markers !== [] ? $repo->genotypesForDogs($dogIds) : [],
+            'genotypesByDog' => $genes !== [] ? $repo->geneGenotypesForDogs($dogIds) : [],
             'notice' => Session::flash('dog_notice'),
         ]);
     }

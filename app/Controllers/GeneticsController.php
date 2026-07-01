@@ -14,12 +14,9 @@ use App\Services\BreedContext;
 use App\Services\GeneticsImportService;
 use App\Support\Csv;
 use App\Support\Genetics;
-use App\Support\Paginator;
 
 final class GeneticsController
 {
-    private const PER_PAGE = 50;
-
     private const TEMPLATE_HEADER = [
         'sample_id', 'expected_phenotype', 'B3GALNT1_genotype', 'NLRP1_genotype',
         'PARP14_genotype', 'COL9A1_genotype', 'lab_name', 'tested_at', 'notes',
@@ -29,24 +26,18 @@ final class GeneticsController
     {
         $repo = new GenotypeRepository();
         $breedId = BreedContext::current();
-        $filters = [
-            'marker_id' => (int) input('marker_id') ?: null,
-            'genotype' => (string) input('genotype'),
-            'q' => (string) input('q'),
-        ];
-        $orderBy = GenotypeRepository::orderBy((string) input('sort'), (string) input('dir'));
 
-        $total = $repo->count($filters, $breedId);
-        $pager = new Paginator($total, (int) input('page', 1), self::PER_PAGE);
-        $rows = $repo->list($filters, $breedId, $orderBy, $pager->perPage, $pager->offset);
+        // Dashboard: jeden radek na psa, sloupec na kazdy gen sledovany u plemene.
+        $genes = $repo->genesForBreed($breedId);
+        $dogs = $repo->dogsWithGenotypes($breedId);
+        $dogIds = array_map(static fn (array $d): int => (int) $d['id'], $dogs);
 
         return view('admin/genetics/index', [
             'title' => 'Genetika',
-            'rows' => $rows,
-            'pager' => $pager,
-            'filters' => $filters,
-            'sort' => (string) input('sort', 'dog'),
-            'dir' => (string) input('dir', 'asc'),
+            'genes' => $genes,
+            'dogs' => $dogs,
+            'genotypes' => $repo->genotypesByDogGene($dogIds),
+            'currentBreedId' => $breedId,
             'markers' => (new GeneRepository())->markersForSelect(),
             'notice' => Session::flash('genetics_notice'),
             'error' => Session::flash('genetics_error'),

@@ -1,7 +1,7 @@
 <?php
 /** @var array<int, array<string, mixed>> $dogs */
 /** @var int|null $currentBreedId */
-/** @var array<int, array{id:int, marker_code:string}> $markers */
+/** @var array<int, array{id:int, symbol:string}> $genes */
 /** @var array<int, array<int, array<string, mixed>>> $samplesByDog */
 /** @var array<int, array<int, string>> $genotypesByDog */
 /** @var string|null $notice */
@@ -38,8 +38,8 @@ use App\Support\Dates;
                 <th>Země</th>
                 <th data-nofilter>Vzorky</th>
                 <th>DNA izol.</th>
-                <?php foreach ($markers as $m): ?>
-                    <th><?= e($m['marker_code']) ?></th>
+                <?php foreach ($genes as $g): ?>
+                    <th><?= e($g['symbol']) ?></th>
                 <?php endforeach; ?>
                 <th>GWAS</th>
                 <th>Majitel</th>
@@ -72,8 +72,8 @@ use App\Support\Dates;
                         <?php endif; ?>
                     </td>
                     <td data-sort="<?= e($d['dna_isolated_at'] ?? '') ?>"><?= e(Dates::toCz($d['dna_isolated_at'] ?? null)) ?: '-' ?></td>
-                    <?php foreach ($markers as $m): ?>
-                        <td><?= e($dogGenos[$m['id']] ?? '') ?: '-' ?></td>
+                    <?php foreach ($genes as $g): ?>
+                        <td><?= e($dogGenos[$g['id']] ?? '') ?: '-' ?></td>
                     <?php endforeach; ?>
                     <td><?= e($d['gwas_status'] ?? '') ?: '-' ?></td>
                     <td>

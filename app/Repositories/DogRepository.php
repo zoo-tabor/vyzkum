@@ -89,6 +89,35 @@ final class DogRepository
         return array_map(static fn (array $r): array => ['id' => (int) $r['id'], 'marker_code' => (string) $r['marker_code']], $stmt->fetchAll());
     }
 
+    /** @return array<int, array{id:int, symbol:string}> geny sledovane u plemene (maji genotypy) */
+    public function genesForBreed(int $breedId): array
+    {
+        $stmt = $this->pdo()->prepare(
+            'SELECT DISTINCT ge.id, ge.symbol
+             FROM dog_genotypes g JOIN genes ge ON ge.id = g.gene_id
+             WHERE g.breed_id = :b AND g.gene_id IS NOT NULL ORDER BY ge.symbol ASC'
+        );
+        $stmt->execute(['b' => $breedId]);
+        return array_map(static fn (array $r): array => ['id' => (int) $r['id'], 'symbol' => (string) $r['symbol']], $stmt->fetchAll());
+    }
+
+    /** @param array<int, int> $dogIds @return array<int, array<int, string>> dog_id => [gene_id => genotype] */
+    public function geneGenotypesForDogs(array $dogIds): array
+    {
+        $ids = self::intList($dogIds);
+        if ($ids === '') {
+            return [];
+        }
+        $rows = $this->pdo()->query(
+            "SELECT dog_id, gene_id, genotype FROM dog_genotypes WHERE gene_id IS NOT NULL AND dog_id IN ({$ids})"
+        )->fetchAll();
+        $map = [];
+        foreach ($rows as $r) {
+            $map[(int) $r['dog_id']][(int) $r['gene_id']] = (string) $r['genotype'];
+        }
+        return $map;
+    }
+
     /** @return array<int, string> napoveda pro filtr (jmeno nebo chovatelska stanice) */
     public function suggest(string $field, string $q, ?int $breedId, int $limit = 20): array
     {

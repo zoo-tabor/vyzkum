@@ -36,12 +36,17 @@ commit ASCII (viz memory styl-cestina-repo).
   sloupec) - konzistentni s dogs/owners, uzivatel schvalil. SampleController::index
   vraci vsechny vzorky plemene (bez horniho filtru). Bez migrace.
 
-## Faze 4 - genetika: model + dashboard (gene-centric)
-- Migrace 014: dog_genotypes.gene_id (backfill z markeru), unikat (dog_id, gene_id).
-  (013 pouzita pro onboarding majitele - viz nize.)
-  UI prestane pracovat s markery; CSV import ponechan (hlavicky <KOD>_genotype = symbol
-  genu). Dashboard /admin/genetics: radek = pes, sloupec = gen plemene, bunka = genotyp;
-  zuzit prvni sloupec; + datatabulka z faze 1. Sloupce genu propsat i do seznamu Psi.
+## Faze 4 - genetika: model + dashboard (gene-centric)  [HOTOVO]
+- Migrace 014: dog_genotypes.gene_id (backfill z markeru) + index (dog_id, gene_id).
+  Nutny import ensure_schema.sql. (013 = onboarding majitele.)
+- upsertGenotype dopocitava gene_id z markeru; CSV import i rucni zadani nadale funguji.
+- Dashboard /admin/genetics prepracovan: radek = pes, sloupec = gen sledovany u plemene
+  (GenotypeRepository::genesForBreed/dogsWithGenotypes/genotypesByDogGene), bunka =
+  genotyp; prvni sloupec uzky; + datatabulka. Seznam Psi prepnut z markeru na geny
+  (DogRepository::genesForBreed/geneGenotypesForDogs). Proklik na psa zatim vede na
+  /admin/dogs/{id}; ve fazi 5 se prepoji na novy /admin/genetics/{id}.
+- Pozn.: stary flat vypis + filtry/pager na /admin/genetics nahrazen pivotem; export CSV
+  a rucni zadani (marker-based) zustavaji.
 
 ## Faze 5 - genetika: detail /admin/genetics/{} s editaci
 - Nova stranka jen s genetikou psa: pridat/upravit/smazat genotyp per gen + metadata

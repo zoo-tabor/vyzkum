@@ -241,7 +241,7 @@ try {
     echo '<!DOCTYPE html><html lang="cs"><head><meta charset="utf-8">'
         . '<title>Chyba</title><meta name="viewport" content="width=device-width, initial-scale=1">'
         . '<style>body{font-family:system-ui,Arial,sans-serif;max-width:520px;margin:4rem auto;padding:0 1rem;color:#1f2933}</style>'
-        . '</head><body><h1>Doslo k chybe</h1>'
-        . '<p>Omlouvame se, nastala vnitrni chyba aplikace. Zkuste to prosim znovu pozdeji.</p>'
-        . '<p><a href="/">Zpet na uvod</a></p></body></html>';
+        . '</head><body><h1>Došlo k chybě</h1>'
+        . '<p>Omlouváme se, nastala vnitřní chyba aplikace. Zkuste to prosím později.</p>'
+        . '<p><a href="/">Zpět na úvod</a></p></body></html>';
 }
