@@ -482,6 +482,7 @@ final class PortalController
         $owner = $ownerRepo->findByUserId((int) Auth::id());
         $messages = new MessageRepository();
 
+        $uid = (int) Auth::id();
         $general = null;
         $dogs = [];
         if ($owner !== null) {
@@ -489,6 +490,7 @@ final class PortalController
             $general = [
                 'thread' => $genThread,
                 'count' => $genThread !== null ? $messages->countMessages((int) $genThread['id']) : 0,
+                'unseen' => $genThread !== null && $messages->hasUnseenForUser((int) $genThread['id'], $uid),
             ];
             foreach ($ownerRepo->dogsOf((int) $owner['id']) as $d) {
                 if ((int) $d['is_current'] !== 1) {
@@ -499,6 +501,7 @@ final class PortalController
                     'dog' => $d,
                     'thread' => $thread,
                     'count' => $thread !== null ? $messages->countMessages((int) $thread['id']) : 0,
+                    'unseen' => $thread !== null && $messages->hasUnseenForUser((int) $thread['id'], $uid),
                 ];
             }
         }
@@ -536,6 +539,11 @@ final class PortalController
             $dog = (new DogRepository())->find($dogId);
             $thread = $messages->dogThread($dogId);
             $heading = ($dog['name'] ?? 'Pes') . ' / ' . ($dog['breed_name'] ?? '');
+        }
+
+        // Otevrenim vlakna se zpravy oznaci jako zobrazene.
+        if ($thread !== null) {
+            $messages->markRead((int) $thread['id'], (int) Auth::id());
         }
 
         return view('portal/messages_thread', [

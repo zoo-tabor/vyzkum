@@ -204,3 +204,9 @@ code { background: #f3f4f6; padding: 0.1rem 0.3rem; border-radius: 4px; }
 }
 .ac-item:hover { background: var(--bg); }
 .ac-item .muted { margin-left: 0.4rem; font-size: 0.85rem; }
+
+.badge-new {
+    display: inline-block; background: var(--brand); color: var(--brand-ink);
+    font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em;
+    padding: 0.05rem 0.4rem; border-radius: 999px; vertical-align: middle;
+}

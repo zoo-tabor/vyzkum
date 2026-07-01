@@ -557,6 +557,15 @@ UPDATE dog_genotypes g
 ALTER TABLE dog_genotypes
   ADD INDEX IF NOT EXISTS dog_genotypes_dog_gene_idx (dog_id, gene_id);
 
+CREATE TABLE IF NOT EXISTS message_reads (
+  thread_id INT UNSIGNED NOT NULL,
+  user_id INT UNSIGNED NOT NULL,
+  last_read_at DATETIME NOT NULL,
+  PRIMARY KEY (thread_id, user_id),
+  CONSTRAINT message_reads_thread_fk FOREIGN KEY (thread_id) REFERENCES message_threads(id) ON DELETE CASCADE,
+  CONSTRAINT message_reads_user_fk FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Oznaceni migraci jako provedenych (bez chyby, kdyz uz tam jsou).
 INSERT IGNORE INTO schema_migrations (version)
 VALUES ('001_core.sql'), ('002_dogs_owners.sql'), ('003_invites_mail.sql'),
@@ -564,4 +573,4 @@ VALUES ('001_core.sql'), ('002_dogs_owners.sql'), ('003_invites_mail.sql'),
        ('007_genetics.sql'), ('008_messages.sql'), ('009_ownership_transfer.sql'),
        ('010_health_events.sql'), ('011_dogs_extra_colours.sql'),
        ('012_form_assignments.sql'), ('013_owner_onboarding.sql'),
-       ('014_genotype_gene.sql');
+       ('014_genotype_gene.sql'), ('015_message_reads.sql');

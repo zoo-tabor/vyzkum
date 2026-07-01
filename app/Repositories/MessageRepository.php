@@ -86,6 +86,32 @@ final class MessageRepository
         return (int) $stmt->fetchColumn();
     }
 
+    /** Oznaci vlakno jako precteny danym uzivatelem (k aktualnimu casu). */
+    public function markRead(int $threadId, int $userId): void
+    {
+        $stmt = $this->pdo()->prepare(
+            'INSERT INTO message_reads (thread_id, user_id, last_read_at) VALUES (:t, :u, NOW())
+             ON DUPLICATE KEY UPDATE last_read_at = NOW()'
+        );
+        $stmt->execute(['t' => $threadId, 'u' => $userId]);
+    }
+
+    /** Ma vlakno pro daneho uzivatele neprectenou zpravu od nekoho jineho? */
+    public function hasUnseenForUser(int $threadId, int $userId): bool
+    {
+        $stmt = $this->pdo()->prepare(
+            "SELECT 1 FROM messages m
+             WHERE m.thread_id = :t
+               AND (m.sender_user_id IS NULL OR m.sender_user_id <> :u)
+               AND m.created_at > COALESCE(
+                   (SELECT r.last_read_at FROM message_reads r WHERE r.thread_id = :t2 AND r.user_id = :u2),
+                   '1000-01-01 00:00:00')
+             LIMIT 1"
+        );
+        $stmt->execute(['t' => $threadId, 'u' => $userId, 't2' => $threadId, 'u2' => $userId]);
+        return (bool) $stmt->fetchColumn();
+    }
+
     /** @return array<int, array<string, mixed>> */
     public function messages(int $threadId): array
     {
@@ -118,13 +144,17 @@ final class MessageRepository
         $where = $status !== '' ? 'WHERE t.status = :status' : '';
         $sql =
             "SELECT t.id, t.status, t.last_message_at, t.entity_type, t.entity_id,
-                    d.name AS dog_name, o.display_name AS owner_name,
+                    d.name AS dog_name,
+                    CASE WHEN t.entity_type = 'owner' THEN t.entity_id ELSE dogown.owner_id END AS owner_id,
+                    CASE WHEN t.entity_type = 'owner' THEN oo.display_name ELSE od.display_name END AS owner_name,
                     (SELECT COUNT(*) FROM messages m WHERE m.thread_id = t.id) AS msg_count
              FROM message_threads t
              LEFT JOIN dogs d ON d.id = t.entity_id AND t.entity_type = 'dog'
-             LEFT JOIN owners o ON o.id = t.entity_id AND t.entity_type = 'owner'
+             LEFT JOIN dog_owners dogown ON dogown.dog_id = t.entity_id AND t.entity_type = 'dog' AND dogown.is_current = 1
+             LEFT JOIN owners od ON od.id = dogown.owner_id
+             LEFT JOIN owners oo ON oo.id = t.entity_id AND t.entity_type = 'owner'
              {$where}
-             ORDER BY t.last_message_at DESC LIMIT 300";
+             ORDER BY owner_name ASC, t.last_message_at DESC LIMIT 300";
         $stmt = $this->pdo()->prepare($sql);
         $stmt->execute($status !== '' ? ['status' => $status] : []);
         return $stmt->fetchAll();

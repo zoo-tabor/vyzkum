@@ -16,9 +16,25 @@ final class MessagesController
     {
         $repo = new MessageRepository();
         $status = (string) input('status');
+        $threads = $repo->threadsList(in_array($status, self::STATUSES, true) ? $status : '');
+
+        // Seskupeni dle majitele -> pak vlakna (obecne / konkretni pes).
+        $groups = [];
+        foreach ($threads as $t) {
+            $ownerId = $t['owner_id'] !== null ? (int) $t['owner_id'] : 0;
+            if (!isset($groups[$ownerId])) {
+                $groups[$ownerId] = [
+                    'owner_id' => $t['owner_id'] !== null ? (int) $t['owner_id'] : null,
+                    'owner_name' => $t['owner_name'] ?: 'Neznámý majitel',
+                    'threads' => [],
+                ];
+            }
+            $groups[$ownerId]['threads'][] = $t;
+        }
+
         return view('admin/messages/index', [
             'title' => 'Zprávy',
-            'threads' => $repo->threadsList(in_array($status, self::STATUSES, true) ? $status : ''),
+            'groups' => $groups,
             'status' => $status,
             'statuses' => self::STATUSES,
             'notice' => Session::flash('msg_notice'),
