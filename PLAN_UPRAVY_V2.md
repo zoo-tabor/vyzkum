@@ -48,9 +48,17 @@ commit ASCII (viz memory styl-cestina-repo).
 - Pozn.: stary flat vypis + filtry/pager na /admin/genetics nahrazen pivotem; export CSV
   a rucni zadani (marker-based) zustavaji.
 
-## Faze 5 - genetika: detail /admin/genetics/{} s editaci
-- Nova stranka jen s genetikou psa: pridat/upravit/smazat genotyp per gen + metadata
-  testu (lab, datum). Proklik z dashboardu. Doplneni chybejici editace.
+## Faze 5 - genetika: detail /admin/genetics/{} s editaci  [HOTOVO]
+- Nova stranka /admin/genetics/{dogId} (GeneticsController::show/update): jen genetika psa,
+  tabulka gen -> editovatelny genotyp (predvyplneno z GenotypeRepository::genotypeMapForDog);
+  prazdne pole u existujiciho zaznamu = smazani (deleteGenotype); volitelne metadata testu
+  (lab + datum -> createTest, napoji se na ukladane genotypy). Proklik z dashboardu
+  prepnut z /admin/dogs/{id} na /admin/genetics/{id}. Routy {id} registrovany az za
+  statickymi (dog-suggest/export/markers/import), aby je nestinily. Bez migrace.
+- Bonus (na zadost): rucni zadani na /admin/genetics ma naseptavac psa dle jmena
+  (dogSuggest + searchByName) a zadani vsech genu naraz (genesWithMarker).
+
+VSECH 5 FAZI V2 HOTOVO + onboarding majitele. Cely seznam z poznamky_upravy_v2.txt hotov.
 
 ## Vlozeny pozadavek - onboarding majitele  [HOTOVO]
 Mimo 5 datatable/genetika fazi (na zadost uzivatele). Migrace 013:

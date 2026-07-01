@@ -192,6 +192,8 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $router->post('/admin/genetics/import', [$genetics, 'importPreview']);
         $router->post('/admin/genetics/import/commit', [$genetics, 'importCommit']);
         $router->post('/admin/genetics/manual', [$genetics, 'manualStore']);
+        $router->get('/admin/genetics/{id}', [$genetics, 'show']);
+        $router->post('/admin/genetics/{id}', [$genetics, 'update']);
 
         // Barvy plemen (ciselnik)
         $colours = new ColourController();

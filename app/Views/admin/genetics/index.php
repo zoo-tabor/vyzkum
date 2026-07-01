@@ -40,7 +40,7 @@
             <?php foreach ($dogs as $d): ?>
                 <?php $dogGenos = $genotypes[(int) $d['id']] ?? []; ?>
                 <tr>
-                    <td class="col-name"><a href="/admin/dogs/<?= (int) $d['id'] ?>"><?= e($d['name']) ?></a></td>
+                    <td class="col-name"><a href="/admin/genetics/<?= (int) $d['id'] ?>"><?= e($d['name']) ?></a></td>
                     <td><?= e($d['breed_name'] ?? '') ?></td>
                     <?php foreach ($genes as $g): ?>
                         <td><?= e($dogGenos[$g['id']] ?? '') ?: '-' ?></td>

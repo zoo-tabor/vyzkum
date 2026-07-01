@@ -44,6 +44,87 @@ final class GeneticsController
         ]);
     }
 
+    /** Detail genetiky jednoho psa - jen genetika + editace. */
+    public function show(string $id): string
+    {
+        $dog = (new DogRepository())->find((int) $id);
+        if ($dog === null) {
+            http_response_code(404);
+            return view('errors/404', ['title' => 'Pes nenalezen']);
+        }
+
+        return view('admin/genetics/dog', [
+            'title' => 'Genetika: ' . $dog['name'],
+            'dog' => $dog,
+            'genePanel' => (new GeneRepository())->genesWithMarker(),
+            'current' => (new GenotypeRepository())->genotypeMapForDog((int) $id),
+            'notice' => Session::flash('genetics_notice'),
+            'error' => Session::flash('genetics_error'),
+        ]);
+    }
+
+    /** Ulozeni editace genetiky psa: vyplnene geny ulozi/upravi, prazdne smazou. */
+    public function update(string $id): string
+    {
+        Csrf::verify();
+        $dog = (new DogRepository())->find((int) $id);
+        if ($dog === null) {
+            Session::flash('genetics_error', 'Pes nenalezen.');
+            redirect('/admin/genetics');
+        }
+        $dogId = (int) $id;
+        $breedId = $dog['breed_id'] !== null ? (int) $dog['breed_id'] : null;
+
+        $genotypes = new GenotypeRepository();
+
+        // Volitelna metadata testu (plati pro ukladane genotypy).
+        $lab = trim((string) input('lab_name'));
+        $testedAt = trim((string) input('tested_at'));
+        $testId = null;
+        if ($lab !== '' || $testedAt !== '') {
+            $testId = $genotypes->createTest($dogId, $lab ?: null, $testedAt ?: null, 'manual', null, null);
+        }
+
+        $values = (array) ($_POST['g'] ?? []);
+        $current = $genotypes->genotypeMapForDog($dogId);
+        $saved = 0;
+        $deleted = 0;
+        $invalid = [];
+        foreach ($values as $markerId => $raw) {
+            $markerId = (int) $markerId;
+            if ($markerId <= 0) {
+                continue;
+            }
+            $value = trim((string) $raw);
+            if ($value === '') {
+                if (isset($current[$markerId])) {
+                    $genotypes->deleteGenotype($dogId, $markerId);
+                    $deleted++;
+                }
+                continue;
+            }
+            $split = Genetics::splitGenotype($value);
+            if ($split === null) {
+                $invalid[] = $value;
+                continue;
+            }
+            $genotypes->upsertGenotype($dogId, $breedId, $markerId, $split['allele_1'], $split['allele_2'], $split['genotype'], $testId, 'manual');
+            $saved++;
+        }
+
+        if ($saved > 0) {
+            (new \App\Repositories\SampleRepository())->markAnalysisDoneForDog($dogId);
+        }
+        AuditService::log(Auth::id(), Auth::role(), 'genotype_edit', 'dog', (string) $dogId, null, ['saved' => $saved, 'deleted' => $deleted]);
+
+        if ($invalid !== []) {
+            Session::flash('genetics_error', 'Uloženo: ' . $saved . ', smazáno: ' . $deleted . '. Neplatný formát: ' . implode(', ', $invalid) . '.');
+        } else {
+            Session::flash('genetics_notice', 'Uloženo: ' . $saved . ' genotypů, smazáno: ' . $deleted . '.');
+        }
+        redirect('/admin/genetics/' . $dogId);
+    }
+
     /** Naseptavac psa podle jmena (JSON) pro rucni zadani genotypu. */
     public function dogSuggest(): never
     {

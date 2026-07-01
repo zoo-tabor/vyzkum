@@ -198,6 +198,24 @@ final class GenotypeRepository
         return $this->list($filters, $breedId, $orderBy, $cap, 0);
     }
 
+    /** @return array<int, string> dog: [marker_id => genotype] (pro predvyplneni editace) */
+    public function genotypeMapForDog(int $dogId): array
+    {
+        $stmt = $this->pdo()->prepare('SELECT marker_id, genotype FROM dog_genotypes WHERE dog_id = :d');
+        $stmt->execute(['d' => $dogId]);
+        $map = [];
+        foreach ($stmt->fetchAll() as $r) {
+            $map[(int) $r['marker_id']] = (string) $r['genotype'];
+        }
+        return $map;
+    }
+
+    public function deleteGenotype(int $dogId, int $markerId): void
+    {
+        $stmt = $this->pdo()->prepare('DELETE FROM dog_genotypes WHERE dog_id = :d AND marker_id = :m');
+        $stmt->execute(['d' => $dogId, 'm' => $markerId]);
+    }
+
     /** @return array<int, array<string, mixed>> genotypy jednoho psa (pro detail) */
     public function byDog(int $dogId): array
     {
