@@ -52,9 +52,22 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
             </form>
         </div>
     </header>
-    <main class="content" style="max-width:900px; margin:0 auto;">
-        <?= $content ?>
-    </main>
+    <?php
+    $portalActive = static fn (string $href): string => match (true) {
+        $href === '/portal' => ($currentPath === '/portal' || str_starts_with((string) $currentPath, '/portal/dogs')) ? 'active' : '',
+        default => str_starts_with((string) $currentPath, $href) ? 'active' : '',
+    };
+    ?>
+    <div class="shell">
+        <nav class="sidebar">
+            <ul>
+                <li><a href="/portal" class="<?= $portalActive('/portal') ?>">Moji psi</a></li>
+                <li><a href="/portal/contacts" class="<?= $portalActive('/portal/contacts') ?>">Moje údaje</a></li>
+                <li><a href="/portal/settings" class="<?= $portalActive('/portal/settings') ?>">Nastavení</a></li>
+            </ul>
+        </nav>
+        <main class="content"><?= $content ?></main>
+    </div>
 <?php elseif ($user !== null && $isClub): ?>
     <header class="topbar">
         <div class="topbar__brand"><a href="/club"><img class="topbar__logo" src="/favicon/favicon.svg" alt=""> Výzkum <span>ZOO Tábor</span></a></div>

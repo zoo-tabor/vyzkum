@@ -82,6 +82,9 @@ $router->group([new RequireRole('owner')], function (Router $router): void {
     $router->post('/portal/onboarding', [$portal, 'onboardingSubmit']);
     $router->get('/portal/contacts', [$portal, 'contacts']);
     $router->post('/portal/contacts', [$portal, 'updateContacts']);
+    $router->get('/portal/settings', [$portal, 'settings']);
+    $router->post('/portal/settings/password', [$portal, 'changePassword']);
+    $router->post('/portal/settings/consent', [$portal, 'updateConsent']);
     $router->get('/portal/dogs/{id}', [$portal, 'dog']);
     $router->post('/portal/dogs/{id}/confirm', [$portal, 'confirm']);
     $router->post('/portal/dogs/{id}/death', [$portal, 'death']);

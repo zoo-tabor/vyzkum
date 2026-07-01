@@ -14,6 +14,7 @@ use App\Repositories\HealthEventRepository;
 use App\Repositories\MessageRepository;
 use App\Repositories\OwnerRepository;
 use App\Repositories\TransferRepository;
+use App\Repositories\UserRepository;
 use App\Services\Auth;
 use App\Services\AuditService;
 use App\Services\OwnerOnboardingService;
@@ -413,6 +414,65 @@ final class PortalController
         (new OwnerOnboardingService())->applyFromRequest((int) $owner['id'], Auth::id());
         Session::flash('portal_notice', 'Děkujeme, vaše údaje byly uloženy.');
         redirect('/portal');
+    }
+
+    public function settings(): string
+    {
+        $owner = (new OwnerRepository())->findByUserId((int) Auth::id());
+
+        return view('portal/settings', [
+            'title' => 'Nastavení',
+            'owner' => $owner,
+            'notice' => Session::flash('portal_notice'),
+            'error' => Session::flash('portal_error'),
+        ]);
+    }
+
+    public function changePassword(): string
+    {
+        Csrf::verify();
+        $user = Auth::user();
+        if ($user === null) {
+            redirect('/portal');
+        }
+
+        $current = (string) input('current_password');
+        $new = (string) input('new_password');
+        $confirm = (string) input('new_password_confirm');
+
+        if (empty($user['password_hash']) || !password_verify($current, (string) $user['password_hash'])) {
+            Session::flash('portal_error', 'Současné heslo není správné.');
+            redirect('/portal/settings');
+        }
+        if (strlen($new) < 10) {
+            Session::flash('portal_error', 'Nové heslo musí mít alespoň 10 znaků.');
+            redirect('/portal/settings');
+        }
+        if ($new !== $confirm) {
+            Session::flash('portal_error', 'Nová hesla se neshodují.');
+            redirect('/portal/settings');
+        }
+
+        (new UserRepository())->updatePasswordHash((int) $user['id'], Auth::hash($new));
+        AuditService::log((int) $user['id'], 'owner', 'password_changed', 'user', (string) $user['id']);
+        Session::flash('portal_notice', 'Heslo bylo změněno.');
+        redirect('/portal/settings');
+    }
+
+    public function updateConsent(): string
+    {
+        Csrf::verify();
+        $repo = new OwnerRepository();
+        $owner = $repo->findByUserId((int) Auth::id());
+        if ($owner === null) {
+            redirect('/portal');
+        }
+
+        $consent = !empty(input('contact_consent'));
+        $repo->setContactConsent((int) $owner['id'], $consent);
+        AuditService::log(Auth::id(), 'owner', 'owner_consent_updated', 'owner', (string) $owner['id'], null, ['contact_consent' => $consent]);
+        Session::flash('portal_notice', $consent ? 'Souhlas byl uložen.' : 'Souhlas byl odvolán.');
+        redirect('/portal/settings');
     }
 
     /**

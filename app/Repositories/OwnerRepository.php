@@ -218,6 +218,12 @@ final class OwnerRepository
         $stmt->execute(['a' => $address, 'id' => $ownerId]);
     }
 
+    public function setContactConsent(int $ownerId, bool $consent): void
+    {
+        $stmt = $this->pdo()->prepare('UPDATE owners SET contact_consent = :c, updated_at = NOW() WHERE id = :id');
+        $stmt->execute(['c' => $consent ? 1 : 0, 'id' => $ownerId]);
+    }
+
     /** Oznaci onboarding majitele za dokonceny a ulozi souhlas s kontaktovanim. */
     public function markOnboarded(int $ownerId, bool $contactConsent): void
     {
