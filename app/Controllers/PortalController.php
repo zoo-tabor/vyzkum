@@ -16,6 +16,7 @@ use App\Repositories\OwnerRepository;
 use App\Repositories\TransferRepository;
 use App\Services\Auth;
 use App\Services\AuditService;
+use App\Services\OwnerOnboardingService;
 use App\Services\OwnershipTransferService;
 use App\Support\Dates;
 use App\Support\FileStorage;
@@ -380,82 +381,36 @@ final class PortalController
         redirect('/portal/contacts');
     }
 
-    /** Jednorazovy onboarding po nastaveni hesla: kontrola udaju + potvrzeni psu. */
+    /**
+     * Fallback onboarding v portalu (pro majitele, kteri heslo nastavili drive,
+     * nez onboarding vznikl). Nova registrace bezi uz na strance z pozvanky.
+     */
     public function onboarding(): string
     {
-        $repo = new OwnerRepository();
-        $owner = $repo->findByUserId((int) Auth::id());
-        if ($owner === null) {
-            redirect('/portal');
-        }
-        if (!empty($owner['onboarding_completed_at'])) {
+        $owner = (new OwnerRepository())->findByUserId((int) Auth::id());
+        if ($owner === null || !empty($owner['onboarding_completed_at'])) {
             redirect('/portal');
         }
 
-        $ownerId = (int) $owner['id'];
-        $currentDogs = array_values(array_filter(
-            $repo->dogsOf($ownerId),
-            static fn (array $d): bool => (int) $d['is_current'] === 1
+        return view('portal/onboarding', array_merge(
+            (new OwnerOnboardingService())->viewData((int) $owner['id']),
+            ['title' => 'Kontrola údajů', 'error' => Session::flash('portal_error')]
         ));
-
-        return view('portal/onboarding', [
-            'title' => 'Kontrola údajů',
-            'owner' => $owner,
-            'primaryEmail' => $repo->primaryEmail($ownerId),
-            'secondaryEmails' => array_values(array_filter($repo->emails($ownerId), static fn ($e) => (int) $e['is_primary'] === 0)),
-            'phones' => $repo->phones($ownerId),
-            'dogs' => $currentDogs,
-            'error' => Session::flash('portal_error'),
-        ]);
     }
 
     public function onboardingSubmit(): string
     {
         Csrf::verify();
-        $repo = new OwnerRepository();
-        $owner = $repo->findByUserId((int) Auth::id());
+        $owner = (new OwnerRepository())->findByUserId((int) Auth::id());
         if ($owner === null) {
             redirect('/portal');
         }
-        $ownerId = (int) $owner['id'];
-
         if (empty(input('main_consent'))) {
             Session::flash('portal_error', 'Bez souhlasu se zpracováním údajů nelze pokračovat.');
             redirect('/portal/onboarding');
         }
 
-        // Kontaktni udaje (primarni e-mail se nemeni - je to prihlasovaci jmeno).
-        $repo->updateContactInfo($ownerId, trim((string) input('address')) ?: null);
-        $repo->replacePhones($ownerId, $this->splitList((string) input('phones')));
-        $repo->replaceSecondaryEmails($ownerId, $this->splitList((string) input('secondary_emails')));
-
-        // Psi: Ano = potvrdit vlastnictvi, Ne = zalozit zadost o prevod na noveho majitele.
-        $dogs = new DogRepository();
-        $transfers = new OwnershipTransferService();
-        $confirmed = 0;
-        $handedOver = 0;
-        foreach ($repo->dogsOf($ownerId) as $d) {
-            if ((int) $d['is_current'] !== 1) {
-                continue;
-            }
-            $dogId = (int) $d['id'];
-            if ((string) input('dog_' . $dogId) === 'transfer') {
-                $name = trim((string) input('new_owner_name_' . $dogId));
-                $email = trim((string) input('new_owner_email_' . $dogId));
-                $phone = trim((string) input('new_owner_phone_' . $dogId));
-                if ($name !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                    $transfers->request($dogId, $ownerId, $name, $email, $phone ?: null, Auth::id());
-                    $handedOver++;
-                }
-                // Neuplne zadani noveho majitele: psa zatim nemenime (lze doresit v portalu).
-            } else {
-                $dogs->confirmOwnership($dogId, $ownerId);
-                $confirmed++;
-            }
-        }
-
-        $repo->markOnboarded($ownerId, true);
-        AuditService::log(Auth::id(), 'owner', 'owner_onboarding_completed', 'owner', (string) $ownerId, null, ['confirmed' => $confirmed, 'transfer' => $handedOver]);
+        (new OwnerOnboardingService())->applyFromRequest((int) $owner['id'], Auth::id());
         Session::flash('portal_notice', 'Děkujeme, vaše údaje byly uloženy.');
         redirect('/portal');
     }
