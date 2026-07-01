@@ -33,12 +33,17 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= e($pageTitle) ?></title>
+    <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+    <link rel="shortcut icon" href="/favicon/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
     <link rel="stylesheet" href="<?= e(asset('assets/app.css')) ?>">
 </head>
 <body>
 <?php if ($user !== null && $isOwner): ?>
     <header class="topbar">
-        <div class="topbar__brand"><a href="/portal">Výzkum <span>Zoo Tábor</span></a></div>
+        <div class="topbar__brand"><a href="/portal"><img class="topbar__logo" src="/favicon/favicon.svg" alt=""> Výzkum <span>ZOO Tábor</span></a></div>
         <div class="topbar__user">
             <span class="topbar__email"><?= e($user['email']) ?></span>
             <form method="post" action="/logout" class="inline">
@@ -52,7 +57,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
     </main>
 <?php elseif ($user !== null && $isClub): ?>
     <header class="topbar">
-        <div class="topbar__brand"><a href="/club">Výzkum <span>Zoo Tábor</span></a></div>
+        <div class="topbar__brand"><a href="/club"><img class="topbar__logo" src="/favicon/favicon.svg" alt=""> Výzkum <span>ZOO Tábor</span></a></div>
         <div class="topbar__user">
             <span class="topbar__email"><?= e($user['email']) ?></span>
             <span class="topbar__role">klub</span>
@@ -74,7 +79,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
 <?php elseif ($user !== null): ?>
     <header class="topbar">
         <div class="topbar__brand">
-            <a href="/admin">Výzkum <span>Zoo Tábor</span></a>
+            <a href="/admin"><img class="topbar__logo" src="/favicon/favicon.svg" alt=""> Výzkum <span>ZOO Tábor</span></a>
         </div>
 
         <form class="breed-switch" method="post" action="/admin/breed-context">
