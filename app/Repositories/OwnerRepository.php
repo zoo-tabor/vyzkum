@@ -135,9 +135,17 @@ final class OwnerRepository
         $offset = max(0, $offset);
 
         $stmt = $this->pdo()->prepare(
-            "SELECT o.id, o.display_name, o.preferred_contact_method,
+            "SELECT o.id, o.display_name, o.preferred_contact_method, o.note,
                     (SELECT email FROM owner_emails e WHERE e.owner_id = o.id AND e.is_primary = 1 LIMIT 1) AS primary_email,
-                    (SELECT COUNT(*) FROM dog_owners do2 WHERE do2.owner_id = o.id AND do2.is_current = 1) AS dog_count
+                    (SELECT phone FROM owner_phones p WHERE p.owner_id = o.id ORDER BY p.is_primary DESC, p.id ASC LIMIT 1) AS primary_phone,
+                    (SELECT COUNT(*) FROM dog_owners do2 WHERE do2.owner_id = o.id AND do2.is_current = 1) AS dog_count,
+                    GREATEST(
+                        COALESCE(o.updated_at, o.created_at),
+                        COALESCE((SELECT MAX(m.created_at) FROM messages m WHERE m.sender_user_id = o.user_id), '1000-01-01'),
+                        COALESCE((SELECT MAX(r.submitted_at) FROM form_responses r WHERE r.owner_id = o.id), '1000-01-01'),
+                        COALESCE((SELECT MAX(do3.confirmed_at) FROM dog_owners do3 WHERE do3.owner_id = o.id), '1000-01-01'),
+                        COALESCE((SELECT u.last_login_at FROM users u WHERE u.id = o.user_id), '1000-01-01')
+                    ) AS last_activity
              FROM owners o
              WHERE {$where}
              ORDER BY o.display_name ASC
@@ -145,6 +153,35 @@ final class OwnerRepository
         );
         $stmt->execute($params);
         return $stmt->fetchAll();
+    }
+
+    /** @param array<string, mixed> $d */
+    public function update(int $id, array $d): void
+    {
+        $stmt = $this->pdo()->prepare(
+            'UPDATE owners SET display_name = :dn, first_name = :fn, last_name = :ln, address = :addr,
+                    preferred_contact_method = :pcm, contact_consent = :consent, note = :note, updated_at = NOW()
+             WHERE id = :id'
+        );
+        $stmt->execute([
+            'id' => $id,
+            'dn' => $d['display_name'],
+            'fn' => $d['first_name'] ?? null,
+            'ln' => $d['last_name'] ?? null,
+            'addr' => $d['address'] ?? null,
+            'pcm' => $d['preferred_contact_method'] ?? 'email',
+            'consent' => !empty($d['contact_consent']) ? 1 : 0,
+            'note' => $d['note'] ?? null,
+        ]);
+    }
+
+    public function setPrimaryEmail(int $ownerId, string $email): void
+    {
+        $del = $this->pdo()->prepare('DELETE FROM owner_emails WHERE owner_id = :o AND is_primary = 1');
+        $del->execute(['o' => $ownerId]);
+        if ($email !== '') {
+            $this->addEmail($ownerId, $email, true);
+        }
     }
 
     /** @return array<int, array<string, mixed>> psi navazani na majitele */

@@ -32,9 +32,12 @@ diakritikou; .md dokumenty, komentare a commit zpravy ASCII (viz memory styl-ces
   vybraneho plemene), DNA izol., GWAS. Novy pes: inline vzorek (custom cislo + datum
   prijeti) -> ensureImportedSample spari se psem. DogRepository create/update rozsireno.
 
-## Faze 4 - admin/owners + admin/owners/{}
-- Seznam: sloupce Tel. cislo, Datum posledni aktualizace (posledni kontakt), Poznamky.
-- Detail: tlacitko editace majitele; telefon jako +420/... (00 -> +).
+## Faze 4 - admin/owners + admin/owners/{}  [HOTOVO]
+- Seznam: sloupce Tel. cislo (Phone::formatCz), Datum posledni aktualizace
+  (GREATEST z updated_at / posledni zprava / dotaznik / potvrzeni psa / last_login),
+  Poznamky. Telefon jako +420/... (00 -> +).
+- Detail: tlacitko Upravit; editace majitele (OwnerController edit/update,
+  OwnerRepository update/setPrimaryEmail). Bez nove migrace.
 
 ## Faze 5 - admin/samples + new-batch
 - Rucni pridani vzorku bez veterinare (bez davky, custom cislo).

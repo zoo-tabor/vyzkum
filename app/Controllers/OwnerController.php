@@ -85,8 +85,69 @@ final class OwnerController
     {
         return view('admin/owners/form', [
             'title' => 'Nový majitel',
+            'owner' => null,
+            'primaryEmail' => '',
+            'secondaryEmails' => [],
+            'phones' => [],
             'error' => Session::flash('owner_error'),
         ]);
+    }
+
+    public function edit(string $id): string
+    {
+        $repo = new OwnerRepository();
+        $owner = $repo->find((int) $id);
+        if ($owner === null) {
+            http_response_code(404);
+            return view('errors/404', ['title' => 'Majitel nenalezen']);
+        }
+        return view('admin/owners/form', [
+            'title' => 'Upravit majitele',
+            'owner' => $owner,
+            'primaryEmail' => $repo->primaryEmail((int) $id) ?? '',
+            'secondaryEmails' => array_values(array_filter($repo->emails((int) $id), static fn ($e) => (int) $e['is_primary'] === 0)),
+            'phones' => $repo->phones((int) $id),
+            'error' => Session::flash('owner_error'),
+        ]);
+    }
+
+    public function update(string $id): string
+    {
+        Csrf::verify();
+        $repo = new OwnerRepository();
+        $owner = $repo->find((int) $id);
+        if ($owner === null) {
+            http_response_code(404);
+            return view('errors/404', ['title' => 'Majitel nenalezen']);
+        }
+
+        $displayName = trim((string) input('display_name'));
+        if ($displayName === '') {
+            Session::flash('owner_error', 'Vyplňte jméno majitele.');
+            redirect('/admin/owners/' . $id . '/edit');
+        }
+        $primaryEmail = trim((string) input('primary_email'));
+        if ($primaryEmail !== '' && !filter_var($primaryEmail, FILTER_VALIDATE_EMAIL)) {
+            Session::flash('owner_error', 'Primární e-mail nemá platný formát.');
+            redirect('/admin/owners/' . $id . '/edit');
+        }
+
+        $repo->update((int) $id, [
+            'display_name' => $displayName,
+            'first_name' => trim((string) input('first_name')) ?: null,
+            'last_name' => trim((string) input('last_name')) ?: null,
+            'address' => trim((string) input('address')) ?: null,
+            'preferred_contact_method' => (string) input('preferred_contact_method', 'email'),
+            'contact_consent' => (bool) input('contact_consent'),
+            'note' => trim((string) input('note')) ?: null,
+        ]);
+        $repo->setPrimaryEmail((int) $id, $primaryEmail);
+        $repo->replaceSecondaryEmails((int) $id, $this->splitList((string) input('secondary_emails')));
+        $repo->replacePhones((int) $id, $this->splitList((string) input('phones')));
+
+        AuditService::log(Auth::id(), Auth::role(), 'owner_updated', 'owner', $id, null, ['display_name' => $displayName]);
+        Session::flash('owner_notice', 'Změny majitele byly uloženy.');
+        redirect('/admin/owners/' . $id);
     }
 
     public function store(): string

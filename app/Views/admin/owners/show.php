@@ -4,7 +4,10 @@
 /** @var array<int, array<string, mixed>> $phones */
 /** @var array<int, array<string, mixed>> $dogs */
 ?>
-<div class="page-head"><h1><?= e($owner['display_name']) ?></h1></div>
+<div class="page-head" style="display:flex; justify-content:space-between; align-items:center;">
+    <h1><?= e($owner['display_name']) ?></h1>
+    <a class="btn" href="/admin/owners/<?= (int) $owner['id'] ?>/edit">Upravit</a>
+</div>
 
 <?php if (!empty($notice)): ?><div class="alert alert--ok"><?= e($notice) ?></div><?php endif; ?>
 <?php if (!empty($error)): ?><div class="alert alert--error"><?= e($error) ?></div><?php endif; ?>
@@ -53,7 +56,7 @@
     <?php if ($phones === []): ?><p class="muted">Žádné telefony.</p><?php else: ?>
         <ul>
             <?php foreach ($phones as $ph): ?>
-                <li><?= e($ph['phone']) ?><?= !empty($ph['label']) ? ' (' . e($ph['label']) . ')' : '' ?></li>
+                <li><?= e(\App\Support\Phone::formatCz($ph['phone'])) ?><?= !empty($ph['label']) ? ' (' . e($ph['label']) . ')' : '' ?></li>
             <?php endforeach; ?>
         </ul>
     <?php endif; ?>

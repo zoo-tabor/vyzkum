@@ -26,13 +26,21 @@ $qs = static function (array $over) use ($search): string {
         <p class="muted">Žádní majitelé.</p>
     <?php else: ?>
         <table class="table">
-            <thead><tr><th>Jméno</th><th>Primární e-mail</th><th>Aktuální psi</th></tr></thead>
+            <thead><tr><th>Jméno</th><th>Primární e-mail</th><th>Tel. číslo</th><th>Psi</th><th>Poslední aktualizace</th><th>Poznámka</th></tr></thead>
             <tbody>
             <?php foreach ($owners as $o): ?>
+                <?php
+                $lastAct = (string) ($o['last_activity'] ?? '');
+                $lastActShow = ($lastAct !== '' && substr($lastAct, 0, 4) !== '1000') ? \App\Support\Dates::toCz(substr($lastAct, 0, 10)) : '-';
+                $note = trim((string) ($o['note'] ?? ''));
+                ?>
                 <tr>
                     <td><a href="/admin/owners/<?= (int) $o['id'] ?>"><?= e($o['display_name']) ?></a></td>
                     <td><?= e($o['primary_email'] ?? '') ?: '<span class="muted">-</span>' ?></td>
+                    <td><?= e(\App\Support\Phone::formatCz($o['primary_phone'] ?? null)) ?: '<span class="muted">-</span>' ?></td>
                     <td><?= (int) $o['dog_count'] ?></td>
+                    <td><?= e($lastActShow) ?></td>
+                    <td><?= $note !== '' ? e(mb_strimwidth($note, 0, 40, '…')) : '<span class="muted">-</span>' ?></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>

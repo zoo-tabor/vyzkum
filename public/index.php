@@ -121,7 +121,9 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $router->get('/admin/owners', [$owners, 'index']);
         $router->get('/admin/owners/new', [$owners, 'create']);
         $router->post('/admin/owners', [$owners, 'store']);
+        $router->get('/admin/owners/{id}/edit', [$owners, 'edit']);
         $router->post('/admin/owners/{id}/send-password', [$owners, 'sendPassword']);
+        $router->post('/admin/owners/{id}', [$owners, 'update']);
         $router->get('/admin/owners/{id}', [$owners, 'show']);
 
         // Import CSV
