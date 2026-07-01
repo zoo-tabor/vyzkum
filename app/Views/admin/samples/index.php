@@ -12,6 +12,7 @@
         <a class="btn" href="/admin/batches">Dávky</a>
         <a class="btn" href="/admin/vets">Veterináři</a>
         <a class="btn" href="/admin/samples/export.csv<?= $status !== '' ? '?status=' . e(urlencode($status)) : '' ?>">Export CSV</a>
+        <a class="btn" href="/admin/samples/manual">+ Ruční vzorek</a>
         <a class="btn btn--primary" href="/admin/samples/new-batch">+ Nová dávka</a>
     </span>
 </div>

@@ -121,6 +121,9 @@ final class GeneticsImportService
                     );
                     $genos++;
                 }
+
+                // Po nahrani genetiky se vzorky psa oznaci jako analysis_done.
+                $this->samples->markAnalysisDoneForDog($dog['dog_id']);
             }
 
             $pdo->commit();

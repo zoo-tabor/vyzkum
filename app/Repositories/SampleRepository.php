@@ -261,6 +261,29 @@ final class SampleRepository
         ]);
     }
 
+    /** Rucne pridany vzorek (bez veterinare/davky) - dorazi naprimo vyzkumnemu tymu. */
+    public function addManualSample(string $sampleId, ?int $breedId, ?string $receivedAt): void
+    {
+        $stmt = $this->pdo()->prepare(
+            "INSERT INTO samples (sample_id, breed_id, status, vet_token_hash, owner_token_hash, received_at)
+             VALUES (:sid, :b, 'sample_received', :vh, :oh, :recv)"
+        );
+        $stmt->execute([
+            'sid' => $sampleId,
+            'b' => $breedId,
+            'vh' => hash('sha256', \App\Support\SampleCode::token()),
+            'oh' => hash('sha256', \App\Support\SampleCode::token()),
+            'recv' => $receivedAt ?: null,
+        ]);
+    }
+
+    /** Po nahrani genetiky se vzorky psa oznaci jako analysis_done. */
+    public function markAnalysisDoneForDog(int $dogId): void
+    {
+        $stmt = $this->pdo()->prepare("UPDATE samples SET status = 'analysis_done', updated_at = NOW() WHERE dog_id = :d");
+        $stmt->execute(['d' => $dogId]);
+    }
+
     public function attachDog(int $sampleId, int $dogId): void
     {
         $stmt = $this->pdo()->prepare(

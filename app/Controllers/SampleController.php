@@ -61,9 +61,7 @@ final class SampleController
     {
         return view('admin/samples/new_batch', [
             'title' => 'Nová dávka vzorků',
-            'breeds' => (new BreedRepository())->all(),
             'vets' => (new VetRepository())->all(),
-            'currentBreedId' => BreedContext::current(),
             'error' => Session::flash('sample_error'),
         ]);
     }
@@ -77,15 +75,50 @@ final class SampleController
             redirect('/admin/samples/new-batch');
         }
 
-        $breedId = (int) input('breed_id') ?: null;
+        // Plemeno se nepřiřazuje - zadá ho majitel při registraci přes QR.
         $vetId = (int) input('vet_id') ?: null;
         $appUrl = (string) Config::instance()->get('APP_URL', '');
 
-        $result = (new SampleRepository())->createBatch($count, $breedId, $vetId, trim((string) input('label')) ?: null, $appUrl, Auth::id());
+        $result = (new SampleRepository())->createBatch($count, null, $vetId, trim((string) input('label')) ?: null, $appUrl, Auth::id());
         AuditService::log(Auth::id(), Auth::role(), 'sample_batch_created', 'sample_batch', (string) $result['batch']['id'], null, ['count' => $count]);
 
         Session::flash('sample_notice', 'Dávka vytvořena - vytiskněte štítky.');
         redirect('/admin/batches/' . (int) $result['batch']['id'] . '/labels');
+    }
+
+    public function manual(): string
+    {
+        return view('admin/samples/manual', [
+            'title' => 'Ruční vzorek',
+            'breeds' => (new BreedRepository())->all(),
+            'currentBreedId' => BreedContext::current(),
+            'error' => Session::flash('sample_error'),
+        ]);
+    }
+
+    public function addSample(): string
+    {
+        Csrf::verify();
+        $sampleId = trim((string) input('sample_id'));
+        if ($sampleId === '') {
+            Session::flash('sample_error', 'Zadejte číslo vzorku.');
+            redirect('/admin/samples/manual');
+        }
+
+        try {
+            (new SampleRepository())->addManualSample(
+                $sampleId,
+                (int) input('breed_id') ?: null,
+                trim((string) input('received_at')) ?: null
+            );
+        } catch (\PDOException $e) {
+            Session::flash('sample_error', 'Vzorek s číslem ' . $sampleId . ' už existuje.');
+            redirect('/admin/samples/manual');
+        }
+
+        AuditService::log(Auth::id(), Auth::role(), 'sample_manual', 'sample', $sampleId);
+        Session::flash('sample_notice', 'Vzorek byl ručně přidán.');
+        redirect('/admin/samples');
     }
 
     public function batches(): string

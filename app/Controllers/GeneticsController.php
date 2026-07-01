@@ -103,6 +103,7 @@ final class GeneticsController
             null,
             'manual'
         );
+        (new \App\Repositories\SampleRepository())->markAnalysisDoneForDog($dogId);
         AuditService::log(Auth::id(), Auth::role(), 'genotype_manual', 'dog', (string) $dogId, null, ['marker_id' => $markerId, 'genotype' => $split['genotype']]);
         Session::flash('genetics_notice', 'Genotyp uložen.');
         redirect('/admin/genetics');

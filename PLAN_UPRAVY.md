@@ -39,10 +39,12 @@ diakritikou; .md dokumenty, komentare a commit zpravy ASCII (viz memory styl-ces
 - Detail: tlacitko Upravit; editace majitele (OwnerController edit/update,
   OwnerRepository update/setPrimaryEmail). Bez nove migrace.
 
-## Faze 5 - admin/samples + new-batch
-- Rucni pridani vzorku bez veterinare (bez davky, custom cislo).
-- new-batch bez plemene (jen cislo + veterinar); plemeno zada majitel v QR.
-- Auto `analysis_done` po nahrani genetiky.
+## Faze 5 - admin/samples + new-batch  [HOTOVO]
+- Rucni pridani vzorku bez veterinare (/admin/samples/manual, custom cislo + plemeno
+  nepovinne + datum prijeti; stav sample_received; SampleRepository::addManualSample).
+- new-batch bez plemene (jen pocet + veterinar); plemeno zada majitel v QR.
+- Auto `analysis_done` po nahrani genetiky (markAnalysisDoneForDog - CSV import i rucni
+  zadani genotypu). Bez nove migrace.
 
 ## Faze 6 - verejne vet/{} a dog/{}
 - Cip bez omezeni (znaky i delka). "Pocet odebranych zkumavek" -> "Pocet".

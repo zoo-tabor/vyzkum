@@ -139,6 +139,8 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $router->get('/admin/samples/export.csv', [$samples, 'export']);
         $router->get('/admin/samples/new-batch', [$samples, 'newBatch']);
         $router->post('/admin/samples/new-batch', [$samples, 'createBatch']);
+        $router->get('/admin/samples/manual', [$samples, 'manual']);
+        $router->post('/admin/samples/manual', [$samples, 'addSample']);
         $router->post('/admin/samples/{sampleId}/status', [$samples, 'updateStatus']);
         $router->get('/admin/samples/{sampleId}', [$samples, 'detail']);
         $router->get('/admin/batches', [$samples, 'batches']);
