@@ -26,10 +26,11 @@ final class DogRepository
         $offset = max(0, $offset);
 
         $stmt = $this->pdo()->prepare(
-            "SELECT d.id, d.name, d.chip_number, d.pedigree_number, d.sex, d.birth_date, d.death_date, d.status,
+            "SELECT d.id, d.name, d.chip_number, d.sex, d.birth_date, d.death_date,
+                    d.alive_confirmed_at, d.country, d.dna_isolated_at, d.gwas_status, d.status,
                     b.name AS breed_name,
                     o.id AS owner_id, o.display_name AS owner_name,
-                    (SELECT email FROM owner_emails e WHERE e.owner_id = o.id AND e.is_primary = 1 LIMIT 1) AS owner_email
+                    (SELECT MAX(s.received_at) FROM samples s WHERE s.dog_id = d.id) AS newest_sample_received
              FROM dogs d
              JOIN breeds b ON b.id = d.breed_id
              LEFT JOIN dog_owners do2 ON do2.dog_id = d.id AND do2.is_current = 1
@@ -40,6 +41,75 @@ final class DogRepository
         );
         $stmt->execute($params);
         return $stmt->fetchAll();
+    }
+
+    /** @param array<int, int> $dogIds @return array<int, array<int, array<string, mixed>>> dog_id => [{sample_id, received_at}] */
+    public function samplesForDogs(array $dogIds): array
+    {
+        $ids = self::intList($dogIds);
+        if ($ids === '') {
+            return [];
+        }
+        $rows = $this->pdo()->query(
+            "SELECT dog_id, sample_id, received_at FROM samples WHERE dog_id IN ({$ids}) ORDER BY dog_id, id"
+        )->fetchAll();
+        $map = [];
+        foreach ($rows as $r) {
+            $map[(int) $r['dog_id']][] = ['sample_id' => $r['sample_id'], 'received_at' => $r['received_at']];
+        }
+        return $map;
+    }
+
+    /** @param array<int, int> $dogIds @return array<int, array<int, string>> dog_id => [marker_id => genotype] */
+    public function genotypesForDogs(array $dogIds): array
+    {
+        $ids = self::intList($dogIds);
+        if ($ids === '') {
+            return [];
+        }
+        $rows = $this->pdo()->query(
+            "SELECT dog_id, marker_id, genotype FROM dog_genotypes WHERE dog_id IN ({$ids})"
+        )->fetchAll();
+        $map = [];
+        foreach ($rows as $r) {
+            $map[(int) $r['dog_id']][(int) $r['marker_id']] = (string) $r['genotype'];
+        }
+        return $map;
+    }
+
+    /** @return array<int, array{id:int, marker_code:string}> markery, ktere se u plemene sleduji (maji genotypy) */
+    public function markersForBreed(int $breedId): array
+    {
+        $stmt = $this->pdo()->prepare(
+            'SELECT DISTINCT m.id, m.marker_code
+             FROM dog_genotypes g JOIN genetic_markers m ON m.id = g.marker_id
+             WHERE g.breed_id = :b ORDER BY m.marker_code ASC'
+        );
+        $stmt->execute(['b' => $breedId]);
+        return array_map(static fn (array $r): array => ['id' => (int) $r['id'], 'marker_code' => (string) $r['marker_code']], $stmt->fetchAll());
+    }
+
+    /** @return array<int, string> napoveda pro filtr (jmeno nebo chovatelska stanice) */
+    public function suggest(string $field, string $q, ?int $breedId, int $limit = 20): array
+    {
+        $column = $field === 'kennel' ? 'kennel_name' : 'name';
+        $sql = "SELECT DISTINCT {$column} AS v FROM dogs WHERE {$column} IS NOT NULL AND {$column} <> '' AND {$column} LIKE :q";
+        $params = ['q' => '%' . str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $q) . '%'];
+        if ($breedId !== null) {
+            $sql .= ' AND breed_id = :b';
+            $params['b'] = $breedId;
+        }
+        $sql .= " ORDER BY {$column} ASC LIMIT " . max(1, $limit);
+        $stmt = $this->pdo()->prepare($sql);
+        $stmt->execute($params);
+        return array_map('strval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+    }
+
+    /** @param array<int, int> $ids */
+    private static function intList(array $ids): string
+    {
+        $ints = array_filter(array_map('intval', $ids));
+        return implode(',', $ints);
     }
 
     /** @param array<string, mixed> $params */

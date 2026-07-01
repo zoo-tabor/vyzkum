@@ -18,11 +18,13 @@ diakritikou; .md dokumenty, komentare a commit zpravy ASCII (viz memory styl-ces
 - `setAliveStatus`: pri "zije" ulozi `alive_confirmed_at = dnes`.
 - Vzorky: zuzeni stavu (odebrano analysis_ready, archived, excluded).
 
-## Faze 2 - admin/dogs (seznam)
-- Sloupec Vek (nahradi Datum narozeni): mrtvy -> data umrti; jinak alive_confirmed_at;
-  jinak datum prijeti nejnovejsiho vzorku. Sloupec Zeme, cisla vzorku + datum prijeti,
-  genotypy dle markeru plemene, GWAS. JS razeni pres hlavicku (A-Z/Z-A), uzsi 1. sloupec.
-- Filtr: naseptavac jmena + "Chovatelska stanice"; odebrat filtr Cip/prukaz a razeni selecty.
+## Faze 2 - admin/dogs (seznam)  [HOTOVO]
+- Sloupce: Vek (Age helper - death/alive_confirmed/newest sample -> today), Zeme (kod
+  ISO alpha-3, title=nazev), Vzorky (cisla + datum prijeti), DNA izol., genotypy dle
+  markeru plemene (jen kdyz je vybrano plemeno; markery = distinct z dog_genotypes),
+  GWAS. JS razeni pres hlavicku (A-Z/Z-A, per stranka), uzsi sloupec jmena.
+- Filtr: naseptavac jmena + "Chovatelska stanice" (JSON /admin/dogs/suggest);
+  odebran filtr Cip/prukaz i razeni selecty. Bez nove migrace.
 
 ## Faze 3 - admin/dogs/{} + admin/dogs/new
 - Detail: zeme, vek, "Zdravotni udalosti" -> "Zdravotni zaznamy".

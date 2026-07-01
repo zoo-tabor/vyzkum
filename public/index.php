@@ -109,6 +109,7 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $dogs = new DogController();
         $router->get('/admin/dogs', [$dogs, 'index']);
         $router->get('/admin/dogs/new', [$dogs, 'create']);
+        $router->get('/admin/dogs/suggest', [$dogs, 'suggest']);
         $router->get('/admin/dogs/export.csv', [$dogs, 'export']);
         $router->post('/admin/dogs', [$dogs, 'store']);
         $router->get('/admin/dogs/{id}/edit', [$dogs, 'edit']);

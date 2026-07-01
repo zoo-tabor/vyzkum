@@ -120,3 +120,10 @@ select { padding: 0.55rem 0.6rem; border: 1px solid var(--line); border-radius: 
 .table th, .table td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--line); }
 .table th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); }
 code { background: #f3f4f6; padding: 0.1rem 0.3rem; border-radius: 4px; }
+
+/* Seznam psu - uzsi sloupec jmena, indikator razeni */
+.table--dogs td, .table--dogs th { font-size: 0.88rem; padding: 0.45rem 0.5rem; }
+.table--dogs .col-name { white-space: nowrap; width: 1%; }
+.table--dogs th.sortable:hover { color: var(--ink); }
+.table--dogs th.sortable[data-dir=asc]::after { content: ' \25B2'; font-size: 0.7em; }
+.table--dogs th.sortable[data-dir=desc]::after { content: ' \25BC'; font-size: 0.7em; }

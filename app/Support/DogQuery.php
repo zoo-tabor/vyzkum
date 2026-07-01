@@ -52,6 +52,12 @@ final class DogQuery
             $params['code'] = '%' . self::escapeLike($code) . '%';
         }
 
+        $kennel = trim((string) ($filters['kennel'] ?? ''));
+        if ($kennel !== '') {
+            $where[] = 'd.kennel_name LIKE :kennel';
+            $params['kennel'] = '%' . self::escapeLike($kennel) . '%';
+        }
+
         $status = (string) ($filters['status'] ?? '');
         if ($status === 'alive') {
             $where[] = 'd.death_date IS NULL';

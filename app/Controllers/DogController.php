@@ -28,26 +28,42 @@ final class DogController
 
         $filters = [
             'q' => (string) input('q'),
-            'code' => (string) input('code'),
+            'kennel' => (string) input('kennel'),
             'status' => (string) input('status'),
         ];
         $built = DogQuery::filters($filters, $breedId);
-        $orderBy = DogQuery::orderBy((string) input('sort'), (string) input('dir'));
 
         $total = $repo->count($built['where'], $built['params']);
         $pager = new Paginator($total, (int) input('page', 1), self::PER_PAGE);
-        $rows = $repo->paginate($built['where'], $built['params'], $orderBy, $pager->perPage, $pager->offset);
+        // Razeni resi JS pres hlavicku tabulky; server vraci vychozi poradi dle jmena.
+        $rows = $repo->paginate($built['where'], $built['params'], 'd.name ASC, d.id ASC', $pager->perPage, $pager->offset);
+
+        $dogIds = array_map(static fn (array $d): int => (int) $d['id'], $rows);
+        $markers = $breedId !== null ? $repo->markersForBreed($breedId) : [];
 
         return view('admin/dogs/index', [
             'title' => 'Psi',
             'dogs' => $rows,
             'pager' => $pager,
             'filters' => $filters,
-            'sort' => (string) input('sort', 'name'),
-            'dir' => (string) input('dir', 'asc'),
             'currentBreedId' => $breedId,
+            'markers' => $markers,
+            'samplesByDog' => $repo->samplesForDogs($dogIds),
+            'genotypesByDog' => $markers !== [] ? $repo->genotypesForDogs($dogIds) : [],
             'notice' => Session::flash('dog_notice'),
         ]);
+    }
+
+    /** Naseptavac pro filtr (JSON): field=name|kennel, q=hledany text. */
+    public function suggest(): never
+    {
+        $field = (string) input('field') === 'kennel' ? 'kennel' : 'name';
+        $q = trim((string) input('q'));
+        $items = $q === '' ? [] : (new DogRepository())->suggest($field, $q, BreedContext::current());
+
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($items, JSON_UNESCAPED_UNICODE);
+        exit;
     }
 
     public function export(): never
@@ -55,12 +71,11 @@ final class DogController
         $breedId = BreedContext::current();
         $filters = [
             'q' => (string) input('q'),
-            'code' => (string) input('code'),
+            'kennel' => (string) input('kennel'),
             'status' => (string) input('status'),
         ];
         $built = DogQuery::filters($filters, $breedId);
-        $orderBy = DogQuery::orderBy((string) input('sort'), (string) input('dir'));
-        $rows = (new DogRepository())->exportRows($built['where'], $built['params'], $orderBy);
+        $rows = (new DogRepository())->exportRows($built['where'], $built['params'], 'd.name ASC, d.id ASC');
 
         $columns = [
             'breed_slug', 'dog_name', 'kennel_name', 'sex', 'pedigree_number', 'chip_number',
