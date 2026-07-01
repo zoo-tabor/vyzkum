@@ -3,8 +3,11 @@
 /** @var string|null $email */
 ?>
 <div class="card card--auth">
-    <h1>Přihlášení</h1>
-    <p class="muted">CRM pro výzkum plemen psů</p>
+    <div class="auth-brand">
+        <img class="auth-logo" src="/favicon/favicon.svg" alt="">
+        <div class="topbar__brand auth-brandname">Výzkum <span>ZOO Tábor</span></div>
+        <p class="muted">Dlouhověkost psích plemen</p>
+    </div>
 
     <?php if (!empty($error)): ?>
         <div class="alert alert--error"><?= e($error) ?></div>
