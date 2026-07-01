@@ -20,3 +20,11 @@ test('toCz formats and tolerates empty', function () {
     assert_same('', Dates::toCz(null));
     assert_same('', Dates::toCz(''));
 });
+
+test('toCzDateTime formats datetime and tolerates empty', function () {
+    assert_same('25.12.2020, 14:30:05', Dates::toCzDateTime('2020-12-25 14:30:05'));
+    assert_same('', Dates::toCzDateTime(null));
+    assert_same('', Dates::toCzDateTime(''));
+    // fallback na samotne datum
+    assert_same('25.12.2020', Dates::toCzDateTime('2020-12-25'));
+});

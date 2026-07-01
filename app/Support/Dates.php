@@ -31,4 +31,14 @@ final class Dates
         $d = \DateTime::createFromFormat('Y-m-d', substr($iso, 0, 10));
         return $d !== false ? $d->format('d.m.Y') : '';
     }
+
+    /** "YYYY-MM-DD HH:MM:SS" -> "DD.MM.RRRR, HH:MM:SS" (fallback na datum, prazdny -> ""). */
+    public static function toCzDateTime(?string $value): string
+    {
+        if ($value === null || trim($value) === '') {
+            return '';
+        }
+        $d = \DateTime::createFromFormat('Y-m-d H:i:s', substr($value, 0, 19));
+        return $d !== false ? $d->format('d.m.Y, H:i:s') : self::toCz($value);
+    }
 }

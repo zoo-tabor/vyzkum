@@ -475,28 +475,30 @@ final class PortalController
         redirect('/portal/settings');
     }
 
-    /** Prehled zprav majitele: obecne vlakno + vlakna podle psu. */
+    /** Prehled zprav: obecne vlakno + vlakna podle psu (bez nacteni cele konverzace). */
     public function messages(): string
     {
         $ownerRepo = new OwnerRepository();
         $owner = $ownerRepo->findByUserId((int) Auth::id());
         $messages = new MessageRepository();
 
-        $general = [];
-        $dogThreads = [];
+        $general = null;
+        $dogs = [];
         if ($owner !== null) {
             $genThread = $messages->ownerThread((int) $owner['id']);
-            if ($genThread !== null) {
-                $general = $messages->messages((int) $genThread['id']);
-            }
+            $general = [
+                'thread' => $genThread,
+                'count' => $genThread !== null ? $messages->countMessages((int) $genThread['id']) : 0,
+            ];
             foreach ($ownerRepo->dogsOf((int) $owner['id']) as $d) {
                 if ((int) $d['is_current'] !== 1) {
                     continue;
                 }
                 $thread = $messages->dogThread((int) $d['id']);
-                $dogThreads[] = [
+                $dogs[] = [
                     'dog' => $d,
-                    'messages' => $thread !== null ? $messages->messages((int) $thread['id']) : [],
+                    'thread' => $thread,
+                    'count' => $thread !== null ? $messages->countMessages((int) $thread['id']) : 0,
                 ];
             }
         }
@@ -505,13 +507,48 @@ final class PortalController
             'title' => 'Zprávy',
             'owner' => $owner,
             'general' => $general,
-            'dogThreads' => $dogThreads,
+            'dogs' => $dogs,
             'notice' => Session::flash('portal_notice'),
             'error' => Session::flash('portal_error'),
         ]);
     }
 
-    /** Odeslani zpravy z prehledu: bez dog_id = obecne vlakno, jinak vlakno psa. */
+    /** Detail konverzace: ref = 'general' (obecne) nebo ID psa. */
+    public function messagesThread(string $ref): string
+    {
+        $ownerRepo = new OwnerRepository();
+        $owner = $ownerRepo->findByUserId((int) Auth::id());
+        if ($owner === null) {
+            redirect('/portal');
+        }
+        $messages = new MessageRepository();
+
+        if ($ref === 'general') {
+            $thread = $messages->ownerThread((int) $owner['id']);
+            $heading = 'Obecná zpráva';
+            $dogId = 0;
+        } else {
+            $dogId = (int) $ref;
+            if ($dogId <= 0 || !$ownerRepo->ownsDog((int) $owner['id'], $dogId, true)) {
+                http_response_code(404);
+                return view('errors/404', ['title' => 'Konverzace nenalezena']);
+            }
+            $dog = (new DogRepository())->find($dogId);
+            $thread = $messages->dogThread($dogId);
+            $heading = ($dog['name'] ?? 'Pes') . ' / ' . ($dog['breed_name'] ?? '');
+        }
+
+        return view('portal/messages_thread', [
+            'title' => 'Zprávy',
+            'heading' => $heading,
+            'dogId' => $dogId,
+            'messages' => $thread !== null ? $messages->messages((int) $thread['id']) : [],
+            'notice' => Session::flash('portal_notice'),
+            'error' => Session::flash('portal_error'),
+        ]);
+    }
+
+    /** Odeslani zpravy: bez dog_id = obecne vlakno, jinak vlakno psa. */
     public function postMessage(): string
     {
         Csrf::verify();
@@ -520,14 +557,16 @@ final class PortalController
         if ($owner === null) {
             redirect('/portal');
         }
+        $ownerId = (int) $owner['id'];
+        $dogId = (int) input('dog_id');
+        $target = $dogId > 0 ? '/portal/messages/' . $dogId : '/portal/messages/general';
+
         $body = trim((string) input('body'));
         if ($body === '') {
             Session::flash('portal_error', 'Zpráva nesmí být prázdná.');
-            redirect('/portal/messages');
+            redirect($target);
         }
 
-        $ownerId = (int) $owner['id'];
-        $dogId = (int) input('dog_id');
         $messages = new MessageRepository();
         if ($dogId > 0 && $ownerRepo->ownsDog($ownerId, $dogId, true)) {
             $threadId = $messages->findOrCreateDogThread($dogId, Auth::id());
@@ -535,10 +574,11 @@ final class PortalController
         } else {
             $threadId = $messages->findOrCreateOwnerThread($ownerId, Auth::id());
             AuditService::log(Auth::id(), 'owner', 'message_sent', 'owner', (string) $ownerId);
+            $target = '/portal/messages/general';
         }
         $messages->addMessage($threadId, Auth::id(), 'owner', $body, 'open');
         Session::flash('portal_notice', 'Zpráva byla odeslána výzkumnému týmu.');
-        redirect('/portal/messages');
+        redirect($target);
     }
 
     /**

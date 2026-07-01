@@ -43,7 +43,7 @@ $threadLabel = !empty($thread['dog_name'])
         <?php foreach ($messages as $m): ?>
             <div style="border-top:1px solid var(--line); padding:0.5rem 0;">
                 <strong><?= ($m['sender_role'] ?? '') === 'owner' ? 'Majitel' : 'Výzkumný tým' ?></strong>
-                <span class="muted"><?= e($m['sender_email'] ?? '') ?> &middot; <?= e(\App\Support\Dates::toCz(substr((string) $m['created_at'], 0, 10))) ?></span>
+                <span class="muted"><?= e($m['sender_email'] ?? '') ?> &middot; <?= e(\App\Support\Dates::toCzDateTime((string) $m['created_at'])) ?></span>
                 <div><?= nl2br(e((string) $m['body'])) ?></div>
             </div>
         <?php endforeach; ?>

@@ -35,7 +35,7 @@
                     <td><?= e($label) ?></td>
                     <td><?= e($t['status']) ?></td>
                     <td><?= (int) $t['msg_count'] ?></td>
-                    <td><?= e(\App\Support\Dates::toCz(substr((string) $t['last_message_at'], 0, 10))) ?></td>
+                    <td><?= e(\App\Support\Dates::toCzDateTime((string) $t['last_message_at'])) ?></td>
                     <td><a href="/admin/messages/<?= (int) $t['id'] ?>">Otevřít</a></td>
                 </tr>
             <?php endforeach; ?>

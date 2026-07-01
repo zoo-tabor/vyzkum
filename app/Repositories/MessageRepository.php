@@ -79,6 +79,13 @@ final class MessageRepository
         }
     }
 
+    public function countMessages(int $threadId): int
+    {
+        $stmt = $this->pdo()->prepare('SELECT COUNT(*) FROM messages WHERE thread_id = :t');
+        $stmt->execute(['t' => $threadId]);
+        return (int) $stmt->fetchColumn();
+    }
+
     /** @return array<int, array<string, mixed>> */
     public function messages(int $threadId): array
     {
