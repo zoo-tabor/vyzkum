@@ -29,8 +29,8 @@ $sex = $sample['sex'] ?? 'unknown';
                 <p>Plemeno: <strong><?= e($sample['breed_name'] ?? '') ?></strong></p>
             <?php endif; ?>
 
-            <label for="chip_number">Číslo čipu psa (15 číslic)</label>
-            <input type="text" id="chip_number" name="chip_number" inputmode="numeric" pattern="[0-9]{15}" maxlength="15" required value="<?= e($chip) ?>" <?= $chipLocked ? 'readonly' : '' ?>>
+            <label for="chip_number">Číslo čipu psa</label>
+            <input type="text" id="chip_number" name="chip_number" required value="<?= e($chip) ?>" <?= $chipLocked ? 'readonly' : '' ?>>
 
             <label for="dog_name">Jméno psa</label>
             <input type="text" id="dog_name" name="dog_name" required value="<?= e($sample['dog_name'] ?? '') ?>">
@@ -50,10 +50,7 @@ $sex = $sample['sex'] ?? 'unknown';
         </fieldset>
 
         <fieldset>
-            <legend>Zdravotní stav a rodokmen</legend>
-            <label for="health_note">Poznámka ke zdravotnímu stavu (nepovinné)</label>
-            <textarea id="health_note" name="health_note" rows="2"><?= e($sample['health_note'] ?? '') ?></textarea>
-
+            <legend>Rodokmen</legend>
             <label for="pedigree">Foto / sken průkazu původu</label>
             <input type="file" id="pedigree" name="pedigree" accept=".pdf,.jpg,.jpeg,.png,.webp" required>
             <p class="muted">PDF, JPG, PNG nebo WEBP do 10 MB.</p>
@@ -77,9 +74,8 @@ $sex = $sample['sex'] ?? 'unknown';
 
         <fieldset>
             <legend>Souhlas</legend>
-            <p><label><input type="checkbox" name="main_consent" value="1" required> Souhlasím se zařazením psa do výzkumné studie a se zpracováním osobních a genetických dat pro výzkumné účely.</label></p>
-            <p><label><input type="checkbox" name="future_contact_consent" value="1"> Souhlasím s budoucím kontaktováním ohledně data a příčiny úmrtí psa.</label></p>
-            <p><label><input type="checkbox" name="results_consent" value="1"> Chci být informován/a o případných výsledcích.</label></p>
+            <p><label><input type="checkbox" name="main_consent" value="1" required> Souhlasím se <a href="/gdpr" target="_blank" rel="noopener">zpracováním osobních a genetických údajů</a> pro účely výzkumné studie.</label></p>
+            <p><label><input type="checkbox" name="future_contact_consent" value="1"> Souhlasím s budoucím kontaktováním ohledně aktualizace informací týkajících se výzkumu dlouhověkosti.</label></p>
         </fieldset>
 
         <button type="submit" class="btn btn--primary">Odeslat registraci</button>

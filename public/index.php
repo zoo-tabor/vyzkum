@@ -54,6 +54,9 @@ $router->post('/vet/{sampleId}/{token}', [$publicSamples, 'vetSubmit']);
 $router->get('/dog/{sampleId}/{token}', [$publicSamples, 'dogShow']);
 $router->post('/dog/{sampleId}/{token}', [$publicSamples, 'dogSubmit']);
 
+// Verejne zasady zpracovani osobnich udaju (GDPR) - odkaz ze souhlasu.
+$router->get('/gdpr', fn () => view('legal/gdpr', ['title' => 'Zásady zpracování osobních údajů', '_layout' => 'public']));
+
 // Verejne potvrzeni prevodu psa novym majitelem.
 $transfer = new \App\Controllers\TransferController();
 $router->get('/transfer/{token}', [$transfer, 'show']);

@@ -46,10 +46,16 @@ diakritikou; .md dokumenty, komentare a commit zpravy ASCII (viz memory styl-ces
 - Auto `analysis_done` po nahrani genetiky (markAnalysisDoneForDog - CSV import i rucni
   zadani genotypu). Bez nove migrace.
 
-## Faze 6 - verejne vet/{} a dog/{}
-- Cip bez omezeni (znaky i delka). "Pocet odebranych zkumavek" -> "Pocet".
-- vet/: hlavicka CSS jako admin. dog/: vyhodit zdravotni stav (nechat rodokmen);
-  1. souhlas -> odkaz /documents/gdpr.html; 2. souhlas novy text; 3. souhlas pryc.
+## Faze 6 - verejne vet/{} a dog/{}  [HOTOVO]
+- Cip bez omezeni (znaky i delka) v UI (odebran pattern/maxlength/inputmode) i
+  server-side (jen kontrola neprazdnosti) ve vet i dog formulari.
+- "Pocet odebranych zkumavek" -> "Pocet".
+- Verejna hlavicka (public.php) pouziva `.topbar`/`.topbar__brand` jako admin (shodne CSS).
+- dog/: vyhozen zdravotni stav (health_note), zustava rodokmen (upload). Souhlasy:
+  1. souhlas odkazuje na /gdpr (nova verejna routa + view legal/gdpr.php, lorem ipsum
+  placeholder pro pravni oddeleni); 2. souhlas novy text (kontaktovani ohledne
+  aktualizace informaci k vyzkumu dlouhovekosti); 3. souhlas (results_consent) odstranen
+  z formulare (DB sloupec zustava, uklada se 0). Bez nove migrace.
 
 ## Faze 7 - admin/forms
 - "Rozeslat dotaznik" (e-mail majitelum plemene + assignments, editace textu pred

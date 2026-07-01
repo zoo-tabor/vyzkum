@@ -13,8 +13,8 @@ $vetName = trim((string) ($sample['vet_name'] ?? '') . (($sample['clinic_name'] 
     <form method="post">
         <?= \App\Core\Csrf::field() ?>
 
-        <label for="chip_number_vet">Číslo čipu psa (15 číslic)</label>
-        <input type="text" id="chip_number_vet" name="chip_number_vet" inputmode="numeric" pattern="[0-9]{15}" maxlength="15" required value="<?= e($sample['chip_number_vet'] ?? '') ?>">
+        <label for="chip_number_vet">Číslo čipu psa</label>
+        <input type="text" id="chip_number_vet" name="chip_number_vet" required value="<?= e($sample['chip_number_vet'] ?? '') ?>">
 
         <label for="sample_type">Typ vzorku</label>
         <select id="sample_type" name="sample_type" required>
@@ -27,7 +27,7 @@ $vetName = trim((string) ($sample['vet_name'] ?? '') . (($sample['clinic_name'] 
         <label for="sample_type_other">Jiný typ vzorku (nepovinné)</label>
         <input type="text" id="sample_type_other" name="sample_type_other" value="<?= e($sample['sample_type_other'] ?? '') ?>">
 
-        <label for="material_count">Počet odebraných zkumavek</label>
+        <label for="material_count">Počet</label>
         <select id="material_count" name="material_count" required>
             <?php $mc = (string) ($sample['material_count'] ?? '1'); ?>
             <?php foreach (['1', '2', '3', '4', '5', 'jine'] as $opt): ?>

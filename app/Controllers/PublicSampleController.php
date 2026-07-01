@@ -51,8 +51,8 @@ final class PublicSampleController
             'collection_date' => trim((string) input('collection_date')),
         ];
         $errors = [];
-        if (!preg_match('/^[0-9]{15}$/', $data['chip_number_vet'])) {
-            $errors[] = 'Cislo cipu musi mit 15 cislic.';
+        if ($data['chip_number_vet'] === '') {
+            $errors[] = 'Vyplnte cislo cipu.';
         }
         if ($data['sample_type'] === '') {
             $errors[] = 'Vyberte typ vzorku.';
@@ -112,13 +112,11 @@ final class PublicSampleController
             'sex' => (string) input('sex', 'unknown'),
             'birth_date' => trim((string) input('birth_date')),
             'pedigree_number' => trim((string) input('pedigree_number')),
-            'health_note' => trim((string) input('health_note')),
             'owner_name' => trim((string) input('owner_name')),
             'owner_email' => trim((string) input('owner_email')),
             'owner_phone' => trim((string) input('owner_phone')),
             'owner_address' => trim((string) input('owner_address')),
             'future_contact_consent' => (bool) input('future_contact_consent'),
-            'results_consent' => (bool) input('results_consent'),
         ];
 
         // Plemeno: bud z davky (sample.breed_id), nebo z formulare.
@@ -174,8 +172,8 @@ final class PublicSampleController
         if ($breedId <= 0) {
             $errors[] = 'Vyberte plemeno.';
         }
-        if (!preg_match('/^[0-9]{15}$/', $data['chip_number'])) {
-            $errors[] = 'Cislo cipu musi mit 15 cislic.';
+        if ($data['chip_number'] === '') {
+            $errors[] = 'Vyplnte cislo cipu.';
         }
         if ($data['dog_name'] === '') {
             $errors[] = 'Vyplnte jmeno psa.';

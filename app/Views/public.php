@@ -12,8 +12,8 @@ $pageTitle = isset($title) ? $title . ' - Výzkum Zoo Tábor' : 'Výzkum Zoo Tá
     <link rel="stylesheet" href="<?= e(asset('assets/app.css')) ?>">
 </head>
 <body>
-<header class="public-top">
-    <div class="public-brand">Výzkum <span>Zoo Tábor</span></div>
+<header class="topbar">
+    <div class="topbar__brand"><a href="/">Výzkum <span>Zoo Tábor</span></a></div>
 </header>
 <main class="public-main">
     <?= $content ?>
