@@ -56,6 +56,22 @@ final class FormResponseRepository
         return $stmt->fetchAll();
     }
 
+    /** @return array<int, array<string, mixed>> vyplnene dotazniky pro aktualni psy majitele */
+    public function responsesForOwner(int $ownerId): array
+    {
+        $stmt = $this->pdo()->prepare(
+            'SELECT r.id, r.submitted_at, fd.name AS form_name, v.version, dg.name AS dog_name
+             FROM form_responses r
+             JOIN form_versions v ON v.id = r.form_version_id
+             JOIN form_definitions fd ON fd.id = v.form_definition_id
+             JOIN dogs dg ON dg.id = r.dog_id
+             JOIN dog_owners do2 ON do2.dog_id = r.dog_id AND do2.is_current = 1 AND do2.owner_id = :o
+             ORDER BY r.submitted_at DESC'
+        );
+        $stmt->execute(['o' => $ownerId]);
+        return $stmt->fetchAll();
+    }
+
     /** @return array<string, mixed>|null */
     public function find(int $id): ?array
     {

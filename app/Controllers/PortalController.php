@@ -475,6 +475,39 @@ final class PortalController
         redirect('/portal/settings');
     }
 
+    /** Prehled vyplnenych dotazniku majitele (jen k nahlednuti). */
+    public function forms(): string
+    {
+        $ownerRepo = new OwnerRepository();
+        $owner = $ownerRepo->findByUserId((int) Auth::id());
+
+        return view('portal/forms', [
+            'title' => 'Dotazníky',
+            'responses' => $owner !== null ? (new FormResponseRepository())->responsesForOwner((int) $owner['id']) : [],
+            'notice' => Session::flash('portal_notice'),
+        ]);
+    }
+
+    /** Detail vyplneneho dotazniku (read-only). */
+    public function formResponse(string $id): string
+    {
+        $ownerRepo = new OwnerRepository();
+        $owner = $ownerRepo->findByUserId((int) Auth::id());
+        $responses = new FormResponseRepository();
+        $response = $responses->find((int) $id);
+
+        if ($owner === null || $response === null || !$ownerRepo->ownsDog((int) $owner['id'], (int) $response['dog_id'], true)) {
+            http_response_code(404);
+            return view('errors/404', ['title' => 'Dotazník nenalezen']);
+        }
+
+        return view('portal/form_response', [
+            'title' => 'Dotazník',
+            'response' => $response,
+            'answers' => $responses->answers((int) $id),
+        ]);
+    }
+
     /** Prehled zprav: obecne vlakno + vlakna podle psu (bez nacteni cele konverzace). */
     public function messages(): string
     {
