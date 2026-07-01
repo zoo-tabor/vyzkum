@@ -14,6 +14,18 @@ if ($user !== null && !$isOwner) {
     $currentBreedId = \App\Services\BreedContext::current();
 }
 
+// Upozorneni u "Zprávy": admin = pocet open vlaken, majitel = pocet neprectenych zprav.
+$msgBadge = 0;
+if ($user !== null) {
+    $msgRepo = new \App\Repositories\MessageRepository();
+    if ($isOwner) {
+        $msgBadge = $msgRepo->countUnreadForOwnerUser((int) $user['id']);
+    } elseif (!$isClub) {
+        $msgBadge = $msgRepo->countOpenThreads();
+    }
+}
+$badgeHtml = static fn (int $n): string => $n > 0 ? ' <span class="nav-badge">' . $n . '</span>' : '';
+
 $nav = [
     ['/admin', 'Dashboard', true],
     ['/admin/dogs', 'Psi', true],
@@ -62,7 +74,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
         <nav class="sidebar">
             <ul>
                 <li><a href="/portal" class="<?= $portalActive('/portal') ?>">Moji psi</a></li>
-                <li><a href="/portal/messages" class="<?= $portalActive('/portal/messages') ?>">Zprávy</a></li>
+                <li><a href="/portal/messages" class="<?= $portalActive('/portal/messages') ?>">Zprávy<?= $badgeHtml($msgBadge) ?></a></li>
                 <li><a href="/portal/contacts" class="<?= $portalActive('/portal/contacts') ?>">Moje údaje</a></li>
                 <li><a href="/portal/settings" class="<?= $portalActive('/portal/settings') ?>">Nastavení</a></li>
             </ul>
@@ -134,7 +146,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
                         <a href="<?= e($href) ?>"
                            class="<?= $active ? 'active' : '' ?> <?= $enabled ? '' : 'disabled' ?>"
                            <?= $enabled ? '' : 'title="Připravuje se v další fázi"' ?>>
-                            <?= e($label) ?>
+                            <?= e($label) ?><?= $href === '/admin/messages' ? $badgeHtml($msgBadge) : '' ?>
                         </a>
                     </li>
                 <?php endforeach; ?>

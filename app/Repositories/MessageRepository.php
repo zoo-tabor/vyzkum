@@ -160,6 +160,33 @@ final class MessageRepository
         return $stmt->fetchAll();
     }
 
+    /** Pocet vlaken ve stavu 'open' (upozorneni pro admina). */
+    public function countOpenThreads(): int
+    {
+        return (int) $this->pdo()->query("SELECT COUNT(*) FROM message_threads WHERE status = 'open'")->fetchColumn();
+    }
+
+    /** Pocet neprectenych zprav majitele (podle jeho user_id) - obecne vlakno + vlakna aktualnich psu. */
+    public function countUnreadForOwnerUser(int $userId): int
+    {
+        $stmt = $this->pdo()->prepare(
+            "SELECT COUNT(*)
+             FROM messages m
+             JOIN message_threads t ON t.id = m.thread_id
+             JOIN owners o ON o.user_id = :u1
+             LEFT JOIN message_reads r ON r.thread_id = t.id AND r.user_id = :u2
+             WHERE (
+                    (t.entity_type = 'owner' AND t.entity_id = o.id)
+                 OR (t.entity_type = 'dog' AND t.entity_id IN (
+                        SELECT d2.dog_id FROM dog_owners d2 WHERE d2.owner_id = o.id AND d2.is_current = 1))
+                 )
+               AND (m.sender_user_id IS NULL OR m.sender_user_id <> :u3)
+               AND m.created_at > COALESCE(r.last_read_at, '1000-01-01 00:00:00')"
+        );
+        $stmt->execute(['u1' => $userId, 'u2' => $userId, 'u3' => $userId]);
+        return (int) $stmt->fetchColumn();
+    }
+
     public function setStatus(int $threadId, string $status): void
     {
         $stmt = $this->pdo()->prepare('UPDATE message_threads SET status = :s WHERE id = :id');
