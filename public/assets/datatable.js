@@ -86,27 +86,60 @@
         footer.appendChild(info);
         table.parentNode.insertBefore(footer, table.nextSibling);
 
-        // --- Hlavicky: razeni + tlacitko filtru ---
+        // --- Hlavicky: nazev + radek s ovladanim (razeni sipky + filtr) ---
         headers.forEach(function (th, idx) {
             var canSort = !th.hasAttribute('data-nosort');
             var canFilter = !th.hasAttribute('data-nofilter');
             th.classList.add('dt-th');
+
+            // Puvodni obsah th (nazev sloupce) zabalime do popisku.
+            var label = document.createElement('div');
+            label.className = 'dt-th-label';
+            while (th.firstChild) { label.appendChild(th.firstChild); }
+            th.appendChild(label);
+
+            if (!canSort && !canFilter) { return; }
+
+            var controls = document.createElement('div');
+            controls.className = 'dt-th-controls';
+
             if (canSort) {
-                th.classList.add('dt-sortable');
-                th.addEventListener('click', function (e) {
-                    if (e.target.closest('.dt-filter')) { return; }
-                    if (state.sortIdx === idx) { state.sortAsc = !state.sortAsc; }
-                    else { state.sortIdx = idx; state.sortAsc = true; }
-                    state.page = 1;
-                    render();
-                });
+                var sortWrap = document.createElement('span');
+                sortWrap.className = 'dt-sort';
+                var asc = document.createElement('button');
+                asc.type = 'button';
+                asc.className = 'dt-sort-btn dt-sort-asc';
+                asc.title = 'Seřadit vzestupně (A→Z)';
+                asc.innerHTML = '&#9650;'; // trojuhelnik nahoru
+                var desc = document.createElement('button');
+                desc.type = 'button';
+                desc.className = 'dt-sort-btn dt-sort-desc';
+                desc.title = 'Seřadit sestupně (Z→A)';
+                desc.innerHTML = '&#9660;'; // trojuhelnik dolu
+                asc.addEventListener('click', function () { setSort(idx, true); });
+                desc.addEventListener('click', function () { setSort(idx, false); });
+                sortWrap.appendChild(asc);
+                sortWrap.appendChild(desc);
+                controls.appendChild(sortWrap);
             }
             if (canFilter) {
-                buildFilter(th, idx);
+                controls.appendChild(buildFilter(idx));
             }
+            th.appendChild(controls);
         });
 
-        function buildFilter(th, idx) {
+        function setSort(idx, asc) {
+            if (state.sortIdx === idx && state.sortAsc === asc) {
+                state.sortIdx = -1; // opakovany klik na aktivni smer = zrusit razeni
+            } else {
+                state.sortIdx = idx;
+                state.sortAsc = asc;
+            }
+            state.page = 1;
+            render();
+        }
+
+        function buildFilter(idx) {
             var wrap = document.createElement('span');
             wrap.className = 'dt-filter';
             var btn = document.createElement('button');
@@ -152,7 +185,6 @@
             pop.appendChild(list);
             pop.appendChild(actions);
             wrap.appendChild(pop);
-            th.appendChild(wrap);
 
             function distinctValues() {
                 var seen = Object.create(null);
@@ -230,6 +262,8 @@
                 state.page = 1;
                 render();
             });
+
+            return wrap;
         }
 
         function closeAllPopovers() {
@@ -268,10 +302,10 @@
 
         function updateSortIndicators() {
             headers.forEach(function (th, i) {
-                th.classList.remove('dt-sorted-asc', 'dt-sorted-desc');
-                if (i === state.sortIdx) {
-                    th.classList.add(state.sortAsc ? 'dt-sorted-asc' : 'dt-sorted-desc');
-                }
+                var a = th.querySelector('.dt-sort-asc');
+                var d = th.querySelector('.dt-sort-desc');
+                if (a) { a.classList.toggle('is-active', i === state.sortIdx && state.sortAsc); }
+                if (d) { d.classList.toggle('is-active', i === state.sortIdx && !state.sortAsc); }
             });
         }
 
