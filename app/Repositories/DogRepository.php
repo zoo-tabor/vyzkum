@@ -331,6 +331,30 @@ final class DogRepository
     }
 
     /**
+     * Prijemci rozeslani dotazniku pro plemeno: zijici psi (bez data umrti)
+     * s aktualnim majitelem. Jeden radek na psa (jeden ukol/e-mail na psa).
+     * E-mail muze byt NULL - majitel bez primarniho e-mailu se preskoci.
+     *
+     * @return array<int, array{dog_id:int, dog_name:string, owner_id:int, owner_name:string, email:?string}>
+     */
+    public function recipientsForBreed(int $breedId): array
+    {
+        $stmt = $this->pdo()->prepare(
+            'SELECT d.id AS dog_id, d.name AS dog_name,
+                    o.id AS owner_id, o.display_name AS owner_name,
+                    (SELECT e.email FROM owner_emails e
+                       WHERE e.owner_id = o.id AND e.is_primary = 1 LIMIT 1) AS email
+             FROM dogs d
+             JOIN dog_owners do2 ON do2.dog_id = d.id AND do2.is_current = 1
+             JOIN owners o ON o.id = do2.owner_id
+             WHERE d.breed_id = :b AND d.death_date IS NULL
+             ORDER BY o.display_name ASC, d.name ASC'
+        );
+        $stmt->execute(['b' => $breedId]);
+        return $stmt->fetchAll();
+    }
+
+    /**
      * Nastavi stav naziva/umrti. alive=true -> vycisti datum umrti. alive=false
      * -> ulozi report (auditovany original) a propise do psa.
      */

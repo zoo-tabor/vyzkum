@@ -6,6 +6,7 @@
 /** @var bool $canEdit */
 /** @var array<int, array<string, mixed>> $questions */
 /** @var array<int, array<int, array<string, mixed>>> $options */
+/** @var array{total:int, completed:int, last_sent:?string} $assignmentStats */
 /** @var string|null $notice */
 /** @var string|null $error */
 
@@ -44,6 +45,27 @@ $defId = (int) $def['id'];
             <button type="submit" class="btn">Vytvořit novou verzi (pro úpravy)</button>
         </form>
         <span class="muted">Publikovaná verze je zamčená.</span>
+    <?php endif; ?>
+</div>
+
+<div class="card">
+    <h2>Rozeslání majitelům</h2>
+    <?php if ($published !== null): ?>
+        <p>
+            <a class="btn btn--primary" href="/admin/forms/<?= $defId ?>/send">Rozeslat dotazník</a>
+            <span class="muted">Rozešle e-mail s odkazem všem majitelům žijících psů plemene <strong><?= e($def['breed_name']) ?></strong> (1 e-mail na psa).</span>
+        </p>
+        <?php if ($assignmentStats['total'] > 0): ?>
+            <p class="muted">
+                Dosud rozesláno: <strong><?= (int) $assignmentStats['total'] ?></strong> úkolů,
+                vyplněno: <strong><?= (int) $assignmentStats['completed'] ?></strong>.
+                <?php if (!empty($assignmentStats['last_sent'])): ?>
+                    Naposledy: <?= e(\App\Support\Dates::toCz(substr((string) $assignmentStats['last_sent'], 0, 10))) ?>.
+                <?php endif; ?>
+            </p>
+        <?php endif; ?>
+    <?php else: ?>
+        <p class="muted">Dotazník lze rozeslat až po jeho publikaci.</p>
     <?php endif; ?>
 </div>
 

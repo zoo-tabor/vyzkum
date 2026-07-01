@@ -6,12 +6,15 @@ namespace App\Controllers;
 use App\Core\Csrf;
 use App\Core\Session;
 use App\Repositories\BreedRepository;
+use App\Repositories\DogRepository;
+use App\Repositories\FormAssignmentRepository;
 use App\Repositories\FormRepository;
 use App\Repositories\FormResponseRepository;
 use App\Repositories\HealthEventRepository;
 use App\Services\Auth;
 use App\Services\AuditService;
 use App\Services\BreedContext;
+use App\Services\FormBroadcastService;
 use App\Support\FormSchema;
 
 final class FormController
@@ -34,10 +37,15 @@ final class FormController
     public function create(): string
     {
         Csrf::verify();
-        $breedId = (int) input('breed_id');
+        // Plemeno se bere z prepinace nahore (kontext), samostatny vyber je zbytecny.
+        $breedId = (int) BreedContext::current();
         $name = trim((string) input('name'));
-        if ($breedId <= 0 || $name === '') {
-            Session::flash('form_error', 'Vyberte plemeno a zadejte název dotazníku.');
+        if ($breedId <= 0) {
+            Session::flash('form_error', 'Nejdříve nahoře vyberte konkrétní plemeno.');
+            redirect('/admin/forms');
+        }
+        if ($name === '') {
+            Session::flash('form_error', 'Zadejte název dotazníku.');
             redirect('/admin/forms');
         }
 
@@ -71,9 +79,76 @@ final class FormController
             'canEdit' => $draft !== null && $editing !== null && (int) $editing['id'] === (int) $draft['id'],
             'questions' => $questions,
             'options' => $options,
+            'assignmentStats' => (new FormAssignmentRepository())->statsForDefinition((int) $id),
             'notice' => Session::flash('form_notice'),
             'error' => Session::flash('form_error'),
         ]);
+    }
+
+    public function broadcastForm(string $id): string
+    {
+        $repo = new FormRepository();
+        $def = $repo->findDefinition((int) $id);
+        if ($def === null) {
+            http_response_code(404);
+            return view('errors/404', ['title' => 'Dotazník nenalezen']);
+        }
+        $published = $repo->publishedVersion((int) $id);
+        if ($published === null) {
+            Session::flash('form_error', 'Dotazník nejdříve publikujte, teprve pak jej lze rozeslat.');
+            redirect('/admin/forms/' . $id);
+        }
+
+        $recipients = (new DogRepository())->recipientsForBreed((int) $def['breed_id']);
+        $withEmail = array_filter($recipients, static fn ($r) => trim((string) ($r['email'] ?? '')) !== '');
+
+        return view('admin/forms/broadcast', [
+            'title' => 'Rozeslat dotazník',
+            'def' => $def,
+            'recipientCount' => count($recipients),
+            'emailCount' => count($withEmail),
+            'defaultSubject' => FormBroadcastService::DEFAULT_SUBJECT,
+            'defaultBody' => FormBroadcastService::defaultBody((string) $def['name']),
+            'error' => Session::flash('form_error'),
+        ]);
+    }
+
+    public function sendBroadcast(string $id): string
+    {
+        Csrf::verify();
+        $repo = new FormRepository();
+        $def = $repo->findDefinition((int) $id);
+        if ($def === null) {
+            redirect('/admin/forms');
+        }
+        $published = $repo->publishedVersion((int) $id);
+        if ($published === null) {
+            Session::flash('form_error', 'Dotazník nejdříve publikujte, teprve pak jej lze rozeslat.');
+            redirect('/admin/forms/' . $id);
+        }
+
+        $subject = trim((string) input('subject'));
+        $body = trim((string) input('body'));
+        if ($subject === '' || $body === '') {
+            Session::flash('form_error', 'Vyplňte předmět i text e-mailu.');
+            redirect('/admin/forms/' . $id . '/send');
+        }
+
+        $result = (new FormBroadcastService())->send($def, $published, $subject, $body, Auth::id());
+
+        if ($result['total'] === 0) {
+            Session::flash('form_error', 'Pro toto plemeno nejsou žádní majitelé žijících psů.');
+        } else {
+            $msg = 'Rozesláno: ' . $result['sent'] . ' e-mailů';
+            if ($result['skipped'] > 0) {
+                $msg .= ', přeskočeno bez e-mailu: ' . $result['skipped'];
+            }
+            if ($result['failed'] > 0) {
+                $msg .= ', nedoručeno: ' . $result['failed'] . ' (viz e-mail log)';
+            }
+            Session::flash($result['failed'] > 0 ? 'form_error' : 'form_notice', $msg . '.');
+        }
+        redirect('/admin/forms/' . $id);
     }
 
     public function addQuestion(string $id): string

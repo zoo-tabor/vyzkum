@@ -57,9 +57,17 @@ diakritikou; .md dokumenty, komentare a commit zpravy ASCII (viz memory styl-ces
   aktualizace informaci k vyzkumu dlouhovekosti); 3. souhlas (results_consent) odstranen
   z formulare (DB sloupec zustava, uklada se 0). Bez nove migrace.
 
-## Faze 7 - admin/forms
-- "Rozeslat dotaznik" (e-mail majitelum plemene + assignments, editace textu pred
-  odeslanim, 1 ukol/e-mail na psa). Odebrat filtr Plemeno.
+## Faze 7 - admin/forms  [HOTOVO]
+- Migrace 012: tabulka `form_assignments` (ukol pes+majitel, stav sent/completed,
+  email_status, sent_at/completed_at, form_response_id). Nutny import ensure_schema.sql.
+- "Rozeslat dotaznik" (jen u publikovaneho): compose stranka s editaci predmetu i textu
+  pred odeslanim (zastupne znacky {pes}/{majitel}/{odkaz}), 1 ukol + 1 e-mail na psa,
+  prijemci = majitele zijicich psu plemene s primarnim e-mailem (DogRepository::
+  recipientsForBreed). Odkaz vede do portalu /portal/dogs/{dog}/forms/{def}.
+  FormBroadcastService resi rozeslani; PortalController::submitForm oznaci ukol completed.
+  Prehled rozeslani (celkem/vyplneno/naposledy) na detailu dotazniku.
+- Filtr Plemeno odstranen: novy dotaznik se zaklada pro plemeno z prepinace nahore
+  (FormController::create bere BreedContext::current, ne samostatny select).
 
 ## Pozn. - interni data
 `internal_docs/` = DB dump + dog_profiles.csv + medical_exams.csv (scrape Cavalier

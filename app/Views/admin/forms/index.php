@@ -12,23 +12,19 @@
 
 <div class="card">
     <h2>Nový dotazník</h2>
-    <form method="post" action="/admin/forms" class="form-row">
-        <?= \App\Core\Csrf::field() ?>
-        <div>
-            <label for="breed_id">Plemeno</label>
-            <select id="breed_id" name="breed_id" required>
-                <option value="">- vyberte -</option>
-                <?php foreach ($breeds as $b): ?>
-                    <option value="<?= (int) $b['id'] ?>"<?= $currentBreedId === (int) $b['id'] ? ' selected' : '' ?>><?= e($b['name']) ?></option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <div>
-            <label for="name">Název</label>
-            <input type="text" id="name" name="name" placeholder="napr. Uvodni dotaznik" required>
-        </div>
-        <div class="form-row__action"><button type="submit" class="btn btn--primary">Vytvořit</button></div>
-    </form>
+    <?php if ($currentBreedId === null): ?>
+        <p class="muted">Dotazník se vytváří pro vybrané plemeno. Nejdříve nahoře vyberte konkrétní plemeno.</p>
+    <?php else: ?>
+        <form method="post" action="/admin/forms" class="form-row">
+            <?= \App\Core\Csrf::field() ?>
+            <div>
+                <label for="name">Název</label>
+                <input type="text" id="name" name="name" placeholder="napr. Uvodni dotaznik" required>
+            </div>
+            <div class="form-row__action"><button type="submit" class="btn btn--primary">Vytvořit</button></div>
+        </form>
+        <p class="muted">Plemeno se převezme z výběru nahoře.</p>
+    <?php endif; ?>
 </div>
 
 <div class="card">

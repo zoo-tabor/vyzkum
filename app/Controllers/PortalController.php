@@ -7,6 +7,7 @@ use App\Core\Csrf;
 use App\Core\Session;
 use App\Repositories\DogRepository;
 use App\Repositories\FilesRepository;
+use App\Repositories\FormAssignmentRepository;
 use App\Repositories\FormRepository;
 use App\Repositories\FormResponseRepository;
 use App\Repositories\HealthEventRepository;
@@ -186,6 +187,9 @@ final class PortalController
             $this->storeAnswer($responses, $responseId, $q, $optionsByQ[(int) $q['id']] ?? [], (string) $dog['breed_slug'], (int) $owner['id'], (int) $id);
             $this->maybeHealthEvent($q, $config, $answersByKey, (int) $id, $dog['breed_id'] !== null ? (int) $dog['breed_id'] : null, $responseId);
         }
+
+        // Pokud byl dotaznik rozeslan (existuje otevreny ukol), oznacime ho jako vyplneny.
+        (new FormAssignmentRepository())->markCompleted((int) $defId, (int) $id, $responseId);
 
         AuditService::log(Auth::id(), 'owner', 'form_submitted', 'form_response', (string) $responseId, null, ['dog_id' => (int) $id]);
         Session::flash('portal_notice', 'Děkujeme, dotazník byl odeslán.');
