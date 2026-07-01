@@ -134,6 +134,31 @@ final class DogRepository
         return array_map('strval', $stmt->fetchAll(PDO::FETCH_COLUMN));
     }
 
+    /**
+     * Naseptavac psa podle jmena (vc. id) - napr. pro rucni zadani genotypu.
+     *
+     * @return array<int, array{id:int, name:string, breed_name:string}>
+     */
+    public function searchByName(string $q, ?int $breedId, int $limit = 15): array
+    {
+        $sql = 'SELECT d.id, d.name, b.name AS breed_name
+                FROM dogs d JOIN breeds b ON b.id = d.breed_id
+                WHERE d.name LIKE :q';
+        $params = ['q' => '%' . str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $q) . '%'];
+        if ($breedId !== null) {
+            $sql .= ' AND d.breed_id = :b';
+            $params['b'] = $breedId;
+        }
+        $sql .= ' ORDER BY d.name ASC LIMIT ' . max(1, $limit);
+        $stmt = $this->pdo()->prepare($sql);
+        $stmt->execute($params);
+        return array_map(static fn (array $r): array => [
+            'id' => (int) $r['id'],
+            'name' => (string) $r['name'],
+            'breed_name' => (string) $r['breed_name'],
+        ], $stmt->fetchAll());
+    }
+
     /** @param array<int, int> $ids */
     private static function intList(array $ids): string
     {

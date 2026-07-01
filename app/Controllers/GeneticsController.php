@@ -38,10 +38,21 @@ final class GeneticsController
             'dogs' => $dogs,
             'genotypes' => $repo->genotypesByDogGene($dogIds),
             'currentBreedId' => $breedId,
-            'markers' => (new GeneRepository())->markersForSelect(),
+            'genePanel' => (new GeneRepository())->genesWithMarker(),
             'notice' => Session::flash('genetics_notice'),
             'error' => Session::flash('genetics_error'),
         ]);
+    }
+
+    /** Naseptavac psa podle jmena (JSON) pro rucni zadani genotypu. */
+    public function dogSuggest(): never
+    {
+        $q = trim((string) input('q'));
+        $items = $q === '' ? [] : (new DogRepository())->searchByName($q, BreedContext::current());
+
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($items, JSON_UNESCAPED_UNICODE);
+        exit;
     }
 
     public function export(): never
@@ -74,29 +85,45 @@ final class GeneticsController
     {
         Csrf::verify();
         $dogId = (int) input('dog_id');
-        $markerId = (int) input('marker_id');
-        $value = trim((string) input('genotype'));
         $dog = $dogId > 0 ? (new DogRepository())->find($dogId) : null;
-        $split = Genetics::splitGenotype($value);
-
-        if ($dog === null || $markerId <= 0 || $split === null) {
-            Session::flash('genetics_error', 'Zadejte platné ID psa, marker a genotyp.');
+        if ($dog === null) {
+            Session::flash('genetics_error', 'Vyberte psa (napište jméno a vyberte z nabídky).');
             redirect('/admin/genetics');
         }
 
-        (new GenotypeRepository())->upsertGenotype(
-            $dogId,
-            $dog['breed_id'] !== null ? (int) $dog['breed_id'] : null,
-            $markerId,
-            $split['allele_1'],
-            $split['allele_2'],
-            $split['genotype'],
-            null,
-            'manual'
-        );
-        (new \App\Repositories\SampleRepository())->markAnalysisDoneForDog($dogId);
-        AuditService::log(Auth::id(), Auth::role(), 'genotype_manual', 'dog', (string) $dogId, null, ['marker_id' => $markerId, 'genotype' => $split['genotype']]);
-        Session::flash('genetics_notice', 'Genotyp uložen.');
+        // Vsechny geny naraz: g[<marker_id>] = genotyp (prazdne se preskoci).
+        $values = (array) ($_POST['g'] ?? []);
+        $breedId = $dog['breed_id'] !== null ? (int) $dog['breed_id'] : null;
+        $genotypes = new GenotypeRepository();
+        $saved = 0;
+        $invalid = [];
+        foreach ($values as $markerId => $raw) {
+            $markerId = (int) $markerId;
+            $value = trim((string) $raw);
+            if ($markerId <= 0 || $value === '') {
+                continue;
+            }
+            $split = Genetics::splitGenotype($value);
+            if ($split === null) {
+                $invalid[] = $value;
+                continue;
+            }
+            $genotypes->upsertGenotype($dogId, $breedId, $markerId, $split['allele_1'], $split['allele_2'], $split['genotype'], null, 'manual');
+            $saved++;
+        }
+
+        if ($saved > 0) {
+            (new \App\Repositories\SampleRepository())->markAnalysisDoneForDog($dogId);
+            AuditService::log(Auth::id(), Auth::role(), 'genotype_manual', 'dog', (string) $dogId, null, ['saved' => $saved]);
+        }
+
+        if ($saved === 0 && $invalid === []) {
+            Session::flash('genetics_error', 'Nezadali jste žádný genotyp.');
+        } elseif ($invalid !== []) {
+            Session::flash('genetics_error', 'Uloženo: ' . $saved . ' genů. Neplatný formát: ' . implode(', ', $invalid) . '.');
+        } else {
+            Session::flash('genetics_notice', 'Uloženo genotypů: ' . $saved . '.');
+        }
         redirect('/admin/genetics');
     }
 

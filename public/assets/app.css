@@ -189,3 +189,17 @@ code { background: #f3f4f6; padding: 0.1rem 0.3rem; border-radius: 4px; }
 .dt-page:disabled { opacity: 0.4; cursor: default; }
 .dt-ellipsis { padding: 0 0.25rem; color: var(--muted); }
 .dt-info { font-size: 0.85rem; }
+
+/* Naseptavac (autocomplete) */
+.ac { position: relative; max-width: 360px; }
+.ac-list {
+    position: absolute; z-index: 30; top: 100%; left: 0; right: 0; margin-top: 4px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: 0 10px 30px rgba(31, 41, 51, 0.15); overflow: hidden; max-height: 260px; overflow-y: auto;
+}
+.ac-item {
+    display: block; width: 100%; text-align: left; background: none; border: none; cursor: pointer;
+    padding: 0.45rem 0.7rem; font: inherit; color: var(--ink);
+}
+.ac-item:hover { background: var(--bg); }
+.ac-item .muted { margin-left: 0.4rem; font-size: 0.85rem; }

@@ -182,6 +182,7 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         // Genetika (PCR markery, genotypy)
         $genetics = new GeneticsController();
         $router->get('/admin/genetics', [$genetics, 'index']);
+        $router->get('/admin/genetics/dog-suggest', [$genetics, 'dogSuggest']);
         $router->get('/admin/genetics/export.csv', [$genetics, 'export']);
         $router->get('/admin/genetics/markers', [$genetics, 'markers']);
         $router->post('/admin/genetics/genes', [$genetics, 'createGene']);

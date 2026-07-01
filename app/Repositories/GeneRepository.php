@@ -78,6 +78,26 @@ final class GeneRepository
         return $this->createMarker($geneId, $code, null, null, null, null);
     }
 
+    /**
+     * Geny s reprezentativnim markerem (jeden na gen) - pro rucni zadani vsech genu naraz.
+     *
+     * @return array<int, array{gene_id:int, symbol:string, marker_id:int}>
+     */
+    public function genesWithMarker(): array
+    {
+        $rows = $this->pdo()->query(
+            'SELECT ge.id AS gene_id, ge.symbol, MIN(m.id) AS marker_id
+             FROM genes ge JOIN genetic_markers m ON m.gene_id = ge.id
+             GROUP BY ge.id, ge.symbol
+             ORDER BY ge.symbol ASC'
+        )->fetchAll();
+        return array_map(static fn (array $r): array => [
+            'gene_id' => (int) $r['gene_id'],
+            'symbol' => (string) $r['symbol'],
+            'marker_id' => (int) $r['marker_id'],
+        ], $rows);
+    }
+
     /** @return array<int, array<string, mixed>> markery pro filtr/vyber */
     public function markersForSelect(): array
     {
