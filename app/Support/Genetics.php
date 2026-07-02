@@ -22,15 +22,19 @@ final class Genetics
         return $out;
     }
 
-    /** Prazdna hodnota / "X" = vysledek neni k dispozici. */
+    /**
+     * Prazdna hodnota = vysledek neni k dispozici (radek se preskoci).
+     * "X" NENI prazdna - je to platny genotyp (PCR sekvenace v danem miste nevysla).
+     */
     public static function isEmptyValue(string $value): bool
     {
         $v = strtoupper(trim($value));
-        return $v === '' || $v === 'X' || $v === 'N/A' || $v === '-';
+        return $v === '' || $v === 'N/A' || $v === '-';
     }
 
     /**
-     * Rozlozi genotyp na alely. Vraci null pro prazdnou hodnotu / X.
+     * Rozlozi genotyp na alely. Vraci null jen pro prazdnou hodnotu.
+     * "X" (nevysla PCR) se ulozi jako genotyp "X" bez alel.
      *
      * @return array{allele_1: ?string, allele_2: ?string, genotype: string}|null
      */

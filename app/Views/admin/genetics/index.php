@@ -67,7 +67,7 @@
                 <div class="ac-list" id="geno-ac" hidden></div>
             </div>
 
-            <p class="muted" style="margin-top:1rem; margin-bottom:0.3rem;">Genotypy (vyplňte jen ty, které znáte):</p>
+            <p class="muted" style="margin-top:1rem; margin-bottom:0.3rem;">Genotypy (vyplňte jen ty, které znáte; <code>X</code> = nevyšlá PCR sekvenace):</p>
             <div class="form-row">
                 <?php foreach ($genePanel as $g): ?>
                     <div>

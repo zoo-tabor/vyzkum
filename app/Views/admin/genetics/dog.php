@@ -40,7 +40,7 @@ $dogId = (int) $dog['id'];
                 <?php endforeach; ?>
                 </tbody>
             </table>
-            <p class="muted">Prázdné pole u genu, který má hodnotu, záznam smaže. Formát např. <code>GG</code>, <code>GA</code>, <code>G/A</code>.</p>
+            <p class="muted">Prázdné pole u genu, který má hodnotu, záznam smaže. Formát např. <code>GG</code>, <code>GA</code>, <code>G/A</code>; <code>X</code> = nevyšlá PCR sekvenace.</p>
 
             <div class="form-row" style="margin-top:1rem;">
                 <div>
