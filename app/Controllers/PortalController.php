@@ -5,6 +5,7 @@ namespace App\Controllers;
 
 use App\Core\Csrf;
 use App\Core\Session;
+use App\Repositories\DeathCauseRepository;
 use App\Repositories\DogRepository;
 use App\Repositories\FilesRepository;
 use App\Repositories\FormAssignmentRepository;
@@ -62,6 +63,7 @@ final class PortalController
             'forms' => (new FormRepository())->publishedFormsForBreed((int) $dog['breed_id']),
             'responses' => (new FormResponseRepository())->responsesForDog((int) $id),
             'messageCount' => $thread !== null ? $messages->countMessages((int) $thread['id']) : 0,
+            'causeTree' => (new DeathCauseRepository())->treeForBreed((int) $dog['breed_id']),
             'pendingTransfer' => (new TransferRepository())->pendingForDog((int) $id),
             'notice' => Session::flash('portal_notice'),
             'error' => Session::flash('portal_error'),
@@ -305,7 +307,6 @@ final class PortalController
         }
 
         $alive = (string) input('alive') === 'yes';
-        $note = trim((string) input('note')) ?: null;
 
         if (!$alive) {
             $deathIso = Dates::fromCz((string) input('death_date'));
@@ -313,11 +314,22 @@ final class PortalController
                 Session::flash('portal_error', 'Zadejte platné datum úmrtí ve formátu DD.MM.RRRR.');
                 redirect('/portal/dogs/' . $id);
             }
-            (new DogRepository())->setAliveStatus((int) $id, (int) $owner['id'], false, $deathIso, $note);
-            AuditService::log(Auth::id(), 'owner', 'dog_death_reported', 'dog', $id, null, ['death_date' => $deathIso]);
-            Session::flash('portal_notice', 'Děkujeme, zaznamenali jsme datum úmrtí.');
+
+            // Pricina umrti: musi byt konecna polozka (list) z taxonomie plemene.
+            $causeId = (int) input('death_cause_id');
+            $leaf = (new DeathCauseRepository())->findLeaf($causeId, (int) $dog['breed_id']);
+            if ($leaf === null) {
+                Session::flash('portal_error', 'Vyberte prosím příčinu úmrtí ze seznamu.');
+                redirect('/portal/dogs/' . $id);
+            }
+            // Poznamka je dobrovolna a jen u polozek, ktere ji umoznuji.
+            $note = ((int) $leaf['has_note'] === 1) ? (trim((string) input('death_cause_note')) ?: null) : null;
+
+            (new DogRepository())->setAliveStatus((int) $id, (int) $owner['id'], false, $deathIso, $note, 'owner', $causeId, (string) $leaf['label']);
+            AuditService::log(Auth::id(), 'owner', 'dog_death_reported', 'dog', $id, null, ['death_date' => $deathIso, 'cause_id' => $causeId]);
+            Session::flash('portal_notice', 'Děkujeme, zaznamenali jsme informace o úmrtí.');
         } else {
-            (new DogRepository())->setAliveStatus((int) $id, (int) $owner['id'], true, null, $note);
+            (new DogRepository())->setAliveStatus((int) $id, (int) $owner['id'], true, null, null);
             AuditService::log(Auth::id(), 'owner', 'dog_alive_confirmed', 'dog', $id);
             Session::flash('portal_notice', 'Děkujeme za potvrzení, že pes žije.');
         }

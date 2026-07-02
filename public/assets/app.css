@@ -223,3 +223,9 @@ code { background: #f3f4f6; padding: 0.1rem 0.3rem; border-radius: 4px; }
 .auth-brandname { display: block; font-weight: 700; font-size: 1.4rem; color: var(--ink); }
 .auth-brandname span { color: var(--brand); }
 .auth-brand p { margin: 0.25rem 0 0; }
+
+/* Kaskadovy vyber priciny umrti */
+.cause-picker { margin-top: 0.75rem; }
+.cause-levels { display: flex; flex-direction: column; gap: 0.4rem; max-width: 440px; }
+.cause-level { width: 100%; }
+.cause-note { margin-top: 0.5rem; max-width: 440px; }

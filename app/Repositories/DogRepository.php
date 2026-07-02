@@ -412,24 +412,24 @@ final class DogRepository
      * Nastavi stav naziva/umrti. alive=true -> vycisti datum umrti. alive=false
      * -> ulozi report (auditovany original) a propise do psa.
      */
-    public function setAliveStatus(int $dogId, ?int $ownerId, bool $alive, ?string $deathDateIso, ?string $note, string $source = 'owner'): void
+    public function setAliveStatus(int $dogId, ?int $ownerId, bool $alive, ?string $deathDateIso, ?string $note, string $source = 'owner', ?int $causeId = null, ?string $causeLabel = null): void
     {
         $pdo = $this->pdo();
         $pdo->beginTransaction();
         try {
             if ($alive) {
                 // Potvrzeni "pes zije" - ulozime datum (vstup pro vypocet veku).
-                $stmt = $pdo->prepare('UPDATE dogs SET death_date = NULL, death_cause = NULL, alive_confirmed_at = CURDATE(), updated_at = NOW() WHERE id = :d');
+                $stmt = $pdo->prepare('UPDATE dogs SET death_date = NULL, death_cause = NULL, death_cause_id = NULL, death_cause_note = NULL, alive_confirmed_at = CURDATE(), updated_at = NOW() WHERE id = :d');
                 $stmt->execute(['d' => $dogId]);
             } else {
                 $report = $pdo->prepare(
-                    'INSERT INTO dog_death_reports (dog_id, owner_id, death_date, note, source)
-                     VALUES (:d, :o, :dd, :note, :src)'
+                    'INSERT INTO dog_death_reports (dog_id, owner_id, death_date, death_cause, note, source)
+                     VALUES (:d, :o, :dd, :dc, :note, :src)'
                 );
-                $report->execute(['d' => $dogId, 'o' => $ownerId, 'dd' => $deathDateIso, 'note' => $note, 'src' => $source]);
+                $report->execute(['d' => $dogId, 'o' => $ownerId, 'dd' => $deathDateIso, 'dc' => $causeLabel, 'note' => $note, 'src' => $source]);
 
-                $stmt = $pdo->prepare('UPDATE dogs SET death_date = :dd, updated_at = NOW() WHERE id = :d');
-                $stmt->execute(['dd' => $deathDateIso, 'd' => $dogId]);
+                $stmt = $pdo->prepare('UPDATE dogs SET death_date = :dd, death_cause = :dc, death_cause_id = :ci, death_cause_note = :note, updated_at = NOW() WHERE id = :d');
+                $stmt->execute(['dd' => $deathDateIso, 'dc' => $causeLabel, 'ci' => $causeId, 'note' => $note, 'd' => $dogId]);
 
                 // Strukturovana zdravotni udalost (umrti).
                 $breedStmt = $pdo->prepare('SELECT breed_id FROM dogs WHERE id = :d LIMIT 1');
@@ -441,8 +441,8 @@ final class DogRepository
                     'death',
                     $deathDateIso,
                     $source,
-                    null,
-                    null,
+                    $causeId,
+                    $causeLabel !== null ? substr($causeLabel, 0, 120) : null,
                     null,
                     $note,
                     null

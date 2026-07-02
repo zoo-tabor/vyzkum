@@ -5,11 +5,24 @@
 /** @var array<int, array<string, mixed>> $forms */
 /** @var array<int, array<string, mixed>> $responses */
 /** @var int $messageCount */
+/** @var array<int, array<string, mixed>> $causeTree */
 /** @var array<string, mixed>|null $pendingTransfer */
 /** @var string|null $notice */
 /** @var string|null $error */
 
 use App\Support\Dates;
+
+$renderCausePicker = static function (): void { ?>
+    <div class="cause-picker" data-cause-picker>
+        <label>Příčina úmrtí</label>
+        <div class="cause-levels"></div>
+        <input type="hidden" name="death_cause_id" value="">
+        <div class="cause-note" hidden>
+            <label>Poznámka (nepovinné)</label>
+            <textarea name="death_cause_note" rows="2"></textarea>
+        </div>
+    </div>
+<?php };
 
 $dogId = (int) $dog['id'];
 $isCurrent = $relation !== null && (int) ($relation['is_current'] ?? 0) === 1;
@@ -53,7 +66,7 @@ $lastInfoDate = $isDead ? ($dog['death_date'] ?? null) : ($dog['alive_confirmed_
         <h2>Potvrzení</h2>
         <?php if (!$hasInfo): ?>
             <p><?= e($aliveQuestion) ?></p>
-            <form method="post" action="/portal/dogs/<?= $dogId ?>/death">
+            <form method="post" action="/portal/dogs/<?= $dogId ?>/death" class="death-form">
                 <?= \App\Core\Csrf::field() ?>
                 <p>
                     <label class="inline"><input type="radio" name="alive" value="yes" checked data-alive> Ano</label>
@@ -63,6 +76,7 @@ $lastInfoDate = $isDead ? ($dog['death_date'] ?? null) : ($dog['alive_confirmed_
                 <div class="death-block" hidden>
                     <label for="death_date_new">Datum úmrtí (DD.MM.RRRR)</label>
                     <input type="text" id="death_date_new" name="death_date" placeholder="DD.MM.RRRR" style="max-width:200px">
+                    <?php $renderCausePicker(); ?>
                 </div>
                 <button type="submit" class="btn btn--primary">Uložit</button>
             </form>
@@ -70,13 +84,13 @@ $lastInfoDate = $isDead ? ($dog['death_date'] ?? null) : ($dog['alive_confirmed_
             <p>Poslední informace z <strong><?= e(Dates::toCz($lastInfoDate)) ?></strong>, děkujeme za potvrzení.</p>
             <button type="button" class="btn" data-change-toggle>Změna</button>
             <div class="change-block" hidden style="margin-top:0.75rem">
-                <form method="post" action="/portal/dogs/<?= $dogId ?>/death">
+                <form method="post" action="/portal/dogs/<?= $dogId ?>/death" class="death-form">
                     <?= \App\Core\Csrf::field() ?>
                     <input type="hidden" name="alive" value="no">
                     <label for="death_date_change">Datum úmrtí (DD.MM.RRRR)</label>
                     <input type="text" id="death_date_change" name="death_date" placeholder="DD.MM.RRRR"
                            value="<?= e(Dates::toCz($dog['death_date'] ?? null)) ?>" style="max-width:200px">
-                    <p class="muted">Výběr příčiny úmrtí doplníme v dalším kroku.</p>
+                    <?php $renderCausePicker(); ?>
                     <button type="submit" class="btn btn--primary">Uložit</button>
                 </form>
             </div>
@@ -182,6 +196,9 @@ $lastInfoDate = $isDead ? ($dog['death_date'] ?? null) : ($dog['alive_confirmed_
     <?php endif; ?>
 </div>
 
+<?php if ($isCurrent && $causeTree !== []): ?>
+<script type="application/json" id="cause-tree"><?= json_encode($causeTree, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?></script>
+<?php endif; ?>
 <script>
 (function () {
     // Nevyplneno: prepinac Ano/Ne -> box na datum umrti
@@ -201,5 +218,59 @@ $lastInfoDate = $isDead ? ($dog['death_date'] ?? null) : ($dog['alive_confirmed_
             if (block) { block.hidden = !block.hidden; }
         });
     }
+
+    // Kaskadovy vyber priciny umrti z hierarchickeho stromu.
+    var treeEl = document.getElementById('cause-tree');
+    var tree = null;
+    if (treeEl) { try { tree = JSON.parse(treeEl.textContent); } catch (e) { tree = null; } }
+
+    function buildLevel(levels, nodes, picker) {
+        var sel = document.createElement('select');
+        sel.className = 'cause-level';
+        var def = document.createElement('option');
+        def.value = ''; def.textContent = '– vyberte –';
+        sel.appendChild(def);
+        nodes.forEach(function (n, i) {
+            var o = document.createElement('option');
+            o.value = String(i); o.textContent = n.label;
+            sel.appendChild(o);
+        });
+        sel.addEventListener('change', function () {
+            while (sel.nextSibling) { levels.removeChild(sel.nextSibling); }
+            var hidden = picker.querySelector('input[name=death_cause_id]');
+            var noteBox = picker.querySelector('.cause-note');
+            hidden.value = '';
+            if (noteBox) { noteBox.hidden = true; }
+            if (sel.value === '') { return; }
+            var node = nodes[parseInt(sel.value, 10)];
+            if (node.children && node.children.length) {
+                buildLevel(levels, node.children, picker);
+            } else {
+                hidden.value = node.id;
+                if (noteBox) { noteBox.hidden = !node.has_note; }
+            }
+        });
+        levels.appendChild(sel);
+    }
+
+    if (tree) {
+        document.querySelectorAll('[data-cause-picker]').forEach(function (picker) {
+            buildLevel(picker.querySelector('.cause-levels'), tree, picker);
+        });
+    }
+
+    // Pri odesilani hlaseni umrti vyzadovat vybranou pricinu.
+    document.querySelectorAll('form.death-form').forEach(function (f) {
+        f.addEventListener('submit', function (e) {
+            var noRadio = f.querySelector('input[name=alive][value=no]');
+            var isDeath = noRadio ? noRadio.checked : true;
+            if (!isDeath) { return; }
+            var picker = f.querySelector('[data-cause-picker]');
+            if (picker && picker.querySelector('input[name=death_cause_id]').value === '') {
+                e.preventDefault();
+                alert('Vyberte prosím příčinu úmrtí.');
+            }
+        });
+    });
 })();
 </script>
