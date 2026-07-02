@@ -455,6 +455,15 @@ final class DogRepository
         }
     }
 
+    /** Datum a cas posledniho hlaseni umrti (kdy byla informace zadana). */
+    public function lastDeathReportAt(int $dogId): ?string
+    {
+        $stmt = $this->pdo()->prepare('SELECT created_at FROM dog_death_reports WHERE dog_id = :d ORDER BY id DESC LIMIT 1');
+        $stmt->execute(['d' => $dogId]);
+        $v = $stmt->fetchColumn();
+        return $v === false ? null : (string) $v;
+    }
+
     public function addHealthDocument(int $dogId, ?int $ownerId, int $fileId, ?string $docType, ?string $docDateIso, ?string $note): int
     {
         $stmt = $this->pdo()->prepare(

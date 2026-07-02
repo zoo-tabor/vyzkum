@@ -64,6 +64,7 @@ final class PortalController
             'responses' => (new FormResponseRepository())->responsesForDog((int) $id),
             'messageCount' => $thread !== null ? $messages->countMessages((int) $thread['id']) : 0,
             'causeTree' => (new DeathCauseRepository())->treeForBreed((int) $dog['breed_id']),
+            'lastDeathReportAt' => $dogs->lastDeathReportAt((int) $id),
             'pendingTransfer' => (new TransferRepository())->pendingForDog((int) $id),
             'notice' => Session::flash('portal_notice'),
             'error' => Session::flash('portal_error'),

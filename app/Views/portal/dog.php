@@ -6,23 +6,12 @@
 /** @var array<int, array<string, mixed>> $responses */
 /** @var int $messageCount */
 /** @var array<int, array<string, mixed>> $causeTree */
+/** @var string|null $lastDeathReportAt */
 /** @var array<string, mixed>|null $pendingTransfer */
 /** @var string|null $notice */
 /** @var string|null $error */
 
 use App\Support\Dates;
-
-$renderCausePicker = static function (): void { ?>
-    <div class="cause-picker" data-cause-picker>
-        <label>Příčina úmrtí</label>
-        <div class="cause-levels"></div>
-        <input type="hidden" name="death_cause_id" value="">
-        <div class="cause-note" hidden>
-            <label>Poznámka (nepovinné)</label>
-            <textarea name="death_cause_note" rows="2"></textarea>
-        </div>
-    </div>
-<?php };
 
 $dogId = (int) $dog['id'];
 $isCurrent = $relation !== null && (int) ($relation['is_current'] ?? 0) === 1;
@@ -32,7 +21,34 @@ $aliveQuestion = ($dog['sex'] ?? '') === 'female' ? 'Je Vaše fena stále naživ
 
 // "Vyplneno" = majitel uz potvrdil zivot nebo nahlasil umrti.
 $hasInfo = $isDead || !empty($dog['alive_confirmed_at']);
-$lastInfoDate = $isDead ? ($dog['death_date'] ?? null) : ($dog['alive_confirmed_at'] ?? null);
+// "Posledni informace z" = kdy byla informace ZADANA (ne datum umrti).
+$lastInfoAt = $isDead ? $lastDeathReportAt : ($dog['alive_confirmed_at'] ?? null);
+
+// Formular potvrzeni: Ano (zije - pripadne ozivi ztraceneho psa) / Ne (umrti + pricina).
+$renderAliveForm = static function (?string $prefillDeathDate) use ($dogId): void { ?>
+    <form method="post" action="/portal/dogs/<?= $dogId ?>/death" class="death-form">
+        <?= \App\Core\Csrf::field() ?>
+        <p>
+            <label class="inline"><input type="radio" name="alive" value="yes" checked data-alive> Ano, žije</label>
+            &nbsp;&nbsp;
+            <label class="inline"><input type="radio" name="alive" value="no" data-alive> Ne, uhynul(a)</label>
+        </p>
+        <div class="death-block" hidden>
+            <label>Datum úmrtí (DD.MM.RRRR)</label>
+            <input type="text" name="death_date" placeholder="DD.MM.RRRR" value="<?= e($prefillDeathDate ?? '') ?>" style="max-width:200px">
+            <div class="cause-picker" data-cause-picker>
+                <label>Příčina úmrtí</label>
+                <div class="cause-levels"></div>
+                <input type="hidden" name="death_cause_id" value="">
+                <div class="cause-note" hidden>
+                    <label>Poznámka (nepovinné)</label>
+                    <textarea name="death_cause_note" rows="2"></textarea>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn--primary">Uložit</button>
+    </form>
+<?php };
 ?>
 <div class="page-head">
     <h1><?= e($dog['name']) ?> <span class="muted">/ <?= e($dog['breed_name']) ?></span></h1>
@@ -66,33 +82,15 @@ $lastInfoDate = $isDead ? ($dog['death_date'] ?? null) : ($dog['alive_confirmed_
         <h2>Potvrzení</h2>
         <?php if (!$hasInfo): ?>
             <p><?= e($aliveQuestion) ?></p>
-            <form method="post" action="/portal/dogs/<?= $dogId ?>/death" class="death-form">
-                <?= \App\Core\Csrf::field() ?>
-                <p>
-                    <label class="inline"><input type="radio" name="alive" value="yes" checked data-alive> Ano</label>
-                    &nbsp;&nbsp;
-                    <label class="inline"><input type="radio" name="alive" value="no" data-alive> Ne</label>
-                </p>
-                <div class="death-block" hidden>
-                    <label for="death_date_new">Datum úmrtí (DD.MM.RRRR)</label>
-                    <input type="text" id="death_date_new" name="death_date" placeholder="DD.MM.RRRR" style="max-width:200px">
-                    <?php $renderCausePicker(); ?>
-                </div>
-                <button type="submit" class="btn btn--primary">Uložit</button>
-            </form>
+            <?php $renderAliveForm(null); ?>
         <?php else: ?>
-            <p>Poslední informace z <strong><?= e(Dates::toCz($lastInfoDate)) ?></strong>, děkujeme za potvrzení.</p>
+            <p>Poslední informace z <strong><?= e(Dates::toCz(substr((string) $lastInfoAt, 0, 10))) ?></strong>, děkujeme za potvrzení.</p>
+            <?php if ($isDead): ?>
+                <p class="muted">Pokud jste psa označili omylem (např. ztracený pes se našel), můžete ho níže označit zpět jako živého.</p>
+            <?php endif; ?>
             <button type="button" class="btn" data-change-toggle>Změna</button>
             <div class="change-block" hidden style="margin-top:0.75rem">
-                <form method="post" action="/portal/dogs/<?= $dogId ?>/death" class="death-form">
-                    <?= \App\Core\Csrf::field() ?>
-                    <input type="hidden" name="alive" value="no">
-                    <label for="death_date_change">Datum úmrtí (DD.MM.RRRR)</label>
-                    <input type="text" id="death_date_change" name="death_date" placeholder="DD.MM.RRRR"
-                           value="<?= e(Dates::toCz($dog['death_date'] ?? null)) ?>" style="max-width:200px">
-                    <?php $renderCausePicker(); ?>
-                    <button type="submit" class="btn btn--primary">Uložit</button>
-                </form>
+                <?php $renderAliveForm($isDead ? Dates::toCz($dog['death_date'] ?? null) : null); ?>
             </div>
         <?php endif; ?>
     </div>
