@@ -584,10 +584,16 @@ ALTER TABLE dogs
   ADD COLUMN IF NOT EXISTS death_cause_id INT UNSIGNED NULL AFTER death_cause,
   ADD COLUMN IF NOT EXISTS death_cause_note TEXT NULL AFTER death_cause_id;
 
--- Seed (idempotentni: vlozi jen kdyz jeste neni koren globalniho seznamu).
-SET @seeded := (SELECT COUNT(*) FROM death_causes WHERE breed_id IS NULL AND code = '1');
+-- Plemeno cavalier (seznam je navazany na nej).
+SET @cav := (SELECT id FROM breeds WHERE slug = 'cavalier-king-charles-spaniel' LIMIT 1);
+
+-- Pojistka: pripadny drivejsi globalni seznam (breed_id NULL) premapovat na cavaliera.
+UPDATE death_causes SET breed_id = @cav WHERE breed_id IS NULL AND @cav IS NOT NULL;
+
+-- Seed (idempotentni: jen kdyz plemeno existuje a jeste nema koren seznamu).
+SET @seeded := (SELECT COUNT(*) FROM death_causes WHERE breed_id = @cav AND code = '1');
 INSERT INTO death_causes (breed_id, code, label, has_note, position)
-SELECT NULL, code, label, has_note, position FROM (
+SELECT @cav, code, label, has_note, position FROM (
   SELECT '1' AS code, 'Nemoc' AS label, 0 AS has_note, 1 AS position
   UNION ALL
   SELECT '1.1' AS code, 'Endokrinní onemocnění' AS label, 0 AS has_note, 2 AS position
@@ -739,7 +745,7 @@ SELECT NULL, code, label, has_note, position FROM (
   SELECT '3' AS code, 'Nehoda' AS label, 1 AS has_note, 75 AS position
   UNION ALL
   SELECT '4' AS code, 'Jiné' AS label, 1 AS has_note, 76 AS position
-) t WHERE @seeded = 0;
+) t WHERE @cav IS NOT NULL AND @seeded = 0;
 
 -- Napojeni parent_id podle kodu (napr. 1.10.1 -> 1.10).
 UPDATE death_causes c
