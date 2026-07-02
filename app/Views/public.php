@@ -18,7 +18,7 @@ $pageTitle = isset($title) ? $title . ' - Výzkum ZOO Tábor' : 'Výzkum ZOO Tá
 </head>
 <body>
 <header class="topbar">
-    <div class="topbar__brand"><a href="/"><img class="topbar__logo" src="/favicon/favicon.svg" alt=""> Výzkum <span>ZOO Tábor</span></a></div>
+    <div class="topbar__brand"><a href="/"><img class="topbar__logo" src="/favicon/favicon.svg" width="28" height="28" alt=""> Výzkum <span>ZOO Tábor</span></a></div>
 </header>
 <main class="public-main">
     <?= $content ?>

@@ -4,7 +4,7 @@
 ?>
 <div class="card card--auth">
     <div class="auth-brand">
-        <img class="auth-logo" src="/favicon/favicon.svg" alt="">
+        <img class="auth-logo" src="/favicon/favicon.svg" width="56" height="56" alt="">
         <div class="topbar__brand auth-brandname">Výzkum <span>ZOO Tábor</span></div>
         <p class="muted">Dlouhověkost psích plemen</p>
     </div>

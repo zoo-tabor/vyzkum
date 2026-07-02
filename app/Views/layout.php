@@ -55,7 +55,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
 <body>
 <?php if ($user !== null && $isOwner): ?>
     <header class="topbar">
-        <div class="topbar__brand"><a href="/portal"><img class="topbar__logo" src="/favicon/favicon.svg" alt=""> Výzkum <span>ZOO Tábor</span></a></div>
+        <div class="topbar__brand"><a href="/portal"><img class="topbar__logo" src="/favicon/favicon.svg" width="28" height="28" alt=""> Výzkum <span>ZOO Tábor</span></a></div>
         <div class="topbar__user">
             <span class="topbar__email"><?= e($user['email']) ?></span>
             <form method="post" action="/logout" class="inline">
@@ -84,7 +84,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
     </div>
 <?php elseif ($user !== null && $isClub): ?>
     <header class="topbar">
-        <div class="topbar__brand"><a href="/club"><img class="topbar__logo" src="/favicon/favicon.svg" alt=""> Výzkum <span>ZOO Tábor</span></a></div>
+        <div class="topbar__brand"><a href="/club"><img class="topbar__logo" src="/favicon/favicon.svg" width="28" height="28" alt=""> Výzkum <span>ZOO Tábor</span></a></div>
         <div class="topbar__user">
             <span class="topbar__email"><?= e($user['email']) ?></span>
             <span class="topbar__role">klub</span>
@@ -106,7 +106,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
 <?php elseif ($user !== null): ?>
     <header class="topbar">
         <div class="topbar__brand">
-            <a href="/admin"><img class="topbar__logo" src="/favicon/favicon.svg" alt=""> Výzkum <span>ZOO Tábor</span></a>
+            <a href="/admin"><img class="topbar__logo" src="/favicon/favicon.svg" width="28" height="28" alt=""> Výzkum <span>ZOO Tábor</span></a>
         </div>
 
         <form class="breed-switch" method="post" action="/admin/breed-context">
