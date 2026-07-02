@@ -80,10 +80,29 @@ $gwas = (string) ($dog['gwas_status'] ?? '');
             <div class="form-row">
                 <div><label for="death_date">Datum úmrtí</label>
                     <input type="date" id="death_date" name="death_date" value="<?= $v('death_date') ?>"></div>
-                <div><label for="death_cause">Příčina úmrtí</label>
-                    <input type="text" id="death_cause" name="death_cause" value="<?= $v('death_cause') ?>"></div>
                 <div><label for="dna_isolated_at">Datum izolace DNA</label>
                     <input type="date" id="dna_isolated_at" name="dna_isolated_at" value="<?= $v('dna_isolated_at') ?>"></div>
+            </div>
+
+            <?php $causeTree = $causeTree ?? []; $causeId = (int) ($dog['death_cause_id'] ?? 0); ?>
+            <div class="dog-cause">
+                <label>Příčina úmrtí</label>
+                <?php if ($causeTree !== []): ?>
+                    <div class="cause-picker" data-cause-picker data-selected="<?= $causeId ?>">
+                        <div class="cause-levels"></div>
+                        <input type="hidden" name="death_cause_id" value="<?= $causeId ?: '' ?>">
+                        <div class="cause-note"<?= !empty($dog['death_cause_note']) ? '' : ' hidden' ?>>
+                            <label for="death_cause_note">Poznámka</label>
+                            <textarea id="death_cause_note" name="death_cause_note" rows="2"><?= e($dog['death_cause_note'] ?? '') ?></textarea>
+                        </div>
+                    </div>
+                    <?php if ($causeId === 0 && !empty($dog['death_cause'])): ?>
+                        <p class="muted">Aktuálně uvedeno (mimo číselník): <strong><?= e($dog['death_cause']) ?></strong></p>
+                    <?php endif; ?>
+                    <p class="muted">Vyplňte jen když je zadané datum úmrtí. Podbody se odkryjí po výběru nadřazené položky.</p>
+                <?php else: ?>
+                    <input type="text" name="death_cause" value="<?= $v('death_cause') ?>" placeholder="volný text">
+                <?php endif; ?>
             </div>
         <?php else: ?>
             <div class="form-row">
@@ -120,6 +139,10 @@ $gwas = (string) ($dog['gwas_status'] ?? '');
     </form>
 </div>
 
+<?php if ($isEdit && ($causeTree ?? []) !== []): ?>
+<script type="application/json" id="cause-tree"><?= json_encode($causeTree, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?></script>
+<script src="<?= e(asset('assets/cause-picker.js')) ?>"></script>
+<?php endif; ?>
 <script>
 (function () {
     var COLOURS = <?= json_encode($coloursByBreed, JSON_UNESCAPED_UNICODE) ?>;

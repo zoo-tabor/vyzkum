@@ -7,6 +7,7 @@ use App\Core\Csrf;
 use App\Core\Session;
 use App\Repositories\BreedRepository;
 use App\Repositories\ColourRepository;
+use App\Repositories\DeathCauseRepository;
 use App\Repositories\DogRepository;
 use App\Repositories\FormResponseRepository;
 use App\Repositories\GenotypeRepository;
@@ -185,6 +186,7 @@ final class DogController
             'breeds' => (new BreedRepository())->all(false),
             'owners' => (new OwnerRepository())->allForSelect(),
             'coloursByBreed' => (new ColourRepository())->allGrouped(),
+            'causeTree' => (new DeathCauseRepository())->treeForBreed((int) $dog['breed_id']),
             'defaultBreedId' => (int) $dog['breed_id'],
             'error' => Session::flash('dog_error'),
         ]);
@@ -219,8 +221,29 @@ final class DogController
         $colorSelect = (string) input('color_select');
         $color = $colorSelect === '__other__' ? trim((string) input('color_other')) : $colorSelect;
 
+        $breedId = (int) input('breed_id');
+        $deathDate = (string) input('death_date');
+
+        // Pricina umrti z kaskadoveho vyberu (jen kdyz je zadane datum umrti).
+        $causeId = null;
+        $causeLabel = null;
+        $causeNote = null;
+        if ($deathDate !== '') {
+            $leaf = ((int) input('death_cause_id')) > 0
+                ? (new DeathCauseRepository())->findLeaf((int) input('death_cause_id'), $breedId)
+                : null;
+            if ($leaf !== null) {
+                $causeId = (int) $leaf['id'];
+                $causeLabel = (string) $leaf['label'];
+                $causeNote = ((int) $leaf['has_note'] === 1) ? (trim((string) input('death_cause_note')) ?: null) : null;
+            } else {
+                // Plemeno bez ciselniku pricin -> volny text.
+                $causeLabel = trim((string) input('death_cause')) ?: null;
+            }
+        }
+
         return [
-            'breed_id' => (int) input('breed_id'),
+            'breed_id' => $breedId,
             'name' => trim((string) input('name')),
             'kennel_name' => (string) input('kennel_name'),
             'chip_number' => (string) input('chip_number'),
@@ -228,8 +251,10 @@ final class DogController
             'country' => strtoupper(trim((string) input('country'))) ?: null,
             'sex' => (string) input('sex', 'unknown'),
             'birth_date' => (string) input('birth_date'),
-            'death_date' => (string) input('death_date'),
-            'death_cause' => (string) input('death_cause'),
+            'death_date' => $deathDate,
+            'death_cause' => $causeLabel,
+            'death_cause_id' => $causeId,
+            'death_cause_note' => $causeNote,
             'dna_isolated_at' => (string) input('dna_isolated_at'),
             'gwas_status' => trim((string) input('gwas_status')) ?: null,
             'color' => $color,

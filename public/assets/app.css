@@ -229,3 +229,4 @@ code { background: #f3f4f6; padding: 0.1rem 0.3rem; border-radius: 4px; }
 .cause-levels { display: flex; flex-direction: column; gap: 0.4rem; max-width: 440px; }
 .cause-level { width: 100%; }
 .cause-note { margin-top: 0.5rem; max-width: 440px; }
+.dog-cause { margin-bottom: 1rem; max-width: 440px; }

@@ -34,6 +34,9 @@ $age = \App\Support\Age::years($dog['birth_date'] ?? null, $ageRef);
         $row('GWAS', $dog['gwas_status']);
         $row('Datum úmrtí', \App\Support\Dates::toCz($dog['death_date'] ?? null));
         $row('Příčina úmrtí', $dog['death_cause']);
+        if (!empty($dog['death_cause_note'])) {
+            $row('Poznámka k příčině', $dog['death_cause_note']);
+        }
         $row('Stav', empty($dog['death_date']) ? 'živý' : 'uhynulý');
         ?>
     </table>

@@ -222,11 +222,11 @@ final class DogRepository
         $stmt = $this->pdo()->prepare(
             'INSERT INTO dogs
                 (breed_id, name, kennel_name, chip_number, pedigree_number, country, sex,
-                 birth_date, death_date, death_cause, dna_isolated_at, gwas_status,
+                 birth_date, death_date, death_cause, death_cause_id, death_cause_note, dna_isolated_at, gwas_status,
                  color, test_group, health_summary, sample_received_at, status)
              VALUES
                 (:breed_id, :name, :kennel_name, :chip_number, :pedigree_number, :country, :sex,
-                 :birth_date, :death_date, :death_cause, :dna_isolated_at, :gwas_status,
+                 :birth_date, :death_date, :death_cause, :death_cause_id, :death_cause_note, :dna_isolated_at, :gwas_status,
                  :color, :test_group, :health_summary, :sample_received_at, :status)'
         );
         $stmt->execute([
@@ -240,6 +240,8 @@ final class DogRepository
             'birth_date' => self::nv($d['birth_date'] ?? null),
             'death_date' => self::nv($d['death_date'] ?? null),
             'death_cause' => self::nv($d['death_cause'] ?? null),
+            'death_cause_id' => $d['death_cause_id'] ?? null,
+            'death_cause_note' => self::nv($d['death_cause_note'] ?? null),
             'dna_isolated_at' => self::nv($d['dna_isolated_at'] ?? null),
             'gwas_status' => self::nv($d['gwas_status'] ?? null),
             'color' => self::nv($d['color'] ?? null),
@@ -259,6 +261,7 @@ final class DogRepository
                 breed_id = :breed_id, name = :name, kennel_name = :kennel_name,
                 chip_number = :chip_number, pedigree_number = :pedigree_number, country = :country, sex = :sex,
                 birth_date = :birth_date, death_date = :death_date, death_cause = :death_cause,
+                death_cause_id = :death_cause_id, death_cause_note = :death_cause_note,
                 dna_isolated_at = :dna_isolated_at, gwas_status = :gwas_status,
                 color = :color, test_group = :test_group, health_summary = :health_summary,
                 updated_at = NOW()
@@ -276,6 +279,8 @@ final class DogRepository
             'birth_date' => self::nv($d['birth_date'] ?? null),
             'death_date' => self::nv($d['death_date'] ?? null),
             'death_cause' => self::nv($d['death_cause'] ?? null),
+            'death_cause_id' => $d['death_cause_id'] ?? null,
+            'death_cause_note' => self::nv($d['death_cause_note'] ?? null),
             'dna_isolated_at' => self::nv($d['dna_isolated_at'] ?? null),
             'gwas_status' => self::nv($d['gwas_status'] ?? null),
             'color' => self::nv($d['color'] ?? null),

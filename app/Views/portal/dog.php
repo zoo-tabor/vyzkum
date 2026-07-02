@@ -196,10 +196,11 @@ $renderAliveForm = static function (?string $prefillDeathDate) use ($dogId): voi
 
 <?php if ($isCurrent && $causeTree !== []): ?>
 <script type="application/json" id="cause-tree"><?= json_encode($causeTree, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?></script>
+<script src="<?= e(asset('assets/cause-picker.js')) ?>"></script>
 <?php endif; ?>
 <script>
 (function () {
-    // Nevyplneno: prepinac Ano/Ne -> box na datum umrti
+    // Prepinac Ano/Ne -> box na datum umrti + pricinu.
     document.querySelectorAll('input[data-alive]').forEach(function (r) {
         r.addEventListener('change', function () {
             var block = document.querySelector('.death-block');
@@ -208,7 +209,7 @@ $renderAliveForm = static function (?string $prefillDeathDate) use ($dogId): voi
             block.hidden = !(no && no.checked);
         });
     });
-    // Vyplneno: tlacitko Zmena -> box na datum umrti
+    // Tlacitko Zmena -> odkryje formular potvrzeni.
     var changeBtn = document.querySelector('[data-change-toggle]');
     if (changeBtn) {
         changeBtn.addEventListener('click', function () {
@@ -216,48 +217,7 @@ $renderAliveForm = static function (?string $prefillDeathDate) use ($dogId): voi
             if (block) { block.hidden = !block.hidden; }
         });
     }
-
-    // Kaskadovy vyber priciny umrti z hierarchickeho stromu.
-    var treeEl = document.getElementById('cause-tree');
-    var tree = null;
-    if (treeEl) { try { tree = JSON.parse(treeEl.textContent); } catch (e) { tree = null; } }
-
-    function buildLevel(levels, nodes, picker) {
-        var sel = document.createElement('select');
-        sel.className = 'cause-level';
-        var def = document.createElement('option');
-        def.value = ''; def.textContent = '– vyberte –';
-        sel.appendChild(def);
-        nodes.forEach(function (n, i) {
-            var o = document.createElement('option');
-            o.value = String(i); o.textContent = n.label;
-            sel.appendChild(o);
-        });
-        sel.addEventListener('change', function () {
-            while (sel.nextSibling) { levels.removeChild(sel.nextSibling); }
-            var hidden = picker.querySelector('input[name=death_cause_id]');
-            var noteBox = picker.querySelector('.cause-note');
-            hidden.value = '';
-            if (noteBox) { noteBox.hidden = true; }
-            if (sel.value === '') { return; }
-            var node = nodes[parseInt(sel.value, 10)];
-            if (node.children && node.children.length) {
-                buildLevel(levels, node.children, picker);
-            } else {
-                hidden.value = node.id;
-                if (noteBox) { noteBox.hidden = !node.has_note; }
-            }
-        });
-        levels.appendChild(sel);
-    }
-
-    if (tree) {
-        document.querySelectorAll('[data-cause-picker]').forEach(function (picker) {
-            buildLevel(picker.querySelector('.cause-levels'), tree, picker);
-        });
-    }
-
-    // Pri odesilani hlaseni umrti vyzadovat vybranou pricinu.
+    // Pri hlaseni umrti (Ne) vyzadovat vybranou pricinu.
     document.querySelectorAll('form.death-form').forEach(function (f) {
         f.addEventListener('submit', function (e) {
             var noRadio = f.querySelector('input[name=alive][value=no]');
