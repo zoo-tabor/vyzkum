@@ -215,6 +215,21 @@ final class DogController
         redirect('/admin/dogs/' . $id);
     }
 
+    public function destroy(string $id): string
+    {
+        Csrf::verify();
+        $repo = new DogRepository();
+        $dog = $repo->find((int) $id);
+        if ($dog === null) {
+            redirect('/admin/dogs');
+        }
+
+        $repo->delete((int) $id);
+        AuditService::log(Auth::id(), Auth::role(), 'dog_deleted', 'dog', (string) $id, null, ['name' => $dog['name']]);
+        Session::flash('dog_notice', 'Pes byl smazán.');
+        redirect('/admin/dogs');
+    }
+
     /** @return array<string, mixed> */
     private function fromInput(): array
     {

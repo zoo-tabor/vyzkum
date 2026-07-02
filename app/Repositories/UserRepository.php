@@ -31,6 +31,13 @@ final class UserRepository
         return $row ?: null;
     }
 
+    /** Smaze uzivatelsky ucet (kaskada dorusi user_breed_access, pozvanky, precteni). */
+    public function delete(int $id): void
+    {
+        $stmt = $this->pdo()->prepare('DELETE FROM users WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+    }
+
     public function updatePasswordHash(int $id, string $hash): void
     {
         $stmt = $this->pdo()->prepare('UPDATE users SET password_hash = :h, updated_at = NOW() WHERE id = :id');

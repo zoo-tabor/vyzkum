@@ -12,7 +12,14 @@ $age = \App\Support\Age::years($dog['birth_date'] ?? null, $ageRef);
 ?>
 <div class="page-head" style="display:flex; justify-content:space-between; align-items:center;">
     <h1><?= e($dog['name']) ?> <span class="muted">/ <?= e($dog['breed_name']) ?></span></h1>
-    <a class="btn" href="/admin/dogs/<?= (int) $dog['id'] ?>/edit">Upravit</a>
+    <span style="display:flex; gap:0.5rem; align-items:center;">
+        <a class="btn" href="/admin/dogs/<?= (int) $dog['id'] ?>/edit">Upravit</a>
+        <form method="post" action="/admin/dogs/<?= (int) $dog['id'] ?>/delete" style="margin:0;"
+              onsubmit="return confirm('Opravdu smazat psa „<?= e($dog['name']) ?>“ a všechna jeho navázaná data (vzorky, genotypy, dotazníky, zprávy)? Tuto akci nelze vzít zpět.');">
+            <?= \App\Core\Csrf::field() ?>
+            <button type="submit" class="btn btn--danger">Smazat</button>
+        </form>
+    </span>
 </div>
 
 <?php if (!empty($notice)): ?><div class="alert alert--ok"><?= e($notice) ?></div><?php endif; ?>

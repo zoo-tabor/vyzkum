@@ -6,7 +6,14 @@
 ?>
 <div class="page-head" style="display:flex; justify-content:space-between; align-items:center;">
     <h1><?= e($owner['display_name']) ?></h1>
-    <a class="btn" href="/admin/owners/<?= (int) $owner['id'] ?>/edit">Upravit</a>
+    <span style="display:flex; gap:0.5rem; align-items:center;">
+        <a class="btn" href="/admin/owners/<?= (int) $owner['id'] ?>/edit">Upravit</a>
+        <form method="post" action="/admin/owners/<?= (int) $owner['id'] ?>/delete" style="margin:0;"
+              onsubmit="return confirm('Opravdu smazat majitele „<?= e($owner['display_name']) ?>“ a jeho přihlašovací účet? Tuto akci nelze vzít zpět.');">
+            <?= \App\Core\Csrf::field() ?>
+            <button type="submit" class="btn btn--danger">Smazat</button>
+        </form>
+    </span>
 </div>
 
 <?php if (!empty($notice)): ?><div class="alert alert--ok"><?= e($notice) ?></div><?php endif; ?>

@@ -126,6 +126,7 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $router->get('/admin/dogs/export.csv', [$dogs, 'export']);
         $router->post('/admin/dogs', [$dogs, 'store']);
         $router->get('/admin/dogs/{id}/edit', [$dogs, 'edit']);
+        $router->post('/admin/dogs/{id}/delete', [$dogs, 'destroy']);
         $router->post('/admin/dogs/{id}', [$dogs, 'update']);
         $router->get('/admin/dogs/{id}', [$dogs, 'show']);
 
@@ -136,6 +137,7 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $router->post('/admin/owners', [$owners, 'store']);
         $router->get('/admin/owners/{id}/edit', [$owners, 'edit']);
         $router->post('/admin/owners/{id}/send-password', [$owners, 'sendPassword']);
+        $router->post('/admin/owners/{id}/delete', [$owners, 'destroy']);
         $router->post('/admin/owners/{id}', [$owners, 'update']);
         $router->get('/admin/owners/{id}', [$owners, 'show']);
 
@@ -215,6 +217,7 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $router->get('/admin/clubs', [$clubAdmin, 'index']);
         $router->post('/admin/clubs', [$clubAdmin, 'create']);
         $router->post('/admin/clubs/{id}/breeds', [$clubAdmin, 'updateAccess']);
+        $router->post('/admin/clubs/{id}/delete', [$clubAdmin, 'destroy']);
 
         $router->get('/admin/security', [$twoFactor, 'setup']);
         $router->post('/admin/security/enable', [$twoFactor, 'enable']);

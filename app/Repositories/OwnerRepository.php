@@ -218,6 +218,42 @@ final class OwnerRepository
         $stmt->execute(['a' => $address, 'id' => $ownerId]);
     }
 
+    /** Pocet aktualne prirazenych psu (blokuje smazani majitele). */
+    public function currentDogCount(int $ownerId): int
+    {
+        $stmt = $this->pdo()->prepare('SELECT COUNT(*) FROM dog_owners WHERE owner_id = :o AND is_current = 1');
+        $stmt->execute(['o' => $ownerId]);
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Smaze majitele (jen kdyz nema aktualni psy) vcetne historickych vazeb,
+     * e-mailu/telefonu (kaskada) a jeho prihlasovaciho uctu.
+     */
+    public function delete(int $ownerId): void
+    {
+        $pdo = $this->pdo();
+        $pdo->beginTransaction();
+        try {
+            $u = $pdo->prepare('SELECT user_id FROM owners WHERE id = :o LIMIT 1');
+            $u->execute(['o' => $ownerId]);
+            $userId = $u->fetchColumn();
+
+            // Historicke vazby na psy (aktualni jsou 0 diky kontrole pred smazanim).
+            $pdo->prepare('DELETE FROM dog_owners WHERE owner_id = :o')->execute(['o' => $ownerId]);
+            // Majitel (kaskada dorusi owner_emails/owner_phones; jinde SET NULL).
+            $pdo->prepare('DELETE FROM owners WHERE id = :o')->execute(['o' => $ownerId]);
+            // Prihlasovaci ucet majitele.
+            if ($userId !== false && $userId !== null) {
+                $pdo->prepare('DELETE FROM users WHERE id = :u')->execute(['u' => (int) $userId]);
+            }
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
+
     public function setContactConsent(int $ownerId, bool $consent): void
     {
         $stmt = $this->pdo()->prepare('UPDATE owners SET contact_consent = :c, updated_at = NOW() WHERE id = :id');

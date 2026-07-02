@@ -174,6 +174,28 @@ final class DogRepository
         return (int) $stmt->fetchColumn();
     }
 
+    /**
+     * Smaze psa vcetne navazanych dat. Vetsina vazeb ma FK ON DELETE CASCADE /
+     * SET NULL; rucne dorusime vlakna zprav a soubory psa (bez FK na dog_id).
+     */
+    public function delete(int $id): void
+    {
+        $pdo = $this->pdo();
+        $pdo->beginTransaction();
+        try {
+            // Vlakna zprav ke psovi (+ jejich zpravy a precteni pres kaskadu).
+            $pdo->prepare("DELETE FROM message_threads WHERE entity_type = 'dog' AND entity_id = :d")->execute(['d' => $id]);
+            // Zaznamy o souborech psa (fyzicke soubory zustavaji na disku).
+            $pdo->prepare("DELETE FROM files WHERE owner_type = 'dog' AND owner_id = :d")->execute(['d' => $id]);
+            // Samotny pes - FK kaskady dorusi zbytek (dog_owners, genotypy, udalosti, ...).
+            $pdo->prepare('DELETE FROM dogs WHERE id = :d')->execute(['d' => $id]);
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
+
     /** @return array<string, mixed>|null */
     public function find(int $id): ?array
     {

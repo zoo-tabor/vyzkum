@@ -35,8 +35,17 @@
     <?php else: ?>
         <?php foreach ($clubs as $c): ?>
             <div style="border-top:1px solid var(--line); padding-top:0.75rem; margin-top:0.75rem;">
-                <strong><?= e($c['email']) ?></strong>
-                <?= empty($c['password_hash']) ? '<span class="muted">(heslo zatím nenastaveno)</span>' : '' ?>
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem;">
+                    <span>
+                        <strong><?= e($c['email']) ?></strong>
+                        <?= empty($c['password_hash']) ? '<span class="muted">(heslo zatím nenastaveno)</span>' : '' ?>
+                    </span>
+                    <form method="post" action="/admin/clubs/<?= (int) $c['id'] ?>/delete" style="margin:0;"
+                          onsubmit="return confirm('Opravdu smazat klubový účet <?= e($c['email']) ?>?');">
+                        <?= \App\Core\Csrf::field() ?>
+                        <button type="submit" class="btn btn--danger">Smazat</button>
+                    </form>
+                </div>
                 <form method="post" action="/admin/clubs/<?= (int) $c['id'] ?>/breeds">
                     <?= \App\Core\Csrf::field() ?>
                     <div style="columns:2; max-width:520px; margin:0.5rem 0;">

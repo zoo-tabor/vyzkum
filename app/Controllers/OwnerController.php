@@ -141,6 +141,27 @@ final class OwnerController
         redirect('/admin/owners/' . $id);
     }
 
+    public function destroy(string $id): string
+    {
+        Csrf::verify();
+        $repo = new OwnerRepository();
+        $owner = $repo->find((int) $id);
+        if ($owner === null) {
+            redirect('/admin/owners');
+        }
+
+        $currentDogs = $repo->currentDogCount((int) $id);
+        if ($currentDogs > 0) {
+            Session::flash('owner_error', 'Nelze smazat: majitel má přiřazené psy (' . $currentDogs . '). Nejdříve je převeďte nebo smažte.');
+            redirect('/admin/owners/' . $id);
+        }
+
+        $repo->delete((int) $id);
+        AuditService::log(Auth::id(), Auth::role(), 'owner_deleted', 'owner', $id, null, ['display_name' => $owner['display_name']]);
+        Session::flash('owner_notice', 'Majitel byl smazán.');
+        redirect('/admin/owners');
+    }
+
     public function store(): string
     {
         Csrf::verify();

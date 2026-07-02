@@ -59,4 +59,20 @@ final class ClubAdminController
         Session::flash('club_notice', 'Přístup k plemenům aktualizován.');
         redirect('/admin/clubs');
     }
+
+    public function destroy(string $id): string
+    {
+        Csrf::verify();
+        $users = new UserRepository();
+        $user = $users->findById((int) $id);
+        if ($user === null || ($user['role'] ?? '') !== 'club_viewer') {
+            Session::flash('club_error', 'Klubový účet nenalezen.');
+            redirect('/admin/clubs');
+        }
+
+        $users->delete((int) $id);
+        AuditService::log(Auth::id(), Auth::role(), 'club_deleted', 'user', $id, null, ['email' => $user['email']]);
+        Session::flash('club_notice', 'Klubový účet byl smazán.');
+        redirect('/admin/clubs');
+    }
 }
