@@ -2,12 +2,24 @@
 /** @var array<string, mixed> $dog */
 /** @var array<string, mixed>|null $relation */
 /** @var array<int, array<string, mixed>> $documents */
+/** @var array<int, array<string, mixed>> $forms */
+/** @var array<int, array<string, mixed>> $responses */
+/** @var int $messageCount */
+/** @var array<string, mixed>|null $pendingTransfer */
 /** @var string|null $notice */
 /** @var string|null $error */
 
+use App\Support\Dates;
+
+$dogId = (int) $dog['id'];
 $isCurrent = $relation !== null && (int) ($relation['is_current'] ?? 0) === 1;
-$confirmed = $relation !== null && !empty($relation['confirmed_at']);
 $isDead = !empty($dog['death_date']);
+$sexLabel = match ($dog['sex'] ?? 'unknown') { 'male' => 'Pes', 'female' => 'Fena', default => 'Neuvedeno' };
+$aliveQuestion = ($dog['sex'] ?? '') === 'female' ? 'Je Vaše fena stále naživu?' : 'Je Váš pes stále naživu?';
+
+// "Vyplneno" = majitel uz potvrdil zivot nebo nahlasil umrti.
+$hasInfo = $isDead || !empty($dog['alive_confirmed_at']);
+$lastInfoDate = $isDead ? ($dog['death_date'] ?? null) : ($dog['alive_confirmed_at'] ?? null);
 ?>
 <div class="page-head">
     <h1><?= e($dog['name']) ?> <span class="muted">/ <?= e($dog['breed_name']) ?></span></h1>
@@ -21,45 +33,54 @@ $isDead = !empty($dog['death_date']);
     <h2>Údaje</h2>
     <table class="table">
         <tr><th style="width:220px">Plemeno</th><td><?= e($dog['breed_name']) ?></td></tr>
-        <tr><th>Číslo čipu</th><td><?= e($dog['chip_number'] ?? '') ?></td></tr>
-        <tr><th>Datum narození</th><td><?= e(\App\Support\Dates::toCz($dog['birth_date'] ?? null)) ?></td></tr>
-        <tr><th>Stav</th><td><?= $isDead ? 'uhynulý (' . e(\App\Support\Dates::toCz($dog['death_date'])) . ')' : 'živý' ?></td></tr>
+        <tr><th>Číslo čipu</th><td><?= e($dog['chip_number'] ?? '') ?: '-' ?></td></tr>
+        <tr><th>Číslo průkazu původu</th><td><?= e($dog['pedigree_number'] ?? '') ?: '-' ?></td></tr>
+        <tr><th>Pohlaví</th><td><?= e($sexLabel) ?></td></tr>
+        <tr><th>Datum narození</th><td><?= e(Dates::toCz($dog['birth_date'] ?? null)) ?: '-' ?></td></tr>
+        <tr><th>Barva</th><td><?= e($dog['color'] ?? '') ?: '-' ?></td></tr>
+        <?php if ($isDead): ?>
+            <tr><th>Datum úmrtí</th><td><?= e(Dates::toCz($dog['death_date'])) ?></td></tr>
+        <?php endif; ?>
+        <?php if (!empty($dog['death_cause'])): ?>
+            <tr><th>Příčina úmrtí</th><td><?= e($dog['death_cause']) ?></td></tr>
+        <?php endif; ?>
     </table>
-    <p class="muted">Jádrové údaje psa (čip, plemeno, průkaz) může měnit jen výzkumný tým. Případnou opravu napište v poznámce.</p>
+    <p class="muted">Základní údaje psa může měnit jen výzkumný tým. Pro případnou opravu nás kontaktujte přes zprávu.</p>
 </div>
 
 <?php if ($isCurrent): ?>
     <div class="card">
         <h2>Potvrzení</h2>
-        <?php if ($confirmed): ?>
-            <p>Potvrzeno <?= e(\App\Support\Dates::toCz(substr((string) $relation['confirmed_at'], 0, 10))) ?>. Děkujeme.</p>
-        <?php else: ?>
-            <p>Potvrďte prosím, že je pes stále váš.</p>
-            <form method="post" action="/portal/dogs/<?= (int) $dog['id'] ?>/confirm">
+        <?php if (!$hasInfo): ?>
+            <p><?= e($aliveQuestion) ?></p>
+            <form method="post" action="/portal/dogs/<?= $dogId ?>/death">
                 <?= \App\Core\Csrf::field() ?>
-                <button type="submit" class="btn btn--primary">Pes je stále můj</button>
+                <p>
+                    <label class="inline"><input type="radio" name="alive" value="yes" checked data-alive> Ano</label>
+                    &nbsp;&nbsp;
+                    <label class="inline"><input type="radio" name="alive" value="no" data-alive> Ne</label>
+                </p>
+                <div class="death-block" hidden>
+                    <label for="death_date_new">Datum úmrtí (DD.MM.RRRR)</label>
+                    <input type="text" id="death_date_new" name="death_date" placeholder="DD.MM.RRRR" style="max-width:200px">
+                </div>
+                <button type="submit" class="btn btn--primary">Uložit</button>
             </form>
-        <?php endif; ?>
-    </div>
-
-    <div class="card">
-        <h2>Je pes naživu?</h2>
-        <form method="post" action="/portal/dogs/<?= (int) $dog['id'] ?>/death">
-            <?= \App\Core\Csrf::field() ?>
-            <label><input type="radio" name="alive" value="yes" <?= $isDead ? '' : 'checked' ?> onclick="document.getElementById('death-block').style.display='none'"> Ano, žije</label>
-            <label><input type="radio" name="alive" value="no" <?= $isDead ? 'checked' : '' ?> onclick="document.getElementById('death-block').style.display='block'"> Ne, uhynul</label>
-
-            <div id="death-block" style="display:<?= $isDead ? 'block' : 'none' ?>; margin-top:0.5rem">
-                <label for="death_date">Datum úmrtí (DD.MM.RRRR)</label>
-                <input type="text" id="death_date" name="death_date" placeholder="DD.MM.RRRR"
-                       value="<?= e(\App\Support\Dates::toCz($dog['death_date'] ?? null)) ?>" style="max-width:200px">
+        <?php else: ?>
+            <p>Poslední informace z <strong><?= e(Dates::toCz($lastInfoDate)) ?></strong>, děkujeme za potvrzení.</p>
+            <button type="button" class="btn" data-change-toggle>Změna</button>
+            <div class="change-block" hidden style="margin-top:0.75rem">
+                <form method="post" action="/portal/dogs/<?= $dogId ?>/death">
+                    <?= \App\Core\Csrf::field() ?>
+                    <input type="hidden" name="alive" value="no">
+                    <label for="death_date_change">Datum úmrtí (DD.MM.RRRR)</label>
+                    <input type="text" id="death_date_change" name="death_date" placeholder="DD.MM.RRRR"
+                           value="<?= e(Dates::toCz($dog['death_date'] ?? null)) ?>" style="max-width:200px">
+                    <p class="muted">Výběr příčiny úmrtí doplníme v dalším kroku.</p>
+                    <button type="submit" class="btn btn--primary">Uložit</button>
+                </form>
             </div>
-
-            <label for="note">Poznámka (nepovinné)</label>
-            <textarea id="note" name="note" rows="2"></textarea>
-
-            <button type="submit" class="btn btn--primary">Uložit</button>
-        </form>
+        <?php endif; ?>
     </div>
 <?php endif; ?>
 
@@ -71,7 +92,7 @@ $isDead = !empty($dog['death_date']);
                 <li>
                     <?= e($f['name']) ?>
                     <?php if ($isCurrent): ?>
-                        - <a href="/portal/dogs/<?= (int) $dog['id'] ?>/forms/<?= (int) $f['definition_id'] ?>">Vyplnit</a>
+                        - <a href="/portal/dogs/<?= $dogId ?>/forms/<?= (int) $f['definition_id'] ?>">Vyplnit</a>
                     <?php endif; ?>
                 </li>
             <?php endforeach; ?>
@@ -84,32 +105,23 @@ $isDead = !empty($dog['death_date']);
         <h3>Odeslané dotazníky</h3>
         <ul>
             <?php foreach ($responses as $r): ?>
-                <li><?= e($r['form_name']) ?> (v<?= (int) $r['version'] ?>) - <?= e(\App\Support\Dates::toCz(substr((string) $r['submitted_at'], 0, 10))) ?></li>
+                <li><a href="/portal/forms/<?= (int) $r['id'] ?>"><?= e($r['form_name']) ?> (v<?= (int) $r['version'] ?>)</a>
+                    - <?= e(Dates::toCz(substr((string) $r['submitted_at'], 0, 10))) ?></li>
             <?php endforeach; ?>
         </ul>
     <?php endif; ?>
 </div>
 
 <div class="card">
-    <h2>Zprávy výzkumnému týmu</h2>
-    <?php if (empty($messages)): ?>
-        <p class="muted">Zatím žádné zprávy.</p>
+    <h2>Zprávy</h2>
+    <?php if ($messageCount > 0): ?>
+        <p>K tomuto psovi existuje konverzace (<?= (int) $messageCount ?> zpráv).</p>
+        <a class="btn btn--primary" href="/portal/messages/<?= $dogId ?>">Zobrazit konverzaci</a>
     <?php else: ?>
-        <?php foreach ($messages as $m): ?>
-            <div style="border-top:1px solid var(--line); padding:0.5rem 0;">
-                <strong><?= ($m['sender_role'] ?? '') === 'owner' ? 'Vy' : 'Výzkumný tým' ?></strong>
-                <span class="muted"><?= e(\App\Support\Dates::toCzDateTime((string) $m['created_at'])) ?></span>
-                <div><?= nl2br(e((string) $m['body'])) ?></div>
-            </div>
-        <?php endforeach; ?>
-    <?php endif; ?>
-    <?php if ($isCurrent): ?>
-        <form method="post" action="/portal/dogs/<?= (int) $dog['id'] ?>/message" style="margin-top:0.75rem">
-            <?= \App\Core\Csrf::field() ?>
-            <label for="body">Nová zpráva / poznámka</label>
-            <textarea id="body" name="body" rows="2" required></textarea>
-            <button type="submit" class="btn btn--primary">Odeslat</button>
-        </form>
+        <p class="muted">Zatím žádná zpráva k tomuto psovi.</p>
+        <?php if ($isCurrent): ?>
+            <a class="btn btn--primary" href="/portal/messages/<?= $dogId ?>">Napsat zprávu</a>
+        <?php endif; ?>
     <?php endif; ?>
 </div>
 
@@ -120,7 +132,7 @@ $isDead = !empty($dog['death_date']);
             <div class="alert alert--ok">Probíhá převod na <strong><?= e($pendingTransfer['new_owner_email']) ?></strong> - čeká na potvrzení novým majitelem.</div>
         <?php else: ?>
             <p class="muted">Pokud psa převádíte na nového majitele, zadejte jeho jméno a e-mail. Novému majiteli přijde odkaz; po jeho potvrzení se vlastnictví automaticky převede.</p>
-            <form method="post" action="/portal/dogs/<?= (int) $dog['id'] ?>/transfer">
+            <form method="post" action="/portal/dogs/<?= $dogId ?>/transfer">
                 <?= \App\Core\Csrf::field() ?>
                 <div class="form-row">
                     <div><label for="new_owner_name">Jméno nového majitele</label><input type="text" id="new_owner_name" name="new_owner_name" required></div>
@@ -133,7 +145,8 @@ $isDead = !empty($dog['death_date']);
 <?php endif; ?>
 
 <div class="card">
-    <h2>Zdravotní dokumenty</h2>
+    <h2>Dokumenty</h2>
+    <p class="muted">Průkaz původu, očkovací průkaz, lékařské zprávy, …</p>
     <?php if ($documents === []): ?>
         <p class="muted">Zatím žádné dokumenty.</p>
     <?php else: ?>
@@ -144,7 +157,7 @@ $isDead = !empty($dog['death_date']);
                 <tr>
                     <td><?= e($doc['original_name'] ?? '-') ?></td>
                     <td><?= e($doc['document_type'] ?? '') ?></td>
-                    <td><?= e(\App\Support\Dates::toCz($doc['document_date'] ?? null)) ?></td>
+                    <td><?= e(Dates::toCz($doc['document_date'] ?? null)) ?></td>
                     <td><?php if (!empty($doc['file_id'])): ?><a href="/files/<?= (int) $doc['file_id'] ?>">Stáhnout</a><?php endif; ?></td>
                 </tr>
             <?php endforeach; ?>
@@ -154,12 +167,12 @@ $isDead = !empty($dog['death_date']);
 
     <?php if ($isCurrent): ?>
         <h3>Nahrát dokument</h3>
-        <form method="post" action="/portal/dogs/<?= (int) $dog['id'] ?>/document" enctype="multipart/form-data">
+        <form method="post" action="/portal/dogs/<?= $dogId ?>/document" enctype="multipart/form-data">
             <?= \App\Core\Csrf::field() ?>
             <input type="file" name="document" accept=".pdf,.jpg,.jpeg,.png,.webp" required>
             <div class="form-row">
                 <div><label for="document_type">Typ dokumentu</label>
-                    <input type="text" id="document_type" name="document_type" placeholder="např. vyšetření, očkovací průkaz"></div>
+                    <input type="text" id="document_type" name="document_type" placeholder="např. průkaz původu, očkovací průkaz"></div>
                 <div><label for="document_date">Datum (DD.MM.RRRR)</label>
                     <input type="text" id="document_date" name="document_date" placeholder="DD.MM.RRRR"></div>
                 <div class="form-row__action"><button type="submit" class="btn btn--primary">Nahrát</button></div>
@@ -168,3 +181,25 @@ $isDead = !empty($dog['death_date']);
         <p class="muted">Povoleno PDF, JPG, PNG, WEBP (max 10 MB).</p>
     <?php endif; ?>
 </div>
+
+<script>
+(function () {
+    // Nevyplneno: prepinac Ano/Ne -> box na datum umrti
+    document.querySelectorAll('input[data-alive]').forEach(function (r) {
+        r.addEventListener('change', function () {
+            var block = document.querySelector('.death-block');
+            if (!block) { return; }
+            var no = document.querySelector('input[data-alive][value=no]');
+            block.hidden = !(no && no.checked);
+        });
+    });
+    // Vyplneno: tlacitko Zmena -> box na datum umrti
+    var changeBtn = document.querySelector('[data-change-toggle]');
+    if (changeBtn) {
+        changeBtn.addEventListener('click', function () {
+            var block = document.querySelector('.change-block');
+            if (block) { block.hidden = !block.hidden; }
+        });
+    }
+})();
+</script>

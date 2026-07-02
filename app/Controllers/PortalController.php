@@ -61,7 +61,7 @@ final class PortalController
             'documents' => $dogs->healthDocuments((int) $id),
             'forms' => (new FormRepository())->publishedFormsForBreed((int) $dog['breed_id']),
             'responses' => (new FormResponseRepository())->responsesForDog((int) $id),
-            'messages' => $thread !== null ? $messages->messages((int) $thread['id']) : [],
+            'messageCount' => $thread !== null ? $messages->countMessages((int) $thread['id']) : 0,
             'pendingTransfer' => (new TransferRepository())->pendingForDog((int) $id),
             'notice' => Session::flash('portal_notice'),
             'error' => Session::flash('portal_error'),
