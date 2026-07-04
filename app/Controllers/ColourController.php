@@ -5,7 +5,6 @@ namespace App\Controllers;
 
 use App\Core\Csrf;
 use App\Core\Session;
-use App\Repositories\BreedRepository;
 use App\Repositories\ColourRepository;
 use App\Services\Auth;
 use App\Services\AuditService;
@@ -19,7 +18,6 @@ final class ColourController
         return view('admin/colours/index', [
             'title' => 'Barvy',
             'breedId' => $breedId,
-            'breeds' => (new BreedRepository())->all(false),
             'colours' => $breedId !== null ? (new ColourRepository())->forBreed($breedId) : [],
             'notice' => Session::flash('colour_notice'),
             'error' => Session::flash('colour_error'),
@@ -29,10 +27,15 @@ final class ColourController
     public function create(): string
     {
         Csrf::verify();
-        $breedId = (int) input('breed_id');
+        // Plemeno se bere z prepinace v topbaru (ne z formulare).
+        $breedId = (int) BreedContext::current();
         $name = trim((string) input('name'));
-        if ($breedId <= 0 || $name === '') {
-            Session::flash('colour_error', 'Vyberte plemeno a zadejte název barvy.');
+        if ($breedId <= 0) {
+            Session::flash('colour_error', 'Vyberte nejdříve plemeno v přepínači nahoře.');
+            redirect('/admin/colours');
+        }
+        if ($name === '') {
+            Session::flash('colour_error', 'Zadejte název barvy.');
             redirect('/admin/colours');
         }
         (new ColourRepository())->create($breedId, $name);

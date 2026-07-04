@@ -1,6 +1,5 @@
 <?php
 /** @var int|null $breedId */
-/** @var array<int, array<string, mixed>> $breeds */
 /** @var array<int, array<string, mixed>> $colours */
 /** @var string|null $notice */
 /** @var string|null $error */
@@ -12,24 +11,19 @@
 
 <div class="card">
     <h2>Nová barva</h2>
-    <form method="post" action="/admin/colours" class="form-row">
-        <?= \App\Core\Csrf::field() ?>
-        <div>
-            <label for="breed_id">Plemeno</label>
-            <select id="breed_id" name="breed_id" required>
-                <option value="">- vyberte -</option>
-                <?php foreach ($breeds as $b): ?>
-                    <option value="<?= (int) $b['id'] ?>"<?= $breedId === (int) $b['id'] ? ' selected' : '' ?>><?= e($b['name']) ?></option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <div>
-            <label for="name">Barva (dle FCI)</label>
-            <input type="text" id="name" name="name" placeholder="např. Black and Tan" required>
-        </div>
-        <div class="form-row__action"><button type="submit" class="btn btn--primary">Přidat</button></div>
-    </form>
-    <p class="muted">Barvy se pak nabízejí při zadávání psa daného plemene (plus volba „jiné").</p>
+    <?php if ($breedId === null): ?>
+        <p class="muted">Vyberte nejdříve plemeno v přepínači nahoře, poté můžete přidávat jeho barvy.</p>
+    <?php else: ?>
+        <form method="post" action="/admin/colours" class="form-row">
+            <?= \App\Core\Csrf::field() ?>
+            <div>
+                <label for="name">Barva (dle FCI)</label>
+                <input type="text" id="name" name="name" placeholder="např. Black and Tan" required>
+            </div>
+            <div class="form-row__action"><button type="submit" class="btn btn--primary">Přidat</button></div>
+        </form>
+        <p class="muted">Barva se přidá k plemeni vybranému v přepínači nahoře. Barvy se pak nabízejí při zadávání psa (plus volba „jiné").</p>
+    <?php endif; ?>
 </div>
 
 <div class="card">

@@ -45,14 +45,20 @@ final class OwnershipTransferService
     }
 
     /**
-     * Novy majitel potvrdil: vlastnictvi se automaticky prevede, posle se pozvanka k heslu.
+     * Novy majitel potvrdil: vlastnictvi se automaticky prevede. Pozvanka k heslu
+     * se posle jen tehdy, kdyz novy majitel jeste nema ucet s heslem (jinak se uz
+     * prihlasi svym stavajicim heslem).
      *
      * @param array<string, mixed> $request
-     * @return array{owner_id: int}
+     * @return array{owner_id: int, invite_sent: bool}
      */
     public function confirm(array $request): array
     {
         $email = strtolower(trim((string) $request['new_owner_email']));
+
+        // Ucet uz existuje a ma heslo? Pak pozvanku neposilame.
+        $existingUser = $this->users->findByEmail($email);
+        $alreadyHasPassword = $existingUser !== null && !empty($existingUser['password_hash']);
 
         $ownerId = $this->owners->findByPrimaryEmail($email);
         if ($ownerId === null) {
@@ -79,12 +85,16 @@ final class OwnershipTransferService
         $this->transfers->markConfirmed((int) $request['id']);
         AuditService::log(null, 'owner', 'ownership_transferred', 'dog', (string) $request['dog_id'], null, ['to_owner_id' => $ownerId]);
 
-        try {
-            $this->invites->sendPasswordInvite($ownerId, null);
-        } catch (\Throwable $e) {
-            // prevod probehl; pozvanku lze poslat znovu z adminu
+        $inviteSent = false;
+        if (!$alreadyHasPassword) {
+            try {
+                $this->invites->sendPasswordInvite($ownerId, null);
+                $inviteSent = true;
+            } catch (\Throwable $e) {
+                // prevod probehl; pozvanku lze poslat znovu z adminu
+            }
         }
 
-        return ['owner_id' => $ownerId];
+        return ['owner_id' => $ownerId, 'invite_sent' => $inviteSent];
     }
 }

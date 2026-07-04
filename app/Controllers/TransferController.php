@@ -28,7 +28,12 @@ final class TransferController
             return view('transfer/confirm', ['title' => 'Převzetí psa', 'invalid' => true, 'token' => $token, 'request' => null, '_layout' => 'public']);
         }
 
-        (new OwnershipTransferService())->confirm($request);
-        return view('transfer/done', ['title' => 'Převzetí potvrzeno', 'request' => $request, '_layout' => 'public']);
+        $result = (new OwnershipTransferService())->confirm($request);
+        return view('transfer/done', [
+            'title' => 'Převzetí potvrzeno',
+            'request' => $request,
+            'inviteSent' => $result['invite_sent'],
+            '_layout' => 'public',
+        ]);
     }
 }

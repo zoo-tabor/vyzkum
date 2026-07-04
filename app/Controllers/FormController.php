@@ -99,14 +99,20 @@ final class FormController
             redirect('/admin/forms/' . $id);
         }
 
-        $recipients = (new DogRepository())->recipientsForBreed((int) $def['breed_id']);
-        $withEmail = array_filter($recipients, static fn ($r) => trim((string) ($r['email'] ?? '')) !== '');
+        $dogsRepo = new DogRepository();
+        $breedId = (int) $def['breed_id'];
+        $hasEmail = static fn (array $r): bool => trim((string) ($r['email'] ?? '')) !== '';
+
+        $living = $dogsRepo->recipientsForBreed($breedId, true);
+        $all = $dogsRepo->recipientsForBreed($breedId, false);
 
         return view('admin/forms/broadcast', [
             'title' => 'Rozeslat dotazník',
             'def' => $def,
-            'recipientCount' => count($recipients),
-            'emailCount' => count($withEmail),
+            'livingCount' => count($living),
+            'livingEmailCount' => count(array_filter($living, $hasEmail)),
+            'allCount' => count($all),
+            'allEmailCount' => count(array_filter($all, $hasEmail)),
             'defaultSubject' => FormBroadcastService::DEFAULT_SUBJECT,
             'defaultBody' => FormBroadcastService::defaultBody((string) $def['name']),
             'error' => Session::flash('form_error'),
@@ -134,10 +140,11 @@ final class FormController
             redirect('/admin/forms/' . $id . '/send');
         }
 
-        $result = (new FormBroadcastService())->send($def, $published, $subject, $body, Auth::id());
+        $livingOnly = (string) input('recipients') !== 'all';
+        $result = (new FormBroadcastService())->send($def, $published, $subject, $body, Auth::id(), $livingOnly);
 
         if ($result['total'] === 0) {
-            Session::flash('form_error', 'Pro toto plemeno nejsou žádní majitelé žijících psů.');
+            Session::flash('form_error', 'Pro toto plemeno nejsou žádní majitelé ' . ($livingOnly ? 'žijících psů' : 'psů') . '.');
         } else {
             $msg = 'Rozesláno: ' . $result['sent'] . ' e-mailů';
             if ($result['skipped'] > 0) {

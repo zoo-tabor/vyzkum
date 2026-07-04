@@ -37,13 +37,13 @@ final class FormBroadcastService
      * @param array<string, mixed> $version publikovana verze
      * @return array{total:int, sent:int, failed:int, skipped:int}
      */
-    public function send(array $def, array $version, string $subject, string $bodyTemplate, ?int $userId): array
+    public function send(array $def, array $version, string $subject, string $bodyTemplate, ?int $userId, bool $livingOnly = true): array
     {
         $defId = (int) $def['id'];
         $versionId = (int) $version['id'];
         $appUrl = rtrim((string) Config::instance()->get('APP_URL', ''), '/');
 
-        $recipients = $this->dogs->recipientsForBreed((int) $def['breed_id']);
+        $recipients = $this->dogs->recipientsForBreed((int) $def['breed_id'], $livingOnly);
         $result = ['total' => count($recipients), 'sent' => 0, 'failed' => 0, 'skipped' => 0];
 
         foreach ($recipients as $r) {
