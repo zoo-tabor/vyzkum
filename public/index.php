@@ -42,6 +42,11 @@ $auth = new AuthController();
 $router->get('/login', [$auth, 'showLogin']);
 $router->post('/login', [$auth, 'login']);
 
+// Zapomenute heslo - verejne, posle odkaz na /set-password/{token}.
+$forgot = new \App\Controllers\ForgotPasswordController();
+$router->get('/forgot-password', [$forgot, 'show']);
+$router->post('/forgot-password', [$forgot, 'submit']);
+
 // 2FA login challenge - user is not authenticated yet (login deferred).
 $twoFactor = new TwoFactorController();
 $router->get('/2fa', [$twoFactor, 'showChallenge']);

@@ -23,4 +23,5 @@
 
         <button type="submit" class="btn btn--primary">Přihlásit se</button>
     </form>
+    <p class="muted" style="margin-top:1rem"><a href="/forgot-password">Zapomněli jste heslo?</a></p>
 </div>
