@@ -157,6 +157,7 @@ final class SampleRepository
         }
         $sql =
             'SELECT s.sample_id, s.status, s.collection_date, s.sample_type, s.created_at,
+                    s.dna_isolated_at, s.gwas_status,
                     br.name AS breed_name, d.name AS dog_name, v.name AS vet_name
              FROM samples s
              LEFT JOIN breeds br ON br.id = s.breed_id
@@ -261,19 +262,38 @@ final class SampleRepository
         ]);
     }
 
-    /** Rucne pridany vzorek (bez veterinare/davky) - dorazi naprimo vyzkumnemu tymu. */
-    public function addManualSample(string $sampleId, ?int $breedId, ?string $receivedAt): void
+    /**
+     * Rucne pridany vzorek (bez veterinare/davky) - dorazi naprimo vyzkumnemu tymu.
+     * Nepovinne rovnou prirazeny ke psovi (naseptavac na formulari).
+     */
+    public function addManualSample(string $sampleId, ?int $breedId, ?string $receivedAt, ?int $dogId = null): void
     {
         $stmt = $this->pdo()->prepare(
-            "INSERT INTO samples (sample_id, breed_id, status, vet_token_hash, owner_token_hash, received_at)
-             VALUES (:sid, :b, 'sample_received', :vh, :oh, :recv)"
+            "INSERT INTO samples (sample_id, breed_id, dog_id, status, vet_token_hash, owner_token_hash, received_at)
+             VALUES (:sid, :b, :dog, 'sample_received', :vh, :oh, :recv)"
         );
         $stmt->execute([
             'sid' => $sampleId,
             'b' => $breedId,
+            'dog' => $dogId,
             'vh' => hash('sha256', \App\Support\SampleCode::token()),
             'oh' => hash('sha256', \App\Support\SampleCode::token()),
             'recv' => $receivedAt ?: null,
+        ]);
+    }
+
+    /** Uprava analytickych udaju vzorku: datum izolace DNA, GWAS stav, poznamka. */
+    public function updateAnalysis(string $sampleId, ?string $dnaIsolatedAt, ?string $gwasStatus, ?string $note): void
+    {
+        $stmt = $this->pdo()->prepare(
+            'UPDATE samples SET dna_isolated_at = :dna, gwas_status = :gwas, note = :note, updated_at = NOW()
+             WHERE sample_id = :sid'
+        );
+        $stmt->execute([
+            'dna' => self::nv($dnaIsolatedAt),
+            'gwas' => self::nv($gwasStatus),
+            'note' => self::nv($note),
+            'sid' => $sampleId,
         ]);
     }
 

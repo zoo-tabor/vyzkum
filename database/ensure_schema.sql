@@ -754,6 +754,30 @@ UPDATE death_causes c
   SET c.parent_id = p.id
   WHERE LOCATE('.', c.code) > 0;
 
+-- DNA izolace + GWAS se vedou na vzorku (samples), ne na psovi. Sloupce
+-- dogs.dna_isolated_at / dogs.gwas_status zustavaji jako legacy (necteme je).
+ALTER TABLE samples
+  ADD COLUMN IF NOT EXISTS dna_isolated_at DATE NULL AFTER received_at,
+  ADD COLUMN IF NOT EXISTS gwas_status VARCHAR(20) NULL AFTER dna_isolated_at,
+  ADD COLUMN IF NOT EXISTS note TEXT NULL AFTER gwas_status;
+
+-- Backfill z psa na jeho nejnovejsi vzorek (idempotentni).
+UPDATE samples s
+  JOIN dogs d ON d.id = s.dog_id
+  JOIN (
+    SELECT dog_id,
+           CAST(SUBSTRING_INDEX(
+             GROUP_CONCAT(id ORDER BY (received_at IS NULL), received_at DESC, id DESC),
+             ',', 1) AS UNSIGNED) AS newest_id
+    FROM samples
+    WHERE dog_id IS NOT NULL
+    GROUP BY dog_id
+  ) pick ON pick.dog_id = s.dog_id AND pick.newest_id = s.id
+  SET s.dna_isolated_at = d.dna_isolated_at,
+      s.gwas_status = d.gwas_status
+  WHERE (d.dna_isolated_at IS NOT NULL OR d.gwas_status IS NOT NULL)
+    AND s.dna_isolated_at IS NULL AND s.gwas_status IS NULL;
+
 -- Oznaceni migraci jako provedenych (bez chyby, kdyz uz tam jsou).
 INSERT IGNORE INTO schema_migrations (version)
 VALUES ('001_core.sql'), ('002_dogs_owners.sql'), ('003_invites_mail.sql'),
@@ -762,4 +786,4 @@ VALUES ('001_core.sql'), ('002_dogs_owners.sql'), ('003_invites_mail.sql'),
        ('010_health_events.sql'), ('011_dogs_extra_colours.sql'),
        ('012_form_assignments.sql'), ('013_owner_onboarding.sql'),
        ('014_genotype_gene.sql'), ('015_message_reads.sql'),
-       ('016_death_causes.sql');
+       ('016_death_causes.sql'), ('017_sample_dna_gwas.sql');

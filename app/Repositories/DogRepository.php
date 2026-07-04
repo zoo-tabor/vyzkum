@@ -27,10 +27,14 @@ final class DogRepository
 
         $stmt = $this->pdo()->prepare(
             "SELECT d.id, d.name, d.chip_number, d.sex, d.birth_date, d.death_date,
-                    d.alive_confirmed_at, d.country, d.dna_isolated_at, d.gwas_status, d.status,
+                    d.alive_confirmed_at, d.country, d.status,
                     b.name AS breed_name,
                     o.id AS owner_id, o.display_name AS owner_name,
-                    (SELECT MAX(s.received_at) FROM samples s WHERE s.dog_id = d.id) AS newest_sample_received
+                    (SELECT MAX(s.received_at) FROM samples s WHERE s.dog_id = d.id) AS newest_sample_received,
+                    (SELECT s2.dna_isolated_at FROM samples s2 WHERE s2.dog_id = d.id
+                       ORDER BY (s2.received_at IS NULL), s2.received_at DESC, s2.id DESC LIMIT 1) AS dna_isolated_at,
+                    (SELECT s3.gwas_status FROM samples s3 WHERE s3.dog_id = d.id
+                       ORDER BY (s3.received_at IS NULL), s3.received_at DESC, s3.id DESC LIMIT 1) AS gwas_status
              FROM dogs d
              JOIN breeds b ON b.id = d.breed_id
              LEFT JOIN dog_owners do2 ON do2.dog_id = d.id AND do2.is_current = 1
@@ -201,7 +205,11 @@ final class DogRepository
     {
         $stmt = $this->pdo()->prepare(
             'SELECT d.*, b.name AS breed_name, b.slug AS breed_slug,
-                    (SELECT MAX(s.received_at) FROM samples s WHERE s.dog_id = d.id) AS newest_sample_received
+                    (SELECT MAX(s.received_at) FROM samples s WHERE s.dog_id = d.id) AS newest_sample_received,
+                    (SELECT s2.dna_isolated_at FROM samples s2 WHERE s2.dog_id = d.id
+                       ORDER BY (s2.received_at IS NULL), s2.received_at DESC, s2.id DESC LIMIT 1) AS newest_dna_isolated_at,
+                    (SELECT s3.gwas_status FROM samples s3 WHERE s3.dog_id = d.id
+                       ORDER BY (s3.received_at IS NULL), s3.received_at DESC, s3.id DESC LIMIT 1) AS newest_gwas_status
              FROM dogs d JOIN breeds b ON b.id = d.breed_id
              WHERE d.id = :id LIMIT 1'
         );
@@ -244,12 +252,12 @@ final class DogRepository
         $stmt = $this->pdo()->prepare(
             'INSERT INTO dogs
                 (breed_id, name, kennel_name, chip_number, pedigree_number, country, sex,
-                 birth_date, death_date, death_cause, death_cause_id, death_cause_note, dna_isolated_at, gwas_status,
+                 birth_date, death_date, death_cause, death_cause_id, death_cause_note,
                  castration_status, castration_date,
                  color, test_group, health_summary, sample_received_at, status)
              VALUES
                 (:breed_id, :name, :kennel_name, :chip_number, :pedigree_number, :country, :sex,
-                 :birth_date, :death_date, :death_cause, :death_cause_id, :death_cause_note, :dna_isolated_at, :gwas_status,
+                 :birth_date, :death_date, :death_cause, :death_cause_id, :death_cause_note,
                  :castration_status, :castration_date,
                  :color, :test_group, :health_summary, :sample_received_at, :status)'
         );
@@ -266,8 +274,6 @@ final class DogRepository
             'death_cause' => self::nv($d['death_cause'] ?? null),
             'death_cause_id' => $d['death_cause_id'] ?? null,
             'death_cause_note' => self::nv($d['death_cause_note'] ?? null),
-            'dna_isolated_at' => self::nv($d['dna_isolated_at'] ?? null),
-            'gwas_status' => self::nv($d['gwas_status'] ?? null),
             'castration_status' => self::nv($d['castration_status'] ?? null),
             'castration_date' => self::nv($d['castration_date'] ?? null),
             'color' => self::nv($d['color'] ?? null),
@@ -288,7 +294,6 @@ final class DogRepository
                 chip_number = :chip_number, pedigree_number = :pedigree_number, country = :country, sex = :sex,
                 birth_date = :birth_date, death_date = :death_date, death_cause = :death_cause,
                 death_cause_id = :death_cause_id, death_cause_note = :death_cause_note,
-                dna_isolated_at = :dna_isolated_at, gwas_status = :gwas_status,
                 castration_status = :castration_status, castration_date = :castration_date,
                 color = :color, test_group = :test_group, health_summary = :health_summary,
                 updated_at = NOW()
@@ -308,8 +313,6 @@ final class DogRepository
             'death_cause' => self::nv($d['death_cause'] ?? null),
             'death_cause_id' => $d['death_cause_id'] ?? null,
             'death_cause_note' => self::nv($d['death_cause_note'] ?? null),
-            'dna_isolated_at' => self::nv($d['dna_isolated_at'] ?? null),
-            'gwas_status' => self::nv($d['gwas_status'] ?? null),
             'castration_status' => self::nv($d['castration_status'] ?? null),
             'castration_date' => self::nv($d['castration_date'] ?? null),
             'color' => self::nv($d['color'] ?? null),

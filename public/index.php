@@ -161,7 +161,10 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $router->post('/admin/samples/new-batch', [$samples, 'createBatch']);
         $router->get('/admin/samples/manual', [$samples, 'manual']);
         $router->post('/admin/samples/manual', [$samples, 'addSample']);
+        $router->get('/admin/samples/dog-suggest', [$samples, 'dogSuggest']);
         $router->post('/admin/samples/{sampleId}/status', [$samples, 'updateStatus']);
+        $router->get('/admin/samples/{sampleId}/edit', [$samples, 'edit']);
+        $router->post('/admin/samples/{sampleId}/edit', [$samples, 'update']);
         $router->get('/admin/samples/{sampleId}', [$samples, 'detail']);
         $router->get('/admin/batches', [$samples, 'batches']);
         $router->get('/admin/batches/{batchId}/labels', [$samples, 'batchLabels']);

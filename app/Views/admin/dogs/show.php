@@ -47,8 +47,8 @@ $age = \App\Support\Age::years($dog['birth_date'] ?? null, $ageRef);
             $row('Datum kastrace', \App\Support\Dates::toCz($dog['castration_date']));
         }
         $row('Testovací skupina', $dog['test_group']);
-        $row('Datum izolace DNA', \App\Support\Dates::toCz($dog['dna_isolated_at'] ?? null));
-        $row('GWAS', $dog['gwas_status']);
+        $row('Datum izolace DNA (nejnovější vzorek)', \App\Support\Dates::toCz($dog['newest_dna_isolated_at'] ?? null));
+        $row('GWAS (nejnovější vzorek)', \App\Support\Gwas::label($dog['newest_gwas_status'] ?? null));
         $row('Datum úmrtí', \App\Support\Dates::toCz($dog['death_date'] ?? null));
         $row('Příčina úmrtí', $dog['death_cause']);
         if (!empty($dog['death_cause_note'])) {

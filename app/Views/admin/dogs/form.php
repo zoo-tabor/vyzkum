@@ -12,7 +12,6 @@ $isEdit = $dog !== null;
 $action = $isEdit ? '/admin/dogs/' . (int) $dog['id'] : '/admin/dogs';
 $v = static fn (string $key): string => e((string) ($dog[$key] ?? ''));
 $breedSel = $isEdit ? (int) $dog['breed_id'] : (int) ($defaultBreedId ?? 0);
-$gwas = (string) ($dog['gwas_status'] ?? '');
 ?>
 <div class="page-head"><h1><?= $isEdit ? 'Upravit psa' : 'Nový pes' ?></h1></div>
 
@@ -68,13 +67,9 @@ $gwas = (string) ($dog['gwas_status'] ?? '');
             </div>
             <div><label for="test_group">Testovací skupina</label>
                 <input type="text" id="test_group" name="test_group" value="<?= $v('test_group') ?>"></div>
-            <div><label for="gwas_status">GWAS</label>
-                <select id="gwas_status" name="gwas_status">
-                    <?php foreach (['' => '- neuvedeno -', 'GWAS_sent' => 'GWAS_sent', 'GWAS_ok' => 'GWAS_ok', 'GWAS_failed' => 'GWAS_failed'] as $k => $lbl): ?>
-                        <option value="<?= e($k) ?>"<?= $gwas === $k ? ' selected' : '' ?>><?= e($lbl) ?></option>
-                    <?php endforeach; ?>
-                </select></div>
+            <div></div>
         </div>
+        <p class="muted">Datum izolace DNA a stav GWAS se nyní evidují u konkrétního vzorku (sekce Vzorky).</p>
 
         <div class="form-row">
             <div><label for="castration_status">Kastrace</label>
@@ -99,8 +94,8 @@ $gwas = (string) ($dog['gwas_status'] ?? '');
             <div class="form-row">
                 <div><label for="death_date">Datum úmrtí</label>
                     <input type="date" id="death_date" name="death_date" value="<?= $v('death_date') ?>"></div>
-                <div><label for="dna_isolated_at">Datum izolace DNA</label>
-                    <input type="date" id="dna_isolated_at" name="dna_isolated_at" value="<?= $v('dna_isolated_at') ?>"></div>
+                <div></div>
+                <div></div>
             </div>
 
             <?php $causeTree = $causeTree ?? []; $causeId = (int) ($dog['death_cause_id'] ?? 0); ?>
@@ -132,8 +127,7 @@ $gwas = (string) ($dog['gwas_status'] ?? '');
                             <option value="<?= (int) $o['id'] ?>"><?= e($o['display_name']) ?></option>
                         <?php endforeach; ?>
                     </select></div>
-                <div><label for="dna_isolated_at">Datum izolace DNA</label>
-                    <input type="date" id="dna_isolated_at" name="dna_isolated_at" value=""></div>
+                <div></div>
                 <div></div>
             </div>
 

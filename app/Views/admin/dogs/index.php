@@ -9,6 +9,7 @@
 use App\Support\Age;
 use App\Support\Countries;
 use App\Support\Dates;
+use App\Support\Gwas;
 ?>
 <div class="page-head" style="display:flex; justify-content:space-between; align-items:center;">
     <h1>Psi</h1>
@@ -75,7 +76,7 @@ use App\Support\Dates;
                     <?php foreach ($genes as $g): ?>
                         <td><?= e($dogGenos[$g['id']] ?? '') ?: '-' ?></td>
                     <?php endforeach; ?>
-                    <td><?= e($d['gwas_status'] ?? '') ?: '-' ?></td>
+                    <td><?= e(Gwas::label($d['gwas_status'] ?? null)) ?></td>
                     <td>
                         <?php if (!empty($d['owner_id'])): ?>
                             <a href="/admin/owners/<?= (int) $d['owner_id'] ?>"><?= e($d['owner_name']) ?></a>

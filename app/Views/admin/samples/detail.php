@@ -7,9 +7,12 @@ $row = static function (string $label, mixed $value): void {
     echo '<tr><th style="width:220px">' . e($label) . '</th><td>' . e((string) ($value ?? '')) . '</td></tr>';
 };
 ?>
-<div class="page-head">
-    <h1>Vzorek <code><?= e($sample['sample_id']) ?></code></h1>
-    <p><a href="/admin/samples">&larr; Zpět na vzorky</a></p>
+<div class="page-head" style="display:flex; justify-content:space-between; align-items:center;">
+    <div>
+        <h1>Vzorek <code><?= e($sample['sample_id']) ?></code></h1>
+        <p><a href="/admin/samples">&larr; Zpět na vzorky</a></p>
+    </div>
+    <a class="btn" href="/admin/samples/<?= e(rawurlencode($sample['sample_id'])) ?>/edit">Upravit</a>
 </div>
 
 <?php if (!empty($notice)): ?><div class="alert alert--ok"><?= e($notice) ?></div><?php endif; ?>
@@ -27,6 +30,9 @@ $row = static function (string $label, mixed $value): void {
         $row('Datum odběru', \App\Support\Dates::toCz($sample['collection_date'] ?? null));
         $row('Vet odesláno', $sample['vet_submitted_at']);
         $row('Majitel odesláno', $sample['owner_submitted_at']);
+        $row('Datum izolace DNA', \App\Support\Dates::toCz($sample['dna_isolated_at'] ?? null));
+        $row('GWAS', \App\Support\Gwas::label($sample['gwas_status'] ?? null));
+        $row('Poznámka', $sample['note']);
         ?>
         <tr><th>Pes</th><td>
             <?php if (!empty($sample['dog_id'])): ?>

@@ -7,8 +7,10 @@ use App\Core\Config;
 use App\Core\Csrf;
 use App\Core\Session;
 use App\Repositories\BreedRepository;
+use App\Repositories\DogRepository;
 use App\Repositories\SampleRepository;
 use App\Repositories\VetRepository;
+use App\Support\Gwas;
 use App\Services\Auth;
 use App\Services\AuditService;
 use App\Services\BreedContext;
@@ -107,7 +109,8 @@ final class SampleController
             (new SampleRepository())->addManualSample(
                 $sampleId,
                 (int) input('breed_id') ?: null,
-                trim((string) input('received_at')) ?: null
+                trim((string) input('received_at')) ?: null,
+                (int) input('dog_id') ?: null
             );
         } catch (\PDOException $e) {
             Session::flash('sample_error', 'Vzorek s číslem ' . $sampleId . ' už existuje.');
@@ -117,6 +120,17 @@ final class SampleController
         AuditService::log(Auth::id(), Auth::role(), 'sample_manual', 'sample', $sampleId);
         Session::flash('sample_notice', 'Vzorek byl ručně přidán.');
         redirect('/admin/samples');
+    }
+
+    /** Naseptavac psa (JSON) pro rucni prirazeni vzorku ke psovi. */
+    public function dogSuggest(): never
+    {
+        $q = trim((string) input('q'));
+        $items = $q === '' ? [] : (new DogRepository())->searchByName($q, BreedContext::current());
+
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($items, JSON_UNESCAPED_UNICODE);
+        exit;
     }
 
     public function batches(): string
@@ -159,6 +173,45 @@ final class SampleController
             'statuses' => self::STATUSES,
             'notice' => Session::flash('sample_notice'),
         ]);
+    }
+
+    public function edit(string $sampleId): string
+    {
+        $sample = (new SampleRepository())->detail($sampleId);
+        if ($sample === null) {
+            http_response_code(404);
+            return view('errors/404', ['title' => 'Vzorek nenalezen']);
+        }
+
+        return view('admin/samples/edit', [
+            'title' => 'Upravit vzorek',
+            'sample' => $sample,
+            'error' => Session::flash('sample_error'),
+        ]);
+    }
+
+    public function update(string $sampleId): string
+    {
+        Csrf::verify();
+        $sample = (new SampleRepository())->detail($sampleId);
+        if ($sample === null) {
+            redirect('/admin/samples');
+        }
+
+        $gwas = trim((string) input('gwas_status'));
+        if ($gwas !== '' && !isset(Gwas::LABELS[$gwas])) {
+            $gwas = '';
+        }
+
+        (new SampleRepository())->updateAnalysis(
+            $sampleId,
+            trim((string) input('dna_isolated_at')) ?: null,
+            $gwas ?: null,
+            trim((string) input('note')) ?: null
+        );
+        AuditService::log(Auth::id(), Auth::role(), 'sample_updated', 'sample', $sampleId);
+        Session::flash('sample_notice', 'Vzorek byl upraven.');
+        redirect('/admin/samples/' . rawurlencode($sampleId));
     }
 
     public function updateStatus(string $sampleId): string
