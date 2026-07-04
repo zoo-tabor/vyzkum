@@ -76,6 +76,25 @@ $gwas = (string) ($dog['gwas_status'] ?? '');
                 </select></div>
         </div>
 
+        <div class="form-row">
+            <div><label for="castration_status">Kastrace</label>
+                <?php
+                $castrationOpts = ['' => '- neuvedeno -', 'intact' => 'nekastrovaný/á', 'castrated' => 'kastrovaný/á'];
+                $castCur = (string) ($dog['castration_status'] ?? '');
+                if ($castCur !== '' && !isset($castrationOpts[$castCur])) {
+                    $castrationOpts[$castCur] = $castCur; // zachovat pripadnou starsi volnou hodnotu
+                }
+                ?>
+                <select id="castration_status" name="castration_status">
+                    <?php foreach ($castrationOpts as $k => $lbl): ?>
+                        <option value="<?= e($k) ?>"<?= $castCur === $k ? ' selected' : '' ?>><?= e($lbl) ?></option>
+                    <?php endforeach; ?>
+                </select></div>
+            <div><label for="castration_date">Datum kastrace</label>
+                <input type="date" id="castration_date" name="castration_date" value="<?= $v('castration_date') ?>"></div>
+            <div></div>
+        </div>
+
         <?php if ($isEdit): ?>
             <div class="form-row">
                 <div><label for="death_date">Datum úmrtí</label>

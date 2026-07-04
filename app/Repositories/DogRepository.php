@@ -245,10 +245,12 @@ final class DogRepository
             'INSERT INTO dogs
                 (breed_id, name, kennel_name, chip_number, pedigree_number, country, sex,
                  birth_date, death_date, death_cause, death_cause_id, death_cause_note, dna_isolated_at, gwas_status,
+                 castration_status, castration_date,
                  color, test_group, health_summary, sample_received_at, status)
              VALUES
                 (:breed_id, :name, :kennel_name, :chip_number, :pedigree_number, :country, :sex,
                  :birth_date, :death_date, :death_cause, :death_cause_id, :death_cause_note, :dna_isolated_at, :gwas_status,
+                 :castration_status, :castration_date,
                  :color, :test_group, :health_summary, :sample_received_at, :status)'
         );
         $stmt->execute([
@@ -266,6 +268,8 @@ final class DogRepository
             'death_cause_note' => self::nv($d['death_cause_note'] ?? null),
             'dna_isolated_at' => self::nv($d['dna_isolated_at'] ?? null),
             'gwas_status' => self::nv($d['gwas_status'] ?? null),
+            'castration_status' => self::nv($d['castration_status'] ?? null),
+            'castration_date' => self::nv($d['castration_date'] ?? null),
             'color' => self::nv($d['color'] ?? null),
             'test_group' => self::nv($d['test_group'] ?? null),
             'health_summary' => self::nv($d['health_summary'] ?? null),
@@ -285,6 +289,7 @@ final class DogRepository
                 birth_date = :birth_date, death_date = :death_date, death_cause = :death_cause,
                 death_cause_id = :death_cause_id, death_cause_note = :death_cause_note,
                 dna_isolated_at = :dna_isolated_at, gwas_status = :gwas_status,
+                castration_status = :castration_status, castration_date = :castration_date,
                 color = :color, test_group = :test_group, health_summary = :health_summary,
                 updated_at = NOW()
              WHERE id = :id'
@@ -305,6 +310,8 @@ final class DogRepository
             'death_cause_note' => self::nv($d['death_cause_note'] ?? null),
             'dna_isolated_at' => self::nv($d['dna_isolated_at'] ?? null),
             'gwas_status' => self::nv($d['gwas_status'] ?? null),
+            'castration_status' => self::nv($d['castration_status'] ?? null),
+            'castration_date' => self::nv($d['castration_date'] ?? null),
             'color' => self::nv($d['color'] ?? null),
             'test_group' => self::nv($d['test_group'] ?? null),
             'health_summary' => self::nv($d['health_summary'] ?? null),

@@ -17,6 +17,12 @@ $dogId = (int) $dog['id'];
 $isCurrent = $relation !== null && (int) ($relation['is_current'] ?? 0) === 1;
 $isDead = !empty($dog['death_date']);
 $sexLabel = match ($dog['sex'] ?? 'unknown') { 'male' => 'Pes', 'female' => 'Fena', default => 'Neuvedeno' };
+$castrationLabel = match ((string) ($dog['castration_status'] ?? '')) {
+    'intact' => 'Nekastrovaný/á',
+    'castrated' => 'Kastrovaný/á',
+    '' => '-',
+    default => (string) $dog['castration_status'],
+};
 $aliveQuestion = ($dog['sex'] ?? '') === 'female' ? 'Je Vaše fena stále naživu?' : 'Je Váš pes stále naživu?';
 
 // "Vyplneno" = majitel uz potvrdil zivot nebo nahlasil umrti.
@@ -67,6 +73,7 @@ $renderAliveForm = static function (?string $prefillDeathDate) use ($dogId): voi
         <tr><th>Pohlaví</th><td><?= e($sexLabel) ?></td></tr>
         <tr><th>Datum narození</th><td><?= e(Dates::toCz($dog['birth_date'] ?? null)) ?: '-' ?></td></tr>
         <tr><th>Barva</th><td><?= e($dog['color'] ?? '') ?: '-' ?></td></tr>
+        <tr><th>Kastrace</th><td><?= e($castrationLabel) ?><?php if (!empty($dog['castration_date'])): ?> (<?= e(Dates::toCz($dog['castration_date'])) ?>)<?php endif; ?></td></tr>
         <?php if ($isDead): ?>
             <tr><th>Datum úmrtí</th><td><?= e(Dates::toCz($dog['death_date'])) ?></td></tr>
         <?php endif; ?>

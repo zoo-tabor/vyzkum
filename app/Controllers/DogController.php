@@ -272,6 +272,8 @@ final class DogController
             'death_cause_note' => $causeNote,
             'dna_isolated_at' => (string) input('dna_isolated_at'),
             'gwas_status' => trim((string) input('gwas_status')) ?: null,
+            'castration_status' => trim((string) input('castration_status')) ?: null,
+            'castration_date' => (string) input('castration_date'),
             'color' => $color,
             'test_group' => (string) input('test_group'),
             'health_summary' => (string) input('health_summary'),

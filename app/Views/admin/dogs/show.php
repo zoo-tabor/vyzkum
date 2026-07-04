@@ -36,6 +36,16 @@ $age = \App\Support\Age::years($dog['birth_date'] ?? null, $ageRef);
         $row('Datum narození', \App\Support\Dates::toCz($dog['birth_date'] ?? null));
         $row('Věk', $age !== null ? $age . ' let' : '-');
         $row('Barva', $dog['color']);
+        $castLabel = match ((string) ($dog['castration_status'] ?? '')) {
+            'intact' => 'nekastrovaný/á',
+            'castrated' => 'kastrovaný/á',
+            '' => '-',
+            default => (string) $dog['castration_status'],
+        };
+        $row('Kastrace', $castLabel);
+        if (!empty($dog['castration_date'])) {
+            $row('Datum kastrace', \App\Support\Dates::toCz($dog['castration_date']));
+        }
         $row('Testovací skupina', $dog['test_group']);
         $row('Datum izolace DNA', \App\Support\Dates::toCz($dog['dna_isolated_at'] ?? null));
         $row('GWAS', $dog['gwas_status']);
