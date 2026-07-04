@@ -73,6 +73,9 @@ $renderAliveForm = static function (?string $prefillDeathDate) use ($dogId): voi
         <?php if (!empty($dog['death_cause'])): ?>
             <tr><th>Příčina úmrtí</th><td><?= e($dog['death_cause']) ?></td></tr>
         <?php endif; ?>
+        <?php if (!empty($dog['death_cause_note'])): ?>
+            <tr><th>Poznámka k příčině</th><td><?= e($dog['death_cause_note']) ?></td></tr>
+        <?php endif; ?>
     </table>
     <p class="muted">Základní údaje psa může měnit jen výzkumný tým. Pro případnou opravu nás kontaktujte přes zprávu.</p>
 </div>
@@ -86,7 +89,7 @@ $renderAliveForm = static function (?string $prefillDeathDate) use ($dogId): voi
         <?php else: ?>
             <p>Poslední informace z <strong><?= e(Dates::toCz(substr((string) $lastInfoAt, 0, 10))) ?></strong>, děkujeme za potvrzení.</p>
             <?php if ($isDead): ?>
-                <p class="muted">Pokud jste psa označili omylem (např. ztracený pes se našel), můžete ho níže označit zpět jako živého.</p>
+                <p class="muted">Pokud jste omylem označili psa za uhynulého (např. ukradený pes, který se později našel), můžete ho níže označit zpět jako živého.</p>
             <?php endif; ?>
             <button type="button" class="btn" data-change-toggle>Změna</button>
             <div class="change-block" hidden style="margin-top:0.75rem">

@@ -170,17 +170,8 @@ final class PortalController
                 : (string) input($field);
         }
 
-        // 2) Vestaveny blok "je pes naziva? -> datum umrti" -> propsani do psa.
-        $alive = (string) input('builtin_alive') !== 'no';
-        $deathIso = $alive ? null : Dates::fromCz((string) input('builtin_death_date'));
-        if (!$alive && $deathIso === null) {
-            Session::flash('portal_error', 'Zadejte platné datum úmrtí (DD.MM.RRRR).');
-            redirect('/portal/dogs/' . $id . '/forms/' . $defId);
-        }
-        $dogsRepo = new DogRepository();
-        $dogsRepo->setAliveStatus((int) $id, (int) $owner['id'], $alive, $deathIso, null);
-
-        // 3) Ulozeni odpovedi.
+        // 2) Ulozeni odpovedi. Stav naziva/umrti se resi na karte psa (Potvrzeni),
+        // uz ne ve vestavene otazce dotazniku.
         $responses = new FormResponseRepository();
         $responseId = $responses->create((int) $version['id'], (int) $id, (int) $owner['id'], Auth::id(), trim((string) input('note')) ?: null);
 

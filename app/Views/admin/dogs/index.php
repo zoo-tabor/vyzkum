@@ -50,7 +50,7 @@ use App\Support\Dates;
             <?php foreach ($dogs as $d): ?>
                 <?php
                 $ref = Age::referenceDate($d['death_date'] ?? null, $d['alive_confirmed_at'] ?? null, $d['newest_sample_received'] ?? null);
-                $age = Age::years($d['birth_date'] ?? null, $ref);
+                $age = Age::yearsFloat($d['birth_date'] ?? null, $ref);
                 $dogSamples = $samplesByDog[(int) $d['id']] ?? [];
                 $dogGenos = $genotypesByDog[(int) $d['id']] ?? [];
                 ?>
@@ -60,7 +60,7 @@ use App\Support\Dates;
                     </td>
                     <td><?= e($d['breed_name']) ?></td>
                     <td><?= e($d['sex']) ?></td>
-                    <td data-sort="<?= $age ?? -1 ?>"><?= $age !== null ? (int) $age : '-' ?></td>
+                    <td data-sort="<?= $age ?? -1 ?>"><?= $age !== null ? number_format($age, 2, '.', '') : '-' ?></td>
                     <td title="<?= e(Countries::name($d['country'] ?? null) ?? '') ?>"><?= e($d['country'] ?? '') ?: '-' ?></td>
                     <td>
                         <?php if ($dogSamples === []): ?><span class="muted">-</span><?php else: ?>

@@ -4,8 +4,6 @@
 /** @var array<int, array<string, mixed>> $questions */
 /** @var array<int, array<int, array<string, mixed>>> $options */
 /** @var string|null $error */
-
-$isDead = !empty($dog['death_date']);
 ?>
 <div class="page-head">
     <h1><?= e($def['name']) ?></h1>
@@ -17,17 +15,6 @@ $isDead = !empty($dog['death_date']);
 <div class="card">
     <form method="post" action="/portal/dogs/<?= (int) $dog['id'] ?>/forms/<?= (int) $def['id'] ?>" enctype="multipart/form-data">
         <?= \App\Core\Csrf::field() ?>
-
-        <fieldset style="border:1px solid var(--line); border-radius:8px; padding:1rem; margin-bottom:1rem;">
-            <legend><strong>Je pes naživu?</strong></legend>
-            <label><input type="radio" name="builtin_alive" value="yes" <?= $isDead ? '' : 'checked' ?> onclick="document.getElementById('builtin-death').style.display='none'"> Ano, žije</label>
-            <label><input type="radio" name="builtin_alive" value="no" <?= $isDead ? 'checked' : '' ?> onclick="document.getElementById('builtin-death').style.display='block'"> Ne, uhynul</label>
-            <div id="builtin-death" style="display:<?= $isDead ? 'block' : 'none' ?>; margin-top:0.5rem">
-                <label for="builtin_death_date">Datum úmrtí (DD.MM.RRRR)</label>
-                <input type="text" id="builtin_death_date" name="builtin_death_date" placeholder="DD.MM.RRRR"
-                       value="<?= e(\App\Support\Dates::toCz($dog['death_date'] ?? null)) ?>" style="max-width:200px">
-            </div>
-        </fieldset>
 
         <?php foreach ($questions as $q): ?>
             <?php

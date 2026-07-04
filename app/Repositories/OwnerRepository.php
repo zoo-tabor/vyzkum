@@ -139,6 +139,8 @@ final class OwnerRepository
                     (SELECT email FROM owner_emails e WHERE e.owner_id = o.id AND e.is_primary = 1 LIMIT 1) AS primary_email,
                     (SELECT phone FROM owner_phones p WHERE p.owner_id = o.id ORDER BY p.is_primary DESC, p.id ASC LIMIT 1) AS primary_phone,
                     (SELECT COUNT(*) FROM dog_owners do2 WHERE do2.owner_id = o.id AND do2.is_current = 1) AS dog_count,
+                    (SELECT CASE WHEN u.password_hash IS NOT NULL AND u.password_hash <> '' THEN 1 ELSE 0 END
+                       FROM users u WHERE u.id = o.user_id) AS registered,
                     GREATEST(
                         COALESCE(o.updated_at, o.created_at),
                         COALESCE((SELECT MAX(m.created_at) FROM messages m WHERE m.sender_user_id = o.user_id), '1000-01-01'),
@@ -188,7 +190,7 @@ final class OwnerRepository
     public function dogsOf(int $ownerId): array
     {
         $stmt = $this->pdo()->prepare(
-            'SELECT d.id, d.name, b.name AS breed_name, do2.is_current, do2.valid_from, do2.valid_to
+            'SELECT d.id, d.name, d.updated_at, b.name AS breed_name, do2.is_current, do2.valid_from, do2.valid_to
              FROM dog_owners do2
              JOIN dogs d ON d.id = do2.dog_id
              JOIN breeds b ON b.id = d.breed_id

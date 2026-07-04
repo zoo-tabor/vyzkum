@@ -15,6 +15,13 @@ test('years returns null for missing birth or reference before birth', function 
     assert_same(null, Age::years('2020-01-01', '2019-01-01'));
 });
 
+test('yearsFloat returns age with two decimals from day count', function () {
+    assert_same(5.0, Age::yearsFloat('2015-06-01', '2020-05-31')); // 1826 dnu / 365.25 = 5.0
+    assert_same(0.5, Age::yearsFloat('2020-01-01', '2020-07-02')); // 183 dnu / 365.25 ~ 0.50
+    assert_same(null, Age::yearsFloat(null, '2020-01-01'));
+    assert_same(null, Age::yearsFloat('2020-01-01', '2019-01-01'));
+});
+
 test('referenceDate follows priority death -> alive -> sample', function () {
     assert_same('2022-03-04', Age::referenceDate('2022-03-04', '2023-01-01', '2021-01-01'));
     assert_same('2023-01-01', Age::referenceDate(null, '2023-01-01', '2021-01-01'));

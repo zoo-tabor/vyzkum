@@ -20,7 +20,8 @@
                 <th>Primární e-mail</th>
                 <th>Tel. číslo</th>
                 <th data-type="num">Psi</th>
-                <th>Poslední aktualizace</th>
+                <th>Registrován</th>
+                <th>Aktualizace</th>
                 <th data-nofilter>Poznámka</th>
             </tr>
             </thead>
@@ -38,6 +39,7 @@
                     <td><?= e($o['primary_email'] ?? '') ?: '-' ?></td>
                     <td><?= e(\App\Support\Phone::formatCz($o['primary_phone'] ?? null)) ?: '-' ?></td>
                     <td data-sort="<?= (int) $o['dog_count'] ?>"><?= (int) $o['dog_count'] ?></td>
+                    <td><?= ((int) ($o['registered'] ?? 0)) === 1 ? 'Ano' : 'Ne' ?></td>
                     <td data-sort="<?= e($lastSort) ?>"><?= e($lastActShow) ?></td>
                     <td><?= $note !== '' ? e(mb_strimwidth($note, 0, 40, '…')) : '-' ?></td>
                 </tr>

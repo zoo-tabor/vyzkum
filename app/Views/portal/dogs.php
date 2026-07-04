@@ -31,13 +31,13 @@
             <p class="muted">Zatím u vás nemáme evidované žádné psy.</p>
         <?php else: ?>
             <table class="table">
-                <thead><tr><th>Jméno</th><th>Plemeno</th><th>Vztah</th><th></th></tr></thead>
+                <thead><tr><th>Jméno</th><th>Plemeno</th><th>Poslední aktualizace</th><th></th></tr></thead>
                 <tbody>
                 <?php foreach ($dogs as $d): ?>
                     <tr>
                         <td><a href="/portal/dogs/<?= (int) $d['id'] ?>"><?= e($d['name']) ?></a></td>
                         <td><?= e($d['breed_name']) ?></td>
-                        <td><?= ((int) $d['is_current']) === 1 ? 'aktuální' : 'bývalý' ?></td>
+                        <td><?= e(\App\Support\Dates::toCz(substr((string) ($d['updated_at'] ?? ''), 0, 10))) ?: '-' ?></td>
                         <td><a href="/portal/dogs/<?= (int) $d['id'] ?>">Detail &rarr;</a></td>
                     </tr>
                 <?php endforeach; ?>
