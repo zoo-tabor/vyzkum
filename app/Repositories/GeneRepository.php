@@ -32,10 +32,10 @@ final class GeneRepository
         return (int) $this->pdo()->lastInsertId();
     }
 
-    public function createGene(string $symbol, ?string $name, ?string $description): int
+    public function createGene(string $symbol, ?string $name, ?string $description, ?string $note = null): int
     {
-        $stmt = $this->pdo()->prepare('INSERT INTO genes (symbol, name, description) VALUES (:s, :n, :d)');
-        $stmt->execute(['s' => $symbol, 'n' => $name, 'd' => $description]);
+        $stmt = $this->pdo()->prepare('INSERT INTO genes (symbol, name, description, note) VALUES (:s, :n, :d, :note)');
+        $stmt->execute(['s' => $symbol, 'n' => $name, 'd' => $description, 'note' => $note]);
         return (int) $this->pdo()->lastInsertId();
     }
 

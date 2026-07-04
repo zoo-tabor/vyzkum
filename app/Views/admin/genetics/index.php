@@ -2,6 +2,7 @@
 /** @var array<int, array{id:int, symbol:string}> $genes */
 /** @var array<int, array<string, mixed>> $dogs */
 /** @var array<int, array<int, string>> $genotypes */
+/** @var array<int, array{tested_at:?string, statuses:?string, sources:?string}> $meta */
 /** @var int|null $currentBreedId */
 /** @var array<int, array<string, mixed>> $markers */
 /** @var string|null $notice */
@@ -34,6 +35,7 @@
                 <?php foreach ($genes as $g): ?>
                     <th><?= e($g['symbol']) ?></th>
                 <?php endforeach; ?>
+                <th>Zdroj</th>
             </tr>
             </thead>
             <tbody>
@@ -45,6 +47,7 @@
                     <?php foreach ($genes as $g): ?>
                         <td><?= e($dogGenos[$g['id']] ?? '') ?: '-' ?></td>
                     <?php endforeach; ?>
+                    <td><?= e(\App\Support\GenotypeSource::labelList($meta[(int) $d['id']]['sources'] ?? null)) ?></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>
@@ -65,6 +68,15 @@
                 <input type="text" id="geno-dog-search" autocomplete="off" placeholder="Napište jméno psa a vyberte z nabídky">
                 <input type="hidden" id="geno-dog-id" name="dog_id" value="">
                 <div class="ac-list" id="geno-ac" hidden></div>
+            </div>
+
+            <div style="margin-top:1rem; max-width:220px;">
+                <label for="geno-source">Zdroj</label>
+                <select id="geno-source" name="source">
+                    <?php foreach (\App\Support\GenotypeSource::options() as $k => $lbl): ?>
+                        <option value="<?= e($k) ?>"<?= $k === \App\Support\GenotypeSource::DEFAULT ? ' selected' : '' ?>><?= e($lbl) ?></option>
+                    <?php endforeach; ?>
+                </select>
             </div>
 
             <p class="muted" style="margin-top:1rem; margin-bottom:0.3rem;">Genotypy (vyplňte jen ty, které znáte; <code>X</code> = nevyšlá PCR sekvenace):</p>

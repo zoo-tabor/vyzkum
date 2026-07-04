@@ -31,7 +31,7 @@ final class GenotypeRepository
         return (int) $this->pdo()->lastInsertId();
     }
 
-    public function upsertGenotype(int $dogId, ?int $breedId, int $markerId, ?string $a1, ?string $a2, string $genotype, ?int $testId, string $status = 'imported', ?int $geneId = null): void
+    public function upsertGenotype(int $dogId, ?int $breedId, int $markerId, ?string $a1, ?string $a2, string $genotype, ?int $testId, string $status = 'imported', ?int $geneId = null, ?string $source = null): void
     {
         if ($geneId === null) {
             $lookup = $this->pdo()->prepare('SELECT gene_id FROM genetic_markers WHERE id = :m LIMIT 1');
@@ -40,15 +40,73 @@ final class GenotypeRepository
             $geneId = $found === false ? null : (int) $found;
         }
 
+        // source = NULL znamena "zachovej stavajici" (napr. editace genotypu, kde se
+        // zdroj nemeni); poznamka (note) se pres tento upsert nemeni vubec.
         $stmt = $this->pdo()->prepare(
-            'INSERT INTO dog_genotypes (dog_id, breed_id, marker_id, gene_id, allele_1, allele_2, genotype, genetic_test_id, validation_status)
-             VALUES (:d, :b, :m, :ge, :a1, :a2, :g, :t, :st)
+            'INSERT INTO dog_genotypes (dog_id, breed_id, marker_id, gene_id, allele_1, allele_2, genotype, genetic_test_id, validation_status, source)
+             VALUES (:d, :b, :m, :ge, :a1, :a2, :g, :t, :st, :src)
              ON DUPLICATE KEY UPDATE
                 gene_id = VALUES(gene_id), allele_1 = VALUES(allele_1), allele_2 = VALUES(allele_2),
                 genotype = VALUES(genotype), genetic_test_id = VALUES(genetic_test_id),
-                validation_status = VALUES(validation_status), updated_at = NOW()'
+                validation_status = VALUES(validation_status),
+                source = COALESCE(VALUES(source), source), updated_at = NOW()'
         );
-        $stmt->execute(['d' => $dogId, 'b' => $breedId, 'm' => $markerId, 'ge' => $geneId, 'a1' => $a1, 'a2' => $a2, 'g' => $genotype, 't' => $testId, 'st' => $status]);
+        $stmt->execute(['d' => $dogId, 'b' => $breedId, 'm' => $markerId, 'ge' => $geneId, 'a1' => $a1, 'a2' => $a2, 'g' => $genotype, 't' => $testId, 'st' => $status, 'src' => $source]);
+    }
+
+    /** Nastavi/smaze poznamku k jednomu genotypu psa (podle markeru). */
+    public function setGenotypeNote(int $dogId, int $markerId, ?string $note): void
+    {
+        $stmt = $this->pdo()->prepare(
+            'UPDATE dog_genotypes SET note = :n, updated_at = NOW() WHERE dog_id = :d AND marker_id = :m'
+        );
+        $stmt->execute(['n' => ($note === '' ? null : $note), 'd' => $dogId, 'm' => $markerId]);
+    }
+
+    /** @return array<int, string> marker_id => poznamka (pro predvyplneni editace) */
+    public function noteMapForDog(int $dogId): array
+    {
+        $stmt = $this->pdo()->prepare('SELECT marker_id, note FROM dog_genotypes WHERE dog_id = :d AND note IS NOT NULL');
+        $stmt->execute(['d' => $dogId]);
+        $map = [];
+        foreach ($stmt->fetchAll() as $r) {
+            $map[(int) $r['marker_id']] = (string) $r['note'];
+        }
+        return $map;
+    }
+
+    /**
+     * Souhrn na psa pro dashboard/export: nejnovejsi datum testu, stavy a zdroje
+     * (distinct, oddelene carkou).
+     *
+     * @return array<int, array{tested_at:?string, statuses:?string, sources:?string}>
+     */
+    public function dashboardMetaByDog(?int $breedId): array
+    {
+        $sql = 'SELECT g.dog_id,
+                       MAX(t.tested_at) AS tested_at,
+                       GROUP_CONCAT(DISTINCT g.validation_status ORDER BY g.validation_status) AS statuses,
+                       GROUP_CONCAT(DISTINCT g.source ORDER BY g.source) AS sources
+                FROM dog_genotypes g
+                LEFT JOIN genetic_tests t ON t.id = g.genetic_test_id
+                WHERE g.gene_id IS NOT NULL';
+        $params = [];
+        if ($breedId !== null) {
+            $sql .= ' AND g.breed_id = :b';
+            $params['b'] = $breedId;
+        }
+        $sql .= ' GROUP BY g.dog_id';
+        $stmt = $this->pdo()->prepare($sql);
+        $stmt->execute($params);
+        $map = [];
+        foreach ($stmt->fetchAll() as $r) {
+            $map[(int) $r['dog_id']] = [
+                'tested_at' => $r['tested_at'] !== null ? (string) $r['tested_at'] : null,
+                'statuses' => $r['statuses'] !== null ? (string) $r['statuses'] : null,
+                'sources' => $r['sources'] !== null ? (string) $r['sources'] : null,
+            ];
+        }
+        return $map;
     }
 
     /**

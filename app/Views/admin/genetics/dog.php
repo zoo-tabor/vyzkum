@@ -2,6 +2,7 @@
 /** @var array<string, mixed> $dog */
 /** @var array<int, array{gene_id:int, symbol:string, marker_id:int}> $genePanel */
 /** @var array<int, string> $current */
+/** @var array<int, string> $currentNotes */
 /** @var string|null $notice */
 /** @var string|null $error */
 $dogId = (int) $dog['id'];
@@ -26,33 +27,37 @@ $dogId = (int) $dog['id'];
         <form method="post" action="/admin/genetics/<?= $dogId ?>">
             <?= \App\Core\Csrf::field() ?>
             <table class="table">
-                <thead><tr><th>Gen</th><th>Genotyp</th></tr></thead>
+                <thead><tr><th>Gen</th><th>Genotyp</th><th>Poznámka</th></tr></thead>
                 <tbody>
                 <?php foreach ($genePanel as $g): ?>
+                    <?php $mid = (int) $g['marker_id']; ?>
                     <tr>
                         <td><strong><?= e($g['symbol']) ?></strong></td>
                         <td>
-                            <input type="text" name="g[<?= (int) $g['marker_id'] ?>]"
-                                   value="<?= e($current[(int) $g['marker_id']] ?? '') ?>"
+                            <input type="text" name="g[<?= $mid ?>]"
+                                   value="<?= e($current[$mid] ?? '') ?>"
                                    placeholder="GG" style="max-width:120px; margin:0;">
+                        </td>
+                        <td>
+                            <input type="text" name="n[<?= $mid ?>]"
+                                   value="<?= e($currentNotes[$mid] ?? '') ?>"
+                                   placeholder="poznámka" style="margin:0;">
                         </td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
             </table>
-            <p class="muted">Prázdné pole u genu, který má hodnotu, záznam smaže. Formát např. <code>GG</code>, <code>GA</code>, <code>G/A</code>; <code>X</code> = nevyšlá PCR sekvenace.</p>
+            <p class="muted">Prázdné pole genotypu u genu, který má hodnotu, záznam smaže. Formát např. <code>GG</code>, <code>GA</code>, <code>G/A</code>; <code>X</code> = nevyšlá PCR sekvenace. Poznámka je nepovinná a váže se ke genotypu psa.</p>
 
             <div class="form-row" style="margin-top:1rem;">
-                <div>
-                    <label for="lab_name">Laboratoř (nepovinné)</label>
-                    <input type="text" id="lab_name" name="lab_name">
-                </div>
                 <div>
                     <label for="tested_at">Datum testu (nepovinné)</label>
                     <input type="date" id="tested_at" name="tested_at">
                 </div>
+                <div></div>
+                <div></div>
             </div>
-            <p class="muted">Laboratoř a datum se uloží k právě ukládaným genotypům.</p>
+            <p class="muted">Datum se uloží k právě ukládaným genotypům.</p>
 
             <button type="submit" class="btn btn--primary">Uložit genetiku</button>
         </form>

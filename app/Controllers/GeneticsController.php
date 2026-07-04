@@ -37,6 +37,7 @@ final class GeneticsController
             'genes' => $genes,
             'dogs' => $dogs,
             'genotypes' => $repo->genotypesByDogGene($dogIds),
+            'meta' => $repo->dashboardMetaByDog($breedId),
             'currentBreedId' => $breedId,
             'genePanel' => (new GeneRepository())->genesWithMarker(),
             'notice' => Session::flash('genetics_notice'),
@@ -53,11 +54,14 @@ final class GeneticsController
             return view('errors/404', ['title' => 'Pes nenalezen']);
         }
 
+        $genotypes = new GenotypeRepository();
+
         return view('admin/genetics/dog', [
             'title' => 'Genetika: ' . $dog['name'],
             'dog' => $dog,
             'genePanel' => (new GeneRepository())->genesWithMarker(),
-            'current' => (new GenotypeRepository())->genotypeMapForDog((int) $id),
+            'current' => $genotypes->genotypeMapForDog((int) $id),
+            'currentNotes' => $genotypes->noteMapForDog((int) $id),
             'notice' => Session::flash('genetics_notice'),
             'error' => Session::flash('genetics_error'),
         ]);
@@ -77,15 +81,12 @@ final class GeneticsController
 
         $genotypes = new GenotypeRepository();
 
-        // Volitelna metadata testu (plati pro ukladane genotypy).
-        $lab = trim((string) input('lab_name'));
+        // Volitelne datum testu (plati pro ukladane genotypy). Laborator se uz nevede.
         $testedAt = trim((string) input('tested_at'));
-        $testId = null;
-        if ($lab !== '' || $testedAt !== '') {
-            $testId = $genotypes->createTest($dogId, $lab ?: null, $testedAt ?: null, 'manual', null, null);
-        }
+        $testId = $testedAt !== '' ? $genotypes->createTest($dogId, null, $testedAt, 'manual', null, null) : null;
 
         $values = (array) ($_POST['g'] ?? []);
+        $notes = (array) ($_POST['n'] ?? []);
         $current = $genotypes->genotypeMapForDog($dogId);
         $saved = 0;
         $deleted = 0;
@@ -108,7 +109,9 @@ final class GeneticsController
                 $invalid[] = $value;
                 continue;
             }
+            // Zdroj se pri editaci nemeni (source = null -> zachova stavajici).
             $genotypes->upsertGenotype($dogId, $breedId, $markerId, $split['allele_1'], $split['allele_2'], $split['genotype'], $testId, 'manual');
+            $genotypes->setGenotypeNote($dogId, $markerId, trim((string) ($notes[$markerId] ?? '')) ?: null);
             $saved++;
         }
 
@@ -136,27 +139,46 @@ final class GeneticsController
         exit;
     }
 
+    /**
+     * Export dle dashboardu: jeden radek na psa, sloupec na kazdy gen plemene.
+     * UTF-8 s BOM, oddelovac ";". Format: dog;breed;gen1;...;tested_at;status;source.
+     */
     public function export(): never
     {
         $repo = new GenotypeRepository();
         $breedId = BreedContext::current();
-        $filters = [
-            'marker_id' => (int) input('marker_id') ?: null,
-            'genotype' => (string) input('genotype'),
-            'q' => (string) input('q'),
-        ];
-        $rows = $repo->exportRows($filters, $breedId, GenotypeRepository::orderBy((string) input('sort'), (string) input('dir')));
+
+        $genes = $repo->genesForBreed($breedId);
+        $dogs = $repo->dogsWithGenotypes($breedId);
+        $dogIds = array_map(static fn (array $d): int => (int) $d['id'], $dogs);
+        $genos = $repo->genotypesByDogGene($dogIds);
+        $meta = $repo->dashboardMetaByDog($breedId);
 
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename="genotypy_export_' . date('Ymd_His') . '.csv"');
         echo "\xEF\xBB\xBF";
         $out = fopen('php://output', 'w');
-        fputcsv($out, ['dog', 'breed', 'gene', 'marker', 'genotype', 'tested_at', 'lab', 'status']);
-        foreach ($rows as $r) {
-            fputcsv($out, [
-                $r['dog_name'], $r['breed_name'] ?? '', $r['gene_symbol'], $r['marker_code'],
-                $r['genotype'], $r['tested_at'] ?? '', $r['lab_name'] ?? '', $r['validation_status'],
-            ]);
+
+        $header = ['dog', 'breed'];
+        foreach ($genes as $g) {
+            $header[] = $g['symbol'];
+        }
+        $header[] = 'tested_at';
+        $header[] = 'status';
+        $header[] = 'source';
+        fputcsv($out, $header, ';');
+
+        foreach ($dogs as $d) {
+            $dogId = (int) $d['id'];
+            $row = [$d['name'], $d['breed_name'] ?? ''];
+            foreach ($genes as $g) {
+                $row[] = $genos[$dogId][(int) $g['id']] ?? '';
+            }
+            $m = $meta[$dogId] ?? [];
+            $row[] = $m['tested_at'] ?? '';
+            $row[] = $m['statuses'] ?? '';
+            $row[] = \App\Support\GenotypeSource::labelList($m['sources'] ?? null);
+            fputcsv($out, $row, ';');
         }
         fclose($out);
         exit;
@@ -175,6 +197,7 @@ final class GeneticsController
         // Vsechny geny naraz: g[<marker_id>] = genotyp (prazdne se preskoci).
         $values = (array) ($_POST['g'] ?? []);
         $breedId = $dog['breed_id'] !== null ? (int) $dog['breed_id'] : null;
+        $source = \App\Support\GenotypeSource::normalize((string) input('source')) ?? \App\Support\GenotypeSource::DEFAULT;
         $genotypes = new GenotypeRepository();
         $saved = 0;
         $invalid = [];
@@ -189,7 +212,7 @@ final class GeneticsController
                 $invalid[] = $value;
                 continue;
             }
-            $genotypes->upsertGenotype($dogId, $breedId, $markerId, $split['allele_1'], $split['allele_2'], $split['genotype'], null, 'manual');
+            $genotypes->upsertGenotype($dogId, $breedId, $markerId, $split['allele_1'], $split['allele_2'], $split['genotype'], null, 'manual', null, $source);
             $saved++;
         }
 
@@ -228,7 +251,12 @@ final class GeneticsController
             Session::flash('genetics_error', 'Zadejte symbol genu.');
             redirect('/admin/genetics/markers');
         }
-        (new GeneRepository())->createGene($symbol, trim((string) input('name')) ?: null, trim((string) input('description')) ?: null);
+        (new GeneRepository())->createGene(
+            $symbol,
+            trim((string) input('name')) ?: null,
+            trim((string) input('description')) ?: null,
+            trim((string) input('note')) ?: null
+        );
         Session::flash('genetics_notice', 'Gen přidán.');
         redirect('/admin/genetics/markers');
     }

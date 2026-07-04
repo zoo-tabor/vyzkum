@@ -117,7 +117,9 @@ final class GeneticsImportService
                         $split['allele_2'],
                         $split['genotype'],
                         $testId,
-                        'imported'
+                        'imported',
+                        null,
+                        \App\Support\GenotypeSource::DEFAULT
                     );
                     $genos++;
                 }

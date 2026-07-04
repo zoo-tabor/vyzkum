@@ -778,6 +778,17 @@ UPDATE samples s
   WHERE (d.dna_isolated_at IS NOT NULL OR d.gwas_status IS NOT NULL)
     AND s.dna_isolated_at IS NULL AND s.gwas_status IS NULL;
 
+-- Zdroj genotypu (sekvenace/GWAS) + poznamky ke genotypu a k definici genu.
+ALTER TABLE dog_genotypes
+  ADD COLUMN IF NOT EXISTS source VARCHAR(40) NULL AFTER validation_status,
+  ADD COLUMN IF NOT EXISTS note VARCHAR(255) NULL AFTER source;
+
+ALTER TABLE genes
+  ADD COLUMN IF NOT EXISTS note VARCHAR(255) NULL AFTER description;
+
+-- Stavajici genotypy pochazeji z PCR sekvenace (idempotentni).
+UPDATE dog_genotypes SET source = 'sekvenace' WHERE source IS NULL;
+
 -- Oznaceni migraci jako provedenych (bez chyby, kdyz uz tam jsou).
 INSERT IGNORE INTO schema_migrations (version)
 VALUES ('001_core.sql'), ('002_dogs_owners.sql'), ('003_invites_mail.sql'),
@@ -786,4 +797,5 @@ VALUES ('001_core.sql'), ('002_dogs_owners.sql'), ('003_invites_mail.sql'),
        ('010_health_events.sql'), ('011_dogs_extra_colours.sql'),
        ('012_form_assignments.sql'), ('013_owner_onboarding.sql'),
        ('014_genotype_gene.sql'), ('015_message_reads.sql'),
-       ('016_death_causes.sql'), ('017_sample_dna_gwas.sql');
+       ('016_death_causes.sql'), ('017_sample_dna_gwas.sql'),
+       ('018_genotype_source_note.sql');

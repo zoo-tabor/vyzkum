@@ -18,13 +18,14 @@
         <?= \App\Core\Csrf::field() ?>
         <div><label for="symbol">Symbol *</label><input type="text" id="symbol" name="symbol" placeholder="napr. B3GALNT1" required></div>
         <div><label for="name">Název</label><input type="text" id="name" name="name"></div>
+        <div><label for="note">Poznámka</label><input type="text" id="note" name="note"></div>
         <div class="form-row__action"><button type="submit" class="btn btn--primary">Přidat gen</button></div>
     </form>
     <table class="table">
-        <thead><tr><th>Symbol</th><th>Název</th><th>Markerů</th></tr></thead>
+        <thead><tr><th>Symbol</th><th>Název</th><th>Poznámka</th><th>Markerů</th></tr></thead>
         <tbody>
         <?php foreach ($genes as $g): ?>
-            <tr><td><code><?= e($g['symbol']) ?></code></td><td><?= e($g['name'] ?? '') ?></td><td><?= (int) $g['marker_count'] ?></td></tr>
+            <tr><td><code><?= e($g['symbol']) ?></code></td><td><?= e($g['name'] ?? '') ?></td><td><?= e($g['note'] ?? '') ?></td><td><?= (int) $g['marker_count'] ?></td></tr>
         <?php endforeach; ?>
         </tbody>
     </table>
