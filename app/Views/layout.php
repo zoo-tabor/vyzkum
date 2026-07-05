@@ -55,6 +55,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
 <body>
 <?php if ($user !== null && $isOwner): ?>
     <header class="topbar">
+        <button type="button" class="nav-toggle" aria-label="Menu" aria-controls="sidebar" aria-expanded="false">&#9776;</button>
         <div class="topbar__brand"><a href="/portal"><img class="topbar__logo" src="/favicon/favicon.svg" width="28" height="28" alt=""> Výzkum <span>ZOO Tábor</span></a></div>
         <div class="topbar__user">
             <span class="topbar__email"><?= e($user['email']) ?></span>
@@ -71,7 +72,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
     };
     ?>
     <div class="shell">
-        <nav class="sidebar">
+        <nav class="sidebar" id="sidebar">
             <ul>
                 <li><a href="/portal" class="<?= $portalActive('/portal') ?>">Moji psi</a></li>
                 <li><a href="/portal/forms" class="<?= $portalActive('/portal/forms') ?>">Dotazníky</a></li>
@@ -84,6 +85,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
     </div>
 <?php elseif ($user !== null && $isClub): ?>
     <header class="topbar">
+        <button type="button" class="nav-toggle" aria-label="Menu" aria-controls="sidebar" aria-expanded="false">&#9776;</button>
         <div class="topbar__brand"><a href="/club"><img class="topbar__logo" src="/favicon/favicon.svg" width="28" height="28" alt=""> Výzkum <span>ZOO Tábor</span></a></div>
         <div class="topbar__user">
             <span class="topbar__email"><?= e($user['email']) ?></span>
@@ -95,7 +97,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
         </div>
     </header>
     <div class="shell">
-        <nav class="sidebar">
+        <nav class="sidebar" id="sidebar">
             <ul>
                 <li><a href="/club" class="<?= $currentPath === '/club' ? 'active' : '' ?>">Přehled</a></li>
                 <li><a href="/club/dogs" class="<?= $currentPath === '/club/dogs' ? 'active' : '' ?>">Psi</a></li>
@@ -105,6 +107,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
     </div>
 <?php elseif ($user !== null): ?>
     <header class="topbar">
+        <button type="button" class="nav-toggle" aria-label="Menu" aria-controls="sidebar" aria-expanded="false">&#9776;</button>
         <div class="topbar__brand">
             <a href="/admin"><img class="topbar__logo" src="/favicon/favicon.svg" width="28" height="28" alt=""> Výzkum <span>ZOO Tábor</span></a>
         </div>
@@ -134,7 +137,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
     </header>
 
     <div class="shell">
-        <nav class="sidebar">
+        <nav class="sidebar" id="sidebar">
             <ul>
                 <?php foreach ($nav as [$href, $label, $enabled]): ?>
                     <?php
@@ -170,6 +173,31 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
     <main class="auth">
         <?= $content ?>
     </main>
+<?php endif; ?>
+
+<?php if ($user !== null): ?>
+<div class="nav-overlay"></div>
+<script>
+(function () {
+    var toggle = document.querySelector('.nav-toggle');
+    var overlay = document.querySelector('.nav-overlay');
+    if (!toggle) { return; }
+    function setOpen(open) {
+        document.body.classList.toggle('nav-open', open);
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    toggle.addEventListener('click', function () {
+        setOpen(!document.body.classList.contains('nav-open'));
+    });
+    if (overlay) { overlay.addEventListener('click', function () { setOpen(false); }); }
+    document.querySelectorAll('.sidebar a').forEach(function (a) {
+        a.addEventListener('click', function () { setOpen(false); });
+    });
+    window.addEventListener('resize', function () {
+        if (window.innerWidth > 860) { setOpen(false); }
+    });
+})();
+</script>
 <?php endif; ?>
 </body>
 </html>
