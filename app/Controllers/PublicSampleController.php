@@ -52,16 +52,16 @@ final class PublicSampleController
         ];
         $errors = [];
         if ($data['chip_number_vet'] === '') {
-            $errors[] = 'Vyplnte cislo cipu.';
+            $errors[] = t('Vyplňte číslo čipu.');
         }
         if ($data['sample_type'] === '') {
-            $errors[] = 'Vyberte typ vzorku.';
+            $errors[] = t('Vyberte typ vzorku.');
         }
         if ($data['material_count'] === '') {
-            $errors[] = 'Vyberte pocet zkumavek.';
+            $errors[] = t('Vyberte počet zkumavek.');
         }
         if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $data['collection_date'])) {
-            $errors[] = 'Vyplnte datum odberu.';
+            $errors[] = t('Vyplňte datum odběru.');
         }
 
         if ($errors !== []) {
@@ -133,7 +133,7 @@ final class PublicSampleController
         $errors = $this->validateDog($data, $breedId);
         $file = $_FILES['pedigree'] ?? null;
         if (!is_array($file) || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-            $errors[] = 'Nahrajte sken/foto prukazu puvodu (rodokmen).';
+            $errors[] = t('Nahrajte sken/foto průkazu původu (rodokmen).');
         }
 
         if ($errors !== []) {
@@ -153,7 +153,7 @@ final class PublicSampleController
                 'title' => 'Registrace psa',
                 'sample' => array_merge($sample, $data),
                 'breeds' => empty($sample['breed_id']) ? $breeds->all() : [],
-                'errors' => ['Registraci se nepodarilo ulozit: ' . $e->getMessage()],
+                'errors' => [t('Registraci se nepodařilo uložit: ') . $e->getMessage()],
                 '_layout' => 'public',
             ]);
         }
@@ -170,28 +170,28 @@ final class PublicSampleController
     {
         $errors = [];
         if ($breedId <= 0) {
-            $errors[] = 'Vyberte plemeno.';
+            $errors[] = t('Vyberte plemeno.');
         }
         if ($data['chip_number'] === '') {
-            $errors[] = 'Vyplnte cislo cipu.';
+            $errors[] = t('Vyplňte číslo čipu.');
         }
         if ($data['dog_name'] === '') {
-            $errors[] = 'Vyplnte jmeno psa.';
+            $errors[] = t('Vyplňte jméno psa.');
         }
         if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $data['birth_date'])) {
-            $errors[] = 'Vyplnte datum narozeni.';
+            $errors[] = t('Vyplňte datum narození.');
         }
         if ($data['pedigree_number'] === '') {
-            $errors[] = 'Vyplnte cislo prukazu / zapisu.';
+            $errors[] = t('Vyplňte číslo průkazu / zápisu.');
         }
         if ($data['owner_name'] === '') {
-            $errors[] = 'Vyplnte jmeno majitele.';
+            $errors[] = t('Vyplňte jméno majitele.');
         }
         if (!filter_var($data['owner_email'], FILTER_VALIDATE_EMAIL)) {
-            $errors[] = 'Vyplnte platny e-mail majitele.';
+            $errors[] = t('Vyplňte platný e-mail majitele.');
         }
         if (empty(input('main_consent'))) {
-            $errors[] = 'Bez souhlasu nelze psa do studie zaradit.';
+            $errors[] = t('Bez souhlasu nelze psa do studie zařadit.');
         }
         return $errors;
     }
