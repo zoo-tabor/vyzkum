@@ -48,9 +48,9 @@ final class SetPasswordController
         $confirm = (string) input('password_confirm');
         $pwError = null;
         if (strlen($password) < 10) {
-            $pwError = 'Heslo musí mít alespoň 10 znaků.';
+            $pwError = t('Heslo musí mít alespoň 10 znaků.');
         } elseif ($password !== $confirm) {
-            $pwError = 'Hesla se neshodují.';
+            $pwError = t('Hesla se neshodují.');
         }
 
         // Majitel bez dokonceneho onboardingu: nejdriv projde udaje/psy/souhlas, heslo az na konci.
@@ -61,7 +61,7 @@ final class SetPasswordController
                 return view('auth/onboarding', array_merge($data, [
                     'title' => 'Dokončení registrace',
                     'token' => $token,
-                    'error' => $pwError ?? 'Bez souhlasu se zpracováním údajů nelze registraci dokončit.',
+                    'error' => $pwError ?? t('Bez souhlasu se zpracováním údajů nelze registraci dokončit.'),
                     'old' => $_POST,
                     '_layout' => 'public',
                 ]));

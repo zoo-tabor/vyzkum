@@ -3,12 +3,18 @@
 /** @var bool $inviteSent */
 ?>
 <div class="card">
-    <h1>Hotovo</h1>
-    <div class="alert alert--ok">Převzetí psa <strong><?= e($request['dog_name'] ?? '') ?></strong> bylo potvrzeno a vlastnictví převedeno.</div>
+    <h1><?= t('Hotovo') ?></h1>
+    <div class="alert alert--ok"><?= t('Převzetí psa {dog} bylo potvrzeno a vlastnictví převedeno.', [
+        'dog' => '<strong>' . e($request['dog_name'] ?? '') . '</strong>',
+    ]) ?></div>
     <?php if (!empty($inviteSent)): ?>
-        <p>Na váš e-mail jsme poslali odkaz pro <strong>nastavení hesla</strong>. Po přihlášení uvidíte svého psa v portálu.</p>
+        <p><?= t('Na váš e-mail jsme poslali odkaz pro {action}. Po přihlášení uvidíte svého psa v portálu.', [
+            'action' => '<strong>' . t('nastavení hesla') . '</strong>',
+        ]) ?></p>
     <?php else: ?>
-        <p>Ke svému psovi se dostanete po přihlášení do portálu <strong>svým stávajícím heslem</strong>.</p>
+        <p><?= t('Ke svému psovi se dostanete po přihlášení do portálu {password}.', [
+            'password' => '<strong>' . t('svým stávajícím heslem') . '</strong>',
+        ]) ?></p>
     <?php endif; ?>
-    <p class="muted">Tuto stránku můžete zavřít.</p>
+    <p class="muted"><?= t('Tuto stránku můžete zavřít.') ?></p>
 </div>
