@@ -71,22 +71,27 @@ tabulka `translations` (z faze 6b) + admin UI. Odpada generator i dev krok pri p
 - [x] Lint (26) + testy (74/0) + smoke + commit + push. Vyzaduje translations tabulku
       (ensure_schema.sql z faze 6b). Preklady se zadavaji v adminu, ZATIM prazdne -> fallback cs.
 
-## Faze 9 - titulky stranek (`<title>`)
+## Faze 9 - titulky stranek (`<title>`)  [HOTOVO - commit ed789ff]
 Drobne, bez migrace.
 
-- [ ] `layout.php` + `public.php`: sestaveni `$pageTitle` obalit `t()` - `t($title)` (vetsina
-      titulku uz existuje jako klic z nadpisu stranek) + prelozitelny suffix.
-- [ ] Novy klic pro suffix "Vyzkum ZOO Tabor" (plain, bez span - jiny nez znacka v topbaru).
-- [ ] Dynamicke titulky (jmeno psa/majitele) projdou fallbackem beze zmeny.
-- [ ] Extrakt klicu + lint + commit + push.
+- [x] `layout.php` + `public.php`: `$pageTitle = t($title) . ' - ' . t('Vyzkum ZOO Tabor')`.
+      `<html lang>` nastaven dle aktualniho jazyka (I18n::locale()).
+- [x] Novy klic "Vyzkum ZOO Tabor" (plain suffix, jiny nez znacka se span v topbaru).
+- [x] bin/i18n_extract.php nove sbira i `'title' => '...'` literaly jako klice -> vsechny
+      titulky prekladatelne bez rucnich napoved (vetsina uz existovala z nadpisu).
+- [x] Dynamicke titulky (jmeno psa/majitele = promenna) projdou fallbackem beze zmeny.
+- [x] Extrakt (788 klicu) + lint + testy + commit + push + overeno na zivu (<title>, <html lang>).
 
-## Faze 10 - klubova sekce
-Drobne, bez migrace. Doobalit zbyle neobalene retezce.
+## Faze 10 - klubova sekce  [HOTOVO - commit ed789ff]
+Drobne, bez migrace.
 
-- [ ] `layout.php` klubovy topbar/sidebar: "Prehled", "Psi", role "klub" -> `t()`.
-- [ ] Klubove views (`club/*` - index, dogs) projit a obalit texty do `t()`/`tc()`.
-- [ ] Klubove flash/validace v prislusnem controlleru (pokud jsou).
-- [ ] Extrakt klicu + lint + commit + push.
+- [x] `layout.php` klubovy topbar/nav: "Prehled", "Psi", role "klub" -> `t()`.
+- [x] Klubove views cele obaleny: `club/dashboard.php` + `club/dogs.php` (nadpisy, tabulky,
+      stavy, pager); nazvy plemen v klubovych selectech pres `Breeds::translate`.
+- [x] ClubController = jen titulky (bez flash) -> reseno extraktorem title literalu.
+- [x] Extrakt + lint + testy (74/0) + commit + push.
+      POZN: agregat pricin umrti v club dashboard zustava cesky (grupovano dle denorm. textu,
+      bez id - mimo rozsah).
 
 ## Faze 11 - vicejazycne e-maily (sablony) [VLASTNI NAVRH PRED IMPLEMENTACI]
 Nejvetsi kus. Prechod z natvrdo generovanych PHP tel na EDITOVATELNE sablony s preklady per
