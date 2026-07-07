@@ -33,7 +33,7 @@ $optionsText = implode("\n", array_map(static fn ($o) => $o['option_key'] . '|' 
                 <label for="type"><?= t('Typ') ?> *</label>
                 <select id="type" name="type" required>
                     <?php foreach (FormSchema::TYPES as $k => $lbl): ?>
-                        <option value="<?= $k ?>"<?= $question['type'] === $k ? ' selected' : '' ?>><?= e($lbl) ?></option>
+                        <option value="<?= $k ?>"<?= $question['type'] === $k ? ' selected' : '' ?>><?= e(FormSchema::typeLabel($k)) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -71,7 +71,7 @@ $optionsText = implode("\n", array_map(static fn ($o) => $o['option_key'] . '|' 
                 <select id="health_event_type" name="health_event_type">
                     <option value=""><?= t('- ne -') ?></option>
                     <?php foreach (\App\Repositories\HealthEventRepository::TYPES as $t): ?>
-                        <option value="<?= e($t) ?>"<?= $healthEvent === $t ? ' selected' : '' ?>><?= e($t) ?></option>
+                        <option value="<?= e($t) ?>"<?= $healthEvent === $t ? ' selected' : '' ?>><?= e(\App\Support\HealthEventType::label($t)) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>

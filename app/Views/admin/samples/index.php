@@ -45,7 +45,7 @@
                     <td data-sort="<?= e(substr((string) ($s['collection_date'] ?? ''), 0, 10)) ?>"><?= e(\App\Support\Dates::toCz($s['collection_date'] ?? null)) ?></td>
                     <td data-sort="<?= e(substr((string) ($s['dna_isolated_at'] ?? ''), 0, 10)) ?>"><?= e(\App\Support\Dates::toCz($s['dna_isolated_at'] ?? null)) ?: '-' ?></td>
                     <td><?= e(\App\Support\Gwas::label($s['gwas_status'] ?? null)) ?></td>
-                    <td><?= e($s['status']) ?></td>
+                    <td><?= e(\App\Support\SampleStatus::label($s['status'])) ?></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>

@@ -21,7 +21,7 @@ $row = static function (string $label, mixed $value): void {
     <h2><?= t('Údaje vzorku') ?></h2>
     <table class="table">
         <?php
-        $row(t('Stav'), $sample['status']);
+        $row(t('Stav'), \App\Support\SampleStatus::label($sample['status']));
         $row(t('Plemeno'), $sample['breed_name']);
         $row(t('Veterinář'), trim((string) ($sample['vet_name'] ?? '') . (($sample['clinic_name'] ?? '') ? ' / ' . $sample['clinic_name'] : '')));
         $row(t('Číslo čipu (vet)'), $sample['chip_number_vet']);
@@ -48,7 +48,7 @@ $row = static function (string $label, mixed $value): void {
         <?= \App\Core\Csrf::field() ?>
         <select name="status">
             <?php foreach ($statuses as $s): ?>
-                <option value="<?= e($s) ?>"<?= $sample['status'] === $s ? ' selected' : '' ?>><?= e($s) ?></option>
+                <option value="<?= e($s) ?>"<?= $sample['status'] === $s ? ' selected' : '' ?>><?= e(\App\Support\SampleStatus::label($s)) ?></option>
             <?php endforeach; ?>
         </select>
         <button type="submit" class="btn btn--primary"><?= t('Uložit stav') ?></button>

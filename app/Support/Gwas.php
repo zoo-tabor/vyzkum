@@ -16,20 +16,27 @@ final class Gwas
         'GWAS_none' => 'Ne',
     ];
 
-    /** Popisek stavu; prazdna/neznama hodnota => "-". */
+    /** Popisek stavu v jazyce diveka (fallback cs); prazdna/neznama hodnota => "-". */
     public static function label(?string $status): string
     {
         $s = trim((string) $status);
-        return self::LABELS[$s] ?? '-';
+        if (!isset(self::LABELS[$s])) {
+            return '-';
+        }
+        return I18n::td('gwas', $s, self::LABELS[$s]);
     }
 
     /**
-     * Nabidka pro <select>: prazdna volba + vsechny stavy.
+     * Nabidka pro <select>: prazdna volba + vsechny stavy (stitky dle jazyka diveka).
      *
      * @return array<string, string>
      */
     public static function options(): array
     {
-        return ['' => '- neuvedeno -'] + self::LABELS;
+        $out = ['' => I18n::t('- neuvedeno -')];
+        foreach (self::LABELS as $k => $cs) {
+            $out[$k] = I18n::td('gwas', $k, $cs);
+        }
+        return $out;
     }
 }

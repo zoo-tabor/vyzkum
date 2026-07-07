@@ -89,7 +89,7 @@ $defId = (int) $def['id'];
                 <tr>
                     <td><?= $i + 1 ?></td>
                     <td><?= e($q['label']) ?><br><span class="muted"><code><?= e($q['question_key']) ?></code></span></td>
-                    <td><?= e(FormSchema::TYPES[$q['type']] ?? $q['type']) ?></td>
+                    <td><?= e(FormSchema::typeLabel($q['type'])) ?></td>
                     <td><?= ((int) $q['is_required']) === 1 ? t('ano') : t('ne') ?></td>
                     <td>
                         <?php if ($qOptions !== []): ?>
@@ -135,7 +135,7 @@ $defId = (int) $def['id'];
                     <label for="type"><?= t('Typ') ?> *</label>
                     <select id="type" name="type" required>
                         <?php foreach (FormSchema::TYPES as $k => $lbl): ?>
-                            <option value="<?= $k ?>"><?= e($lbl) ?></option>
+                            <option value="<?= $k ?>"><?= e(FormSchema::typeLabel($k)) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -171,7 +171,7 @@ $defId = (int) $def['id'];
                     <select id="health_event_type" name="health_event_type">
                         <option value=""><?= t('- ne -') ?></option>
                         <?php foreach (\App\Repositories\HealthEventRepository::TYPES as $t): ?>
-                            <option value="<?= e($t) ?>"><?= e($t) ?></option>
+                            <option value="<?= e($t) ?>"><?= e(\App\Support\HealthEventType::label($t)) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>

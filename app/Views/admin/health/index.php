@@ -14,7 +14,7 @@
         <h2><?= t('Četnost typů událostí') ?></h2>
         <?php if ($byType === []): ?><p class="muted"><?= t('Žádné zdravotní události.') ?></p><?php else: ?>
             <table class="table"><thead><tr><th><?= t('Typ') ?></th><th><?= t('Počet') ?></th></tr></thead><tbody>
-                <?php foreach ($byType as $r): ?><tr><td><?= e($r['event_type']) ?></td><td><?= (int) $r['c'] ?></td></tr><?php endforeach; ?>
+                <?php foreach ($byType as $r): ?><tr><td><?= e(\App\Support\HealthEventType::label($r['event_type'])) ?></td><td><?= (int) $r['c'] ?></td></tr><?php endforeach; ?>
             </tbody></table>
         <?php endif; ?>
     </div>
@@ -47,7 +47,7 @@
                 <?php foreach ($recent as $h): ?>
                     <tr>
                         <td><a href="/admin/dogs/<?= (int) $h['dog_id'] ?>"><?= e($h['dog_name']) ?></a></td>
-                        <td><?= e($h['event_type']) ?></td>
+                        <td><?= e(\App\Support\HealthEventType::label($h['event_type'])) ?></td>
                         <td><?= e($h['normalized_code'] ?? '') ?></td>
                         <td><?= e(\App\Support\Dates::toCz($h['event_date'] ?? null)) ?></td>
                         <td><?= e($h['source_type']) ?></td>

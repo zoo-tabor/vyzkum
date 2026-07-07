@@ -22,6 +22,12 @@ final class FormSchema
         return isset(self::TYPES[$type]);
     }
 
+    /** Stitek typu otazky v jazyce diveka (fallback = cesky zdroj z TYPES). */
+    public static function typeLabel(string $type): string
+    {
+        return I18n::td('form_types', $type, self::TYPES[$type] ?? $type);
+    }
+
     public static function needsOptions(string $type): bool
     {
         return in_array($type, ['single_choice', 'multiple_choice'], true);

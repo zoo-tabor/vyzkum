@@ -62,7 +62,7 @@
                 <thead><tr><th>Typ události</th><th>Počet</th></tr></thead>
                 <tbody>
                 <?php foreach ($healthFreq as $h): ?>
-                    <tr><td><?= e($h['event_type']) ?></td><td><?= (int) $h['c'] ?></td></tr>
+                    <tr><td><?= e(\App\Support\HealthEventType::label($h['event_type'])) ?></td><td><?= (int) $h['c'] ?></td></tr>
                 <?php endforeach; ?>
                 </tbody>
             </table>

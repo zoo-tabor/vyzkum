@@ -103,7 +103,7 @@ $age = \App\Support\Age::years($dog['birth_date'] ?? null, $ageRef);
             <tbody>
             <?php foreach ($healthEvents as $h): ?>
                 <tr>
-                    <td><?= e($h['event_type']) ?></td>
+                    <td><?= e(\App\Support\HealthEventType::label($h['event_type'])) ?></td>
                     <td><?= e($h['normalized_code'] ?? '') ?></td>
                     <td><?= e(\App\Support\Dates::toCz($h['event_date'] ?? null)) ?></td>
                     <td><?= e($h['source_type']) ?></td>
