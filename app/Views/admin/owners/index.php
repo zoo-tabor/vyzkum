@@ -21,6 +21,7 @@
                 <th>Tel. číslo</th>
                 <th data-type="num">Psi</th>
                 <th>Registrován</th>
+                <th>Jazyk</th>
                 <th>Aktualizace</th>
                 <th data-nofilter>Poznámka</th>
             </tr>
@@ -40,6 +41,7 @@
                     <td><?= e(\App\Support\Phone::formatCz($o['primary_phone'] ?? null)) ?: '-' ?></td>
                     <td data-sort="<?= (int) $o['dog_count'] ?>"><?= (int) $o['dog_count'] ?></td>
                     <td><?= ((int) ($o['registered'] ?? 0)) === 1 ? 'Ano' : 'Ne' ?></td>
+                    <td><?= !empty($o['language']) ? e(\App\Support\I18n::name((string) $o['language'])) : '-' ?></td>
                     <td data-sort="<?= e($lastSort) ?>"><?= e($lastActShow) ?></td>
                     <td><?= $note !== '' ? e(mb_strimwidth($note, 0, 40, '…')) : '-' ?></td>
                 </tr>

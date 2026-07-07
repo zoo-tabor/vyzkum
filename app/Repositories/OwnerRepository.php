@@ -135,7 +135,7 @@ final class OwnerRepository
         $offset = max(0, $offset);
 
         $stmt = $this->pdo()->prepare(
-            "SELECT o.id, o.display_name, o.preferred_contact_method, o.note,
+            "SELECT o.id, o.display_name, o.preferred_contact_method, o.note, o.language,
                     (SELECT email FROM owner_emails e WHERE e.owner_id = o.id AND e.is_primary = 1 LIMIT 1) AS primary_email,
                     (SELECT phone FROM owner_phones p WHERE p.owner_id = o.id ORDER BY p.is_primary DESC, p.id ASC LIMIT 1) AS primary_phone,
                     (SELECT COUNT(*) FROM dog_owners do2 WHERE do2.owner_id = o.id AND do2.is_current = 1) AS dog_count,
