@@ -9,41 +9,41 @@ $row = static function (string $label, mixed $value): void {
 ?>
 <div class="page-head" style="display:flex; justify-content:space-between; align-items:center;">
     <div>
-        <h1>Vzorek <code><?= e($sample['sample_id']) ?></code></h1>
-        <p><a href="/admin/samples">&larr; Zpět na vzorky</a></p>
+        <h1><?= t('Vzorek') ?> <code><?= e($sample['sample_id']) ?></code></h1>
+        <p><a href="/admin/samples">&larr; <?= t('Zpět na vzorky') ?></a></p>
     </div>
-    <a class="btn" href="/admin/samples/<?= e(rawurlencode($sample['sample_id'])) ?>/edit">Upravit</a>
+    <a class="btn" href="/admin/samples/<?= e(rawurlencode($sample['sample_id'])) ?>/edit"><?= t('Upravit') ?></a>
 </div>
 
 <?php if (!empty($notice)): ?><div class="alert alert--ok"><?= e($notice) ?></div><?php endif; ?>
 
 <div class="card">
-    <h2>Údaje vzorku</h2>
+    <h2><?= t('Údaje vzorku') ?></h2>
     <table class="table">
         <?php
-        $row('Stav', $sample['status']);
-        $row('Plemeno', $sample['breed_name']);
-        $row('Veterinář', trim((string) ($sample['vet_name'] ?? '') . (($sample['clinic_name'] ?? '') ? ' / ' . $sample['clinic_name'] : '')));
-        $row('Číslo čipu (vet)', $sample['chip_number_vet']);
-        $row('Typ vzorku', $sample['sample_type']);
-        $row('Počet zkumavek', $sample['material_count']);
-        $row('Datum odběru', \App\Support\Dates::toCz($sample['collection_date'] ?? null));
-        $row('Vet odesláno', $sample['vet_submitted_at']);
-        $row('Majitel odesláno', $sample['owner_submitted_at']);
-        $row('Datum izolace DNA', \App\Support\Dates::toCz($sample['dna_isolated_at'] ?? null));
-        $row('GWAS', \App\Support\Gwas::label($sample['gwas_status'] ?? null));
-        $row('Poznámka', $sample['note']);
+        $row(t('Stav'), $sample['status']);
+        $row(t('Plemeno'), $sample['breed_name']);
+        $row(t('Veterinář'), trim((string) ($sample['vet_name'] ?? '') . (($sample['clinic_name'] ?? '') ? ' / ' . $sample['clinic_name'] : '')));
+        $row(t('Číslo čipu (vet)'), $sample['chip_number_vet']);
+        $row(t('Typ vzorku'), $sample['sample_type']);
+        $row(t('Počet zkumavek'), $sample['material_count']);
+        $row(t('Datum odběru'), \App\Support\Dates::toCz($sample['collection_date'] ?? null));
+        $row(t('Vet odesláno'), $sample['vet_submitted_at']);
+        $row(t('Majitel odesláno'), $sample['owner_submitted_at']);
+        $row(t('Datum izolace DNA'), \App\Support\Dates::toCz($sample['dna_isolated_at'] ?? null));
+        $row(t('GWAS'), \App\Support\Gwas::label($sample['gwas_status'] ?? null));
+        $row(t('Poznámka'), $sample['note']);
         ?>
-        <tr><th>Pes</th><td>
+        <tr><th><?= t('Pes') ?></th><td>
             <?php if (!empty($sample['dog_id'])): ?>
                 <a href="/admin/dogs/<?= (int) $sample['dog_id'] ?>"><?= e($sample['dog_name']) ?></a>
-            <?php else: ?><span class="muted">ještě neregistrován majitelem</span><?php endif; ?>
+            <?php else: ?><span class="muted"><?= t('ještě neregistrován majitelem') ?></span><?php endif; ?>
         </td></tr>
     </table>
 </div>
 
 <div class="card">
-    <h2>Změna stavu</h2>
+    <h2><?= t('Změna stavu') ?></h2>
     <form method="post" action="/admin/samples/<?= e(rawurlencode($sample['sample_id'])) ?>/status">
         <?= \App\Core\Csrf::field() ?>
         <select name="status">
@@ -51,6 +51,6 @@ $row = static function (string $label, mixed $value): void {
                 <option value="<?= e($s) ?>"<?= $sample['status'] === $s ? ' selected' : '' ?>><?= e($s) ?></option>
             <?php endforeach; ?>
         </select>
-        <button type="submit" class="btn btn--primary">Uložit stav</button>
+        <button type="submit" class="btn btn--primary"><?= t('Uložit stav') ?></button>
     </form>
 </div>

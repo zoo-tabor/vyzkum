@@ -9,33 +9,33 @@
 /** @var string|null $error */
 ?>
 <div class="page-head" style="display:flex; justify-content:space-between; align-items:center;">
-    <h1>Genetika</h1>
+    <h1><?= t('Genetika') ?></h1>
     <span>
-        <a class="btn" href="/admin/genetics/markers">Geny a markery</a>
-        <a class="btn" href="/admin/genetics/import">Import CSV</a>
-        <a class="btn" href="/admin/genetics/export.csv">Export CSV</a>
+        <a class="btn" href="/admin/genetics/markers"><?= t('Geny a markery') ?></a>
+        <a class="btn" href="/admin/genetics/import"><?= t('Import CSV') ?></a>
+        <a class="btn" href="/admin/genetics/export.csv"><?= t('Export CSV') ?></a>
     </span>
 </div>
 
 <?php if (!empty($notice)): ?><div class="alert alert--ok"><?= e($notice) ?></div><?php endif; ?>
 <?php if (!empty($error)): ?><div class="alert alert--error"><?= e($error) ?></div><?php endif; ?>
-<p class="muted">Genetické výsledky vidí jen výzkumný tým a kluby, nikdy majitelé.
-    <?php if ($currentBreedId === null): ?>Zobrazuji všechna plemena – pro přehlednější sloupce genů vyberte konkrétní plemeno nahoře.<?php endif; ?>
+<p class="muted"><?= t('Genetické výsledky vidí jen výzkumný tým a kluby, nikdy majitelé.') ?>
+    <?php if ($currentBreedId === null): ?><?= t('Zobrazuji všechna plemena – pro přehlednější sloupce genů vyberte konkrétní plemeno nahoře.') ?><?php endif; ?>
 </p>
 
 <div class="card">
     <?php if ($dogs === []): ?>
-        <p class="muted">Zatím žádné genotypy.</p>
+        <p class="muted"><?= t('Zatím žádné genotypy.') ?></p>
     <?php else: ?>
         <table class="table table--dogs" data-datatable data-per-page="25" data-per-page-options="25,50,100,all">
             <thead>
             <tr>
-                <th>Pes</th>
-                <th>Plemeno</th>
+                <th><?= t('Pes') ?></th>
+                <th><?= t('Plemeno') ?></th>
                 <?php foreach ($genes as $g): ?>
                     <th><?= e($g['symbol']) ?></th>
                 <?php endforeach; ?>
-                <th>Zdroj</th>
+                <th><?= t('Zdroj') ?></th>
             </tr>
             </thead>
             <tbody>
@@ -52,26 +52,26 @@
             <?php endforeach; ?>
             </tbody>
         </table>
-        <p class="muted">Řazení: šipky ↑/↓ v záhlaví. Filtr sloupce (např. genotyp): ikona ⌕. Kliknutím na psa zobrazíte detail.</p>
+        <p class="muted"><?= t('Řazení: šipky ↑/↓ v záhlaví. Filtr sloupce (např. genotyp): ikona ⌕. Kliknutím na psa zobrazíte detail.') ?></p>
     <?php endif; ?>
 </div>
 
 <div class="card">
-    <h2>Ruční zadání genotypu</h2>
+    <h2><?= t('Ruční zadání genotypu') ?></h2>
     <?php if ($genePanel === []): ?>
-        <p class="muted">Nejdříve založte geny v sekci <a href="/admin/genetics/markers">Geny a markery</a>.</p>
+        <p class="muted"><?= t('Nejdříve založte geny v sekci {link}.', ['link' => '<a href="/admin/genetics/markers">' . t('Geny a markery') . '</a>']) ?></p>
     <?php else: ?>
         <form method="post" action="/admin/genetics/manual">
             <?= \App\Core\Csrf::field() ?>
-            <label for="geno-dog-search">Pes</label>
+            <label for="geno-dog-search"><?= t('Pes') ?></label>
             <div class="ac" id="geno-ac-wrap">
-                <input type="text" id="geno-dog-search" autocomplete="off" placeholder="Napište jméno psa a vyberte z nabídky">
+                <input type="text" id="geno-dog-search" autocomplete="off" placeholder="<?= e(t('Napište jméno psa a vyberte z nabídky')) ?>">
                 <input type="hidden" id="geno-dog-id" name="dog_id" value="">
                 <div class="ac-list" id="geno-ac" hidden></div>
             </div>
 
             <div style="margin-top:1rem; max-width:220px;">
-                <label for="geno-source">Zdroj</label>
+                <label for="geno-source"><?= t('Zdroj') ?></label>
                 <select id="geno-source" name="source">
                     <?php foreach (\App\Support\GenotypeSource::options() as $k => $lbl): ?>
                         <option value="<?= e($k) ?>"<?= $k === \App\Support\GenotypeSource::DEFAULT ? ' selected' : '' ?>><?= e($lbl) ?></option>
@@ -79,7 +79,7 @@
                 </select>
             </div>
 
-            <p class="muted" style="margin-top:1rem; margin-bottom:0.3rem;">Genotypy (vyplňte jen ty, které znáte; <code>X</code> = nevyšlá PCR sekvenace):</p>
+            <p class="muted" style="margin-top:1rem; margin-bottom:0.3rem;"><?= t('Genotypy (vyplňte jen ty, které znáte; {x} = nevyšlá PCR sekvenace):', ['x' => '<code>X</code>']) ?></p>
             <div class="form-row">
                 <?php foreach ($genePanel as $g): ?>
                     <div>
@@ -88,9 +88,9 @@
                     </div>
                 <?php endforeach; ?>
             </div>
-            <button type="submit" class="btn btn--primary">Uložit genotypy</button>
+            <button type="submit" class="btn btn--primary"><?= t('Uložit genotypy') ?></button>
         </form>
-        <p class="muted">Editaci celé genetiky psa najdete po kliknutí na psa v tabulce nahoře.</p>
+        <p class="muted"><?= t('Editaci celé genetiky psa najdete po kliknutí na psa v tabulce nahoře.') ?></p>
     <?php endif; ?>
 </div>
 

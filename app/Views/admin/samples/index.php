@@ -5,13 +5,13 @@
 /** @var string|null $error */
 ?>
 <div class="page-head" style="display:flex; justify-content:space-between; align-items:center;">
-    <h1>Vzorky</h1>
+    <h1><?= t('Vzorky') ?></h1>
     <span>
-        <a class="btn" href="/admin/batches">Dávky</a>
-        <a class="btn" href="/admin/vets">Veterináři</a>
-        <a class="btn" href="/admin/samples/export.csv">Export CSV</a>
-        <a class="btn" href="/admin/samples/manual">+ Ruční vzorek</a>
-        <a class="btn btn--primary" href="/admin/samples/new-batch">+ Nová dávka</a>
+        <a class="btn" href="/admin/batches"><?= t('Dávky') ?></a>
+        <a class="btn" href="/admin/vets"><?= t('Veterináři') ?></a>
+        <a class="btn" href="/admin/samples/export.csv"><?= t('Export CSV') ?></a>
+        <a class="btn" href="/admin/samples/manual">+ <?= t('Ruční vzorek') ?></a>
+        <a class="btn btn--primary" href="/admin/samples/new-batch">+ <?= t('Nová dávka') ?></a>
     </span>
 </div>
 
@@ -20,19 +20,19 @@
 
 <div class="card">
     <?php if ($samples === []): ?>
-        <p class="muted">Žádné vzorky.</p>
+        <p class="muted"><?= t('Žádné vzorky.') ?></p>
     <?php else: ?>
         <table class="table" data-datatable data-per-page="25" data-per-page-options="25,50,100,all">
             <thead>
             <tr>
                 <th>Sample ID</th>
-                <th>Plemeno</th>
-                <th>Pes</th>
-                <th>Veterinář</th>
-                <th>Odběr</th>
-                <th>DNA izol.</th>
+                <th><?= t('Plemeno') ?></th>
+                <th><?= t('Pes') ?></th>
+                <th><?= t('Veterinář') ?></th>
+                <th><?= t('Odběr') ?></th>
+                <th><?= t('DNA izol.') ?></th>
                 <th>GWAS</th>
-                <th>Stav</th>
+                <th><?= t('Stav') ?></th>
             </tr>
             </thead>
             <tbody>
@@ -50,7 +50,7 @@
             <?php endforeach; ?>
             </tbody>
         </table>
-        <p class="muted">Řazení: šipky ↑/↓ v záhlaví. Filtr sloupce (např. Stav): ikona ⌕. Nahoře vpravo hledání (i podle jména psa) a počet záznamů.</p>
+        <p class="muted"><?= t('Řazení: šipky ↑/↓ v záhlaví. Filtr sloupce (např. Stav): ikona ⌕. Nahoře vpravo hledání (i podle jména psa) a počet záznamů.') ?></p>
     <?php endif; ?>
 </div>
 

@@ -3,44 +3,44 @@
 /** @var int|null $currentBreedId */
 /** @var string|null $error */
 ?>
-<div class="page-head"><h1>Ruční vzorek</h1></div>
+<div class="page-head"><h1><?= t('Ruční vzorek') ?></h1></div>
 
 <?php if (!empty($error)): ?><div class="alert alert--error"><?= e($error) ?></div><?php endif; ?>
 
 <div class="card">
-    <p class="muted">Vzorek, který dorazil napřímo výzkumnému týmu (bez odběru veterinářem a bez dávky/QR).</p>
+    <p class="muted"><?= t('Vzorek, který dorazil napřímo výzkumnému týmu (bez odběru veterinářem a bez dávky/QR).') ?></p>
     <form method="post" action="/admin/samples/manual">
         <?= \App\Core\Csrf::field() ?>
         <div class="form-row">
             <div>
-                <label for="sample_id">Číslo vzorku *</label>
-                <input type="text" id="sample_id" name="sample_id" placeholder="např. CKCML1" required>
+                <label for="sample_id"><?= t('Číslo vzorku') ?> *</label>
+                <input type="text" id="sample_id" name="sample_id" placeholder="<?= e(t('např. CKCML1')) ?>" required>
             </div>
             <div>
-                <label for="breed_id">Plemeno (nepovinné)</label>
+                <label for="breed_id"><?= t('Plemeno (nepovinné)') ?></label>
                 <select id="breed_id" name="breed_id">
-                    <option value="">- nevybráno -</option>
+                    <option value=""><?= t('- nevybráno -') ?></option>
                     <?php foreach ($breeds as $b): ?>
                         <option value="<?= (int) $b['id'] ?>"<?= $currentBreedId === (int) $b['id'] ? ' selected' : '' ?>><?= e($b['name']) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
             <div>
-                <label for="received_at">Datum přijetí</label>
+                <label for="received_at"><?= t('Datum přijetí') ?></label>
                 <input type="date" id="received_at" name="received_at">
             </div>
         </div>
 
-        <label for="samp-dog-search">Pes (nepovinné)</label>
+        <label for="samp-dog-search"><?= t('Pes (nepovinné)') ?></label>
         <div class="ac" id="samp-ac-wrap">
-            <input type="text" id="samp-dog-search" autocomplete="off" placeholder="Napište jméno psa a vyberte z nabídky">
+            <input type="text" id="samp-dog-search" autocomplete="off" placeholder="<?= e(t('Napište jméno psa a vyberte z nabídky')) ?>">
             <input type="hidden" id="samp-dog-id" name="dog_id" value="">
             <div class="ac-list" id="samp-ac" hidden></div>
         </div>
 
-        <p class="muted">Vzorek se založí se stavem <code>sample_received</code>. Když vyberete psa, rovnou se k němu přiřadí; jinak zůstane nepřiřazený a napojí se později (např. při importu genetiky podle čísla vzorku).</p>
-        <button type="submit" class="btn btn--primary">Přidat vzorek</button>
-        <a class="btn" href="/admin/samples">Zrušit</a>
+        <p class="muted"><?= t('Vzorek se založí se stavem {status}. Když vyberete psa, rovnou se k němu přiřadí; jinak zůstane nepřiřazený a napojí se později (např. při importu genetiky podle čísla vzorku).', ['status' => '<code>sample_received</code>']) ?></p>
+        <button type="submit" class="btn btn--primary"><?= t('Přidat vzorek') ?></button>
+        <a class="btn" href="/admin/samples"><?= t('Zrušit') ?></a>
     </form>
 </div>
 

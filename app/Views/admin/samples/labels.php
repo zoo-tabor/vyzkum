@@ -4,8 +4,8 @@
 
 $labels = [];
 foreach ($rows as $row) {
-    $labels[] = ['sample_id' => $row['sample_id'], 'role' => 'Veterinář', 'url' => $row['vet_url'] ?? null];
-    $labels[] = ['sample_id' => $row['sample_id'], 'role' => 'Majitel', 'url' => $row['owner_url'] ?? null];
+    $labels[] = ['sample_id' => $row['sample_id'], 'role' => t('Veterinář'), 'url' => $row['vet_url'] ?? null];
+    $labels[] = ['sample_id' => $row['sample_id'], 'role' => t('Majitel'), 'url' => $row['owner_url'] ?? null];
 }
 ?>
 <!DOCTYPE html>
@@ -48,18 +48,17 @@ foreach ($rows as $row) {
 <body>
 <div class="toolbar no-print">
     <div>
-        <strong>Tisk štítků</strong> - dávka #<?= (int) $batch['id'] ?><?= !empty($batch['label']) ? ' / ' . e($batch['label']) : '' ?>
+        <strong><?= t('Tisk štítků') ?></strong> - <?= t('dávka') ?> #<?= (int) $batch['id'] ?><?= !empty($batch['label']) ? ' / ' . e($batch['label']) : '' ?>
     </div>
     <div>
-        <button type="button" class="primary" onclick="window.print()">Tisk</button>
-        <a href="/admin/batches">Dávky</a>
-        <a href="/admin/samples">Hotovo</a>
+        <button type="button" class="primary" onclick="window.print()"><?= t('Tisk') ?></button>
+        <a href="/admin/batches"><?= t('Dávky') ?></a>
+        <a href="/admin/samples"><?= t('Hotovo') ?></a>
     </div>
 </div>
 
 <div class="notice no-print">
-    Etikety jsou ve formátu 38,1 &times; 21,2 mm (Avery 65 na A4). V tiskovém dialogu zvolte A4,
-    měřítko 100 % a okraje "žádné" / bez přizpůsobení stránce. QR kódy se generují lokálně v prohlížeči.
+    <?= t('Etikety jsou ve formátu 38,1 &times; 21,2 mm (Avery 65 na A4). V tiskovém dialogu zvolte A4, měřítko 100 % a okraje "žádné" / bez přizpůsobení stránce. QR kódy se generují lokálně v prohlížeči.') ?>
 </div>
 
 <?php foreach (array_chunk($labels, 65) as $pageLabels): ?>
@@ -75,7 +74,7 @@ foreach ($rows as $row) {
                             <small>Výzkum plemen psů - ZOO Tábor</small>
                         </div>
                     <?php else: ?>
-                        <div class="label-missing">QR odkaz není dostupný.</div>
+                        <div class="label-missing"><?= t('QR odkaz není dostupný.') ?></div>
                     <?php endif; ?>
                 </article>
             <?php endforeach; ?>

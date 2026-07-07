@@ -5,24 +5,24 @@
 /** @var string|null $error */
 ?>
 <div class="page-head">
-    <h1>Geny a markery</h1>
-    <p><a href="/admin/genetics">&larr; Zpět na genotypy</a></p>
+    <h1><?= t('Geny a markery') ?></h1>
+    <p><a href="/admin/genetics">&larr; <?= t('Zpět na genotypy') ?></a></p>
 </div>
 
 <?php if (!empty($notice)): ?><div class="alert alert--ok"><?= e($notice) ?></div><?php endif; ?>
 <?php if (!empty($error)): ?><div class="alert alert--error"><?= e($error) ?></div><?php endif; ?>
 
 <div class="card">
-    <h2>Nový gen</h2>
+    <h2><?= t('Nový gen') ?></h2>
     <form method="post" action="/admin/genetics/genes" class="form-row">
         <?= \App\Core\Csrf::field() ?>
-        <div><label for="symbol">Symbol *</label><input type="text" id="symbol" name="symbol" placeholder="napr. B3GALNT1" required></div>
-        <div><label for="name">Název</label><input type="text" id="name" name="name"></div>
-        <div><label for="note">Poznámka</label><input type="text" id="note" name="note"></div>
-        <div class="form-row__action"><button type="submit" class="btn btn--primary">Přidat gen</button></div>
+        <div><label for="symbol"><?= t('Symbol') ?> *</label><input type="text" id="symbol" name="symbol" placeholder="napr. B3GALNT1" required></div>
+        <div><label for="name"><?= t('Název') ?></label><input type="text" id="name" name="name"></div>
+        <div><label for="note"><?= t('Poznámka') ?></label><input type="text" id="note" name="note"></div>
+        <div class="form-row__action"><button type="submit" class="btn btn--primary"><?= t('Přidat gen') ?></button></div>
     </form>
     <table class="table">
-        <thead><tr><th>Symbol</th><th>Název</th><th>Poznámka</th><th>Markerů</th></tr></thead>
+        <thead><tr><th><?= t('Symbol') ?></th><th><?= t('Název') ?></th><th><?= t('Poznámka') ?></th><th><?= t('Markerů') ?></th></tr></thead>
         <tbody>
         <?php foreach ($genes as $g): ?>
             <tr><td><code><?= e($g['symbol']) ?></code></td><td><?= e($g['name'] ?? '') ?></td><td><?= e($g['note'] ?? '') ?></td><td><?= (int) $g['marker_count'] ?></td></tr>
@@ -32,35 +32,35 @@
 </div>
 
 <div class="card">
-    <h2>Nový marker</h2>
+    <h2><?= t('Nový marker') ?></h2>
     <?php if ($genes === []): ?>
-        <p class="muted">Nejdříve založte gen.</p>
+        <p class="muted"><?= t('Nejdříve založte gen.') ?></p>
     <?php else: ?>
         <form method="post" action="/admin/genetics/markers">
             <?= \App\Core\Csrf::field() ?>
             <div class="form-row">
                 <div>
-                    <label for="gene_id">Gen</label>
+                    <label for="gene_id"><?= t('Gen') ?></label>
                     <select id="gene_id" name="gene_id" required>
                         <?php foreach ($genes as $g): ?>
                             <option value="<?= (int) $g['id'] ?>"><?= e($g['symbol']) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div><label for="marker_code">Kód markeru *</label><input type="text" id="marker_code" name="marker_code" placeholder="napr. B3GALNT1" required></div>
-                <div><label for="locus">Lokus</label><input type="text" id="locus" name="locus"></div>
+                <div><label for="marker_code"><?= t('Kód markeru') ?> *</label><input type="text" id="marker_code" name="marker_code" placeholder="napr. B3GALNT1" required></div>
+                <div><label for="locus"><?= t('Lokus') ?></label><input type="text" id="locus" name="locus"></div>
             </div>
             <div class="form-row">
-                <div><label for="reference_allele">Ref. alela</label><input type="text" id="reference_allele" name="reference_allele"></div>
-                <div><label for="alternate_allele">Alt. alela</label><input type="text" id="alternate_allele" name="alternate_allele"></div>
-                <div><label for="allowed_values">Povolené hodnoty</label><input type="text" id="allowed_values" name="allowed_values" placeholder="GG,GC,CC"></div>
+                <div><label for="reference_allele"><?= t('Ref. alela') ?></label><input type="text" id="reference_allele" name="reference_allele"></div>
+                <div><label for="alternate_allele"><?= t('Alt. alela') ?></label><input type="text" id="alternate_allele" name="alternate_allele"></div>
+                <div><label for="allowed_values"><?= t('Povolené hodnoty') ?></label><input type="text" id="allowed_values" name="allowed_values" placeholder="GG,GC,CC"></div>
             </div>
-            <button type="submit" class="btn btn--primary">Přidat marker</button>
+            <button type="submit" class="btn btn--primary"><?= t('Přidat marker') ?></button>
         </form>
     <?php endif; ?>
 
     <table class="table" style="margin-top:1rem">
-        <thead><tr><th>Marker</th><th>Gen</th><th>Lokus</th><th>Ref/Alt</th><th>Povolené</th></tr></thead>
+        <thead><tr><th><?= t('Marker') ?></th><th><?= t('Gen') ?></th><th><?= t('Lokus') ?></th><th><?= t('Ref/Alt') ?></th><th><?= t('Povolené') ?></th></tr></thead>
         <tbody>
         <?php foreach ($markers as $m): ?>
             <tr>

@@ -8,11 +8,11 @@
 $dogId = (int) $dog['id'];
 ?>
 <div class="page-head">
-    <h1>Genetika: <?= e($dog['name']) ?> <span class="muted">(<?= e($dog['breed_name'] ?? '') ?>)</span></h1>
+    <h1><?= t('Genetika:') ?> <?= e($dog['name']) ?> <span class="muted">(<?= e($dog['breed_name'] ?? '') ?>)</span></h1>
     <p>
-        <a href="/admin/genetics">&larr; Zpět na přehled</a>
+        <a href="/admin/genetics">&larr; <?= t('Zpět na přehled') ?></a>
         &nbsp;·&nbsp;
-        <a href="/admin/dogs/<?= $dogId ?>">Karta psa &rarr;</a>
+        <a href="/admin/dogs/<?= $dogId ?>"><?= t('Karta psa') ?> &rarr;</a>
     </p>
 </div>
 
@@ -20,14 +20,14 @@ $dogId = (int) $dog['id'];
 <?php if (!empty($error)): ?><div class="alert alert--error"><?= e($error) ?></div><?php endif; ?>
 
 <div class="card">
-    <h2>Genotypy</h2>
+    <h2><?= t('Genotypy') ?></h2>
     <?php if ($genePanel === []): ?>
-        <p class="muted">Nejsou založené žádné geny. Přidejte je v sekci <a href="/admin/genetics/markers">Geny a markery</a>.</p>
+        <p class="muted"><?= t('Nejsou založené žádné geny. Přidejte je v sekci {link}.', ['link' => '<a href="/admin/genetics/markers">' . t('Geny a markery') . '</a>']) ?></p>
     <?php else: ?>
         <form method="post" action="/admin/genetics/<?= $dogId ?>">
             <?= \App\Core\Csrf::field() ?>
             <table class="table">
-                <thead><tr><th>Gen</th><th>Genotyp</th><th>Poznámka</th></tr></thead>
+                <thead><tr><th><?= t('Gen') ?></th><th><?= t('Genotyp') ?></th><th><?= t('Poznámka') ?></th></tr></thead>
                 <tbody>
                 <?php foreach ($genePanel as $g): ?>
                     <?php $mid = (int) $g['marker_id']; ?>
@@ -41,25 +41,25 @@ $dogId = (int) $dog['id'];
                         <td>
                             <input type="text" name="n[<?= $mid ?>]"
                                    value="<?= e($currentNotes[$mid] ?? '') ?>"
-                                   placeholder="poznámka" style="margin:0;">
+                                   placeholder="<?= e(t('poznámka')) ?>" style="margin:0;">
                         </td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
             </table>
-            <p class="muted">Prázdné pole genotypu u genu, který má hodnotu, záznam smaže. Formát např. <code>GG</code>, <code>GA</code>, <code>G/A</code>; <code>X</code> = nevyšlá PCR sekvenace. Poznámka je nepovinná a váže se ke genotypu psa.</p>
+            <p class="muted"><?= t('Prázdné pole genotypu u genu, který má hodnotu, záznam smaže. Formát např. {ex}; {x} = nevyšlá PCR sekvenace. Poznámka je nepovinná a váže se ke genotypu psa.', ['ex' => '<code>GG</code>, <code>GA</code>, <code>G/A</code>', 'x' => '<code>X</code>']) ?></p>
 
             <div class="form-row" style="margin-top:1rem;">
                 <div>
-                    <label for="tested_at">Datum testu (nepovinné)</label>
+                    <label for="tested_at"><?= t('Datum testu (nepovinné)') ?></label>
                     <input type="date" id="tested_at" name="tested_at">
                 </div>
                 <div></div>
                 <div></div>
             </div>
-            <p class="muted">Datum se uloží k právě ukládaným genotypům.</p>
+            <p class="muted"><?= t('Datum se uloží k právě ukládaným genotypům.') ?></p>
 
-            <button type="submit" class="btn btn--primary">Uložit genetiku</button>
+            <button type="submit" class="btn btn--primary"><?= t('Uložit genetiku') ?></button>
         </form>
     <?php endif; ?>
 </div>

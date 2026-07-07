@@ -71,7 +71,7 @@ final class SampleController
         Csrf::verify();
         $count = (int) input('count');
         if ($count < 1 || $count > 200) {
-            Session::flash('sample_error', 'Počet sad musí být 1 až 200.');
+            Session::flash('sample_error', t('Počet sad musí být 1 až 200.'));
             redirect('/admin/samples/new-batch');
         }
 
@@ -82,7 +82,7 @@ final class SampleController
         $result = (new SampleRepository())->createBatch($count, null, $vetId, trim((string) input('label')) ?: null, $appUrl, Auth::id());
         AuditService::log(Auth::id(), Auth::role(), 'sample_batch_created', 'sample_batch', (string) $result['batch']['id'], null, ['count' => $count]);
 
-        Session::flash('sample_notice', 'Dávka vytvořena - vytiskněte štítky.');
+        Session::flash('sample_notice', t('Dávka vytvořena - vytiskněte štítky.'));
         redirect('/admin/batches/' . (int) $result['batch']['id'] . '/labels');
     }
 
@@ -101,7 +101,7 @@ final class SampleController
         Csrf::verify();
         $sampleId = trim((string) input('sample_id'));
         if ($sampleId === '') {
-            Session::flash('sample_error', 'Zadejte číslo vzorku.');
+            Session::flash('sample_error', t('Zadejte číslo vzorku.'));
             redirect('/admin/samples/manual');
         }
 
@@ -113,12 +113,12 @@ final class SampleController
                 (int) input('dog_id') ?: null
             );
         } catch (\PDOException $e) {
-            Session::flash('sample_error', 'Vzorek s číslem ' . $sampleId . ' už existuje.');
+            Session::flash('sample_error', t('Vzorek s číslem {id} už existuje.', ['id' => $sampleId]));
             redirect('/admin/samples/manual');
         }
 
         AuditService::log(Auth::id(), Auth::role(), 'sample_manual', 'sample', $sampleId);
-        Session::flash('sample_notice', 'Vzorek byl ručně přidán.');
+        Session::flash('sample_notice', t('Vzorek byl ručně přidán.'));
         redirect('/admin/samples');
     }
 
@@ -210,7 +210,7 @@ final class SampleController
             trim((string) input('note')) ?: null
         );
         AuditService::log(Auth::id(), Auth::role(), 'sample_updated', 'sample', $sampleId);
-        Session::flash('sample_notice', 'Vzorek byl upraven.');
+        Session::flash('sample_notice', t('Vzorek byl upraven.'));
         redirect('/admin/samples/' . rawurlencode($sampleId));
     }
 
@@ -219,12 +219,12 @@ final class SampleController
         Csrf::verify();
         $status = (string) input('status');
         if (!in_array($status, self::STATUSES, true)) {
-            Session::flash('sample_error', 'Neplatný stav.');
+            Session::flash('sample_error', t('Neplatný stav.'));
             redirect('/admin/samples/' . $sampleId);
         }
         (new SampleRepository())->updateStatus($sampleId, $status);
         AuditService::log(Auth::id(), Auth::role(), 'sample_status_changed', 'sample', $sampleId, null, ['status' => $status]);
-        Session::flash('sample_notice', 'Stav vzorku aktualizován.');
+        Session::flash('sample_notice', t('Stav vzorku aktualizován.'));
         redirect('/admin/samples/' . $sampleId);
     }
 
@@ -243,7 +243,7 @@ final class SampleController
         Csrf::verify();
         $name = trim((string) input('name'));
         if ($name === '') {
-            Session::flash('sample_error', 'Zadejte jméno veterináře.');
+            Session::flash('sample_error', t('Zadejte jméno veterináře.'));
             redirect('/admin/vets');
         }
         (new VetRepository())->create(
@@ -252,7 +252,7 @@ final class SampleController
             trim((string) input('email')) ?: null,
             trim((string) input('phone')) ?: null
         );
-        Session::flash('sample_notice', 'Veterinář přidán.');
+        Session::flash('sample_notice', t('Veterinář přidán.'));
         redirect('/admin/vets');
     }
 }
