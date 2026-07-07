@@ -58,6 +58,8 @@ final class AuthController
         }
 
         Auth::login($user);
+        // Preference jazyka uctu (majitel) prebije anonymni volbu z login page.
+        \App\Services\LocaleService::applyForUser((int) $user['id']);
         AuditService::log((int) $user['id'], (string) $user['role'], 'login', 'user', (string) $user['id']);
 
         redirect(home_for((string) $user['role']));

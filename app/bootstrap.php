@@ -40,4 +40,9 @@ if (PHP_SAPI !== 'cli') {
 
 Database::configure($config);
 
+// Urceni jazyka rozhrani (session/cookie/owner/Accept-Language). Jen ve web kontextu.
+if (PHP_SAPI !== 'cli') {
+    \App\Services\LocaleService::boot();
+}
+
 return $config;

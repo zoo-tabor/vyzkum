@@ -47,6 +47,9 @@ $forgot = new \App\Controllers\ForgotPasswordController();
 $router->get('/forgot-password', [$forgot, 'show']);
 $router->post('/forgot-password', [$forgot, 'submit']);
 
+// Prepnuti jazyka rozhrani (verejne) - navrat zpet dle ?r=.
+$router->get('/locale/{lang}', [new \App\Controllers\LocaleController(), 'switch']);
+
 // 2FA login challenge - user is not authenticated yet (login deferred).
 $twoFactor = new TwoFactorController();
 $router->get('/2fa', [$twoFactor, 'showChallenge']);

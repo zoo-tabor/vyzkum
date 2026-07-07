@@ -789,6 +789,10 @@ ALTER TABLE genes
 -- Stavajici genotypy pochazeji z PCR sekvenace (idempotentni).
 UPDATE dog_genotypes SET source = 'sekvenace' WHERE source IS NULL;
 
+-- i18n: preferovany jazyk rozhrani majitele.
+ALTER TABLE owners
+  ADD COLUMN IF NOT EXISTS language VARCHAR(5) NULL AFTER preferred_contact_method;
+
 -- Oznaceni migraci jako provedenych (bez chyby, kdyz uz tam jsou).
 INSERT IGNORE INTO schema_migrations (version)
 VALUES ('001_core.sql'), ('002_dogs_owners.sql'), ('003_invites_mail.sql'),
@@ -798,4 +802,4 @@ VALUES ('001_core.sql'), ('002_dogs_owners.sql'), ('003_invites_mail.sql'),
        ('012_form_assignments.sql'), ('013_owner_onboarding.sql'),
        ('014_genotype_gene.sql'), ('015_message_reads.sql'),
        ('016_death_causes.sql'), ('017_sample_dna_gwas.sql'),
-       ('018_genotype_source_note.sql');
+       ('018_genotype_source_note.sql'), ('019_owners_language.sql');

@@ -63,3 +63,23 @@ function old(string $key, mixed $default = ''): string
 {
     return e((string) ($_POST[$key] ?? $default));
 }
+
+/**
+ * Preklad UI textu. Cesky $text je zdroj i klic; chybejici preklad -> cesky text.
+ *
+ * @param array<string, string|int|float> $params nahrazuji {klic} v textu
+ */
+function t(string $text, array $params = []): string
+{
+    return \App\Support\I18n::t($text, $params);
+}
+
+/**
+ * Preklad s kontextem (resi homonyma - stejny cesky text, jiny preklad dle mista).
+ *
+ * @param array<string, string|int|float> $params
+ */
+function tc(string $context, string $text, array $params = []): string
+{
+    return \App\Support\I18n::tc($context, $text, $params);
+}
