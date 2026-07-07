@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Repositories;
 
 use App\Core\Database;
+use App\Support\I18n;
 use PDO;
 
 final class FormResponseRepository
@@ -99,6 +100,86 @@ final class FormResponseRepository
              ORDER BY q.position ASC, q.id ASC'
         );
         $stmt->execute(['r' => $responseId]);
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Odpovedi prelozene do $locale: text otazky (label) i hodnoty voleb se
+     * re-renderuji z reference (option_id / klice), ne z ceskeho snapshotu
+     * value_text. Volny text/cislo/datum/soubor zustavaji tak, jak byly zadany.
+     * Kazdy radek dostane 'display_value' (prelozena hodnota k zobrazeni).
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function answersLocalized(int $responseId, string $locale): array
+    {
+        $answers = $this->answers($responseId);
+        if ($answers === []) {
+            return [];
+        }
+
+        $tx = new TranslationRepository();
+        // Text otazek prelozit (klic = question_id).
+        $tx->apply(TranslationRepository::FORM_QUESTION, $answers, ['label'], $locale, 'question_id');
+
+        // Moznosti otazek z odpovedi + jejich preklady (pro re-render voleb).
+        $qids = array_values(array_unique(array_map(static fn ($a): int => (int) $a['question_id'], $answers)));
+        $optRows = $this->optionsForQuestions($qids);
+        $tx->apply(TranslationRepository::FORM_OPTION, $optRows, ['label'], $locale);
+        $byOptId = [];
+        $byQKey = [];
+        foreach ($optRows as $o) {
+            $byOptId[(int) $o['id']] = (string) $o['label'];
+            $byQKey[(int) $o['question_id']][(string) $o['option_key']] = (string) $o['label'];
+        }
+
+        foreach ($answers as &$a) {
+            $type = (string) $a['type'];
+            $json = !empty($a['value_json']) ? (json_decode((string) $a['value_json'], true) ?: []) : [];
+            $display = (string) ($a['value_text'] ?? '');
+
+            if ($type === 'single_choice' && !empty($a['option_id']) && isset($byOptId[(int) $a['option_id']])) {
+                $display = $byOptId[(int) $a['option_id']];
+            } elseif ($type === 'multiple_choice' && is_array($json) && $json !== []) {
+                $qid = (int) $a['question_id'];
+                $labels = [];
+                foreach ($json as $key) {
+                    $labels[] = $byQKey[$qid][(string) $key] ?? (string) $key;
+                }
+                $display = implode(', ', $labels);
+            } elseif ($type === 'yes_no') {
+                $v = strtolower(trim((string) ($a['value_text'] ?? '')));
+                if ($v === 'ano' || $v === 'yes') {
+                    $display = I18n::t('Ano');
+                } elseif ($v === 'ne' || $v === 'no') {
+                    $display = I18n::t('Ne');
+                }
+            }
+            $a['display_value'] = $display;
+        }
+        unset($a);
+
+        return $answers;
+    }
+
+    /**
+     * Moznosti pro dane otazky (bez N+1) - pro re-render prelozenych voleb.
+     *
+     * @param array<int, int> $questionIds
+     * @return array<int, array<string, mixed>>
+     */
+    private function optionsForQuestions(array $questionIds): array
+    {
+        $ids = array_values(array_unique(array_map('intval', $questionIds)));
+        if ($ids === []) {
+            return [];
+        }
+        $ph = implode(',', array_fill(0, count($ids), '?'));
+        $stmt = $this->pdo()->prepare(
+            "SELECT id, question_id, option_key, label FROM form_question_options
+             WHERE question_id IN ({$ph}) ORDER BY question_id ASC, position ASC, id ASC"
+        );
+        $stmt->execute($ids);
         return $stmt->fetchAll();
     }
 }

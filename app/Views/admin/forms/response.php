@@ -25,7 +25,7 @@
                     <?php if ($fileId !== null): ?>
                         <a href="/files/<?= (int) $fileId ?>"><?= e($a['value_text'] ?? t('soubor')) ?></a>
                     <?php else: ?>
-                        <?= nl2br(e((string) ($a['value_text'] ?? ''))) ?>
+                        <?= nl2br(e((string) ($a['display_value'] ?? $a['value_text'] ?? ''))) ?>
                     <?php endif; ?>
                 </td>
             </tr>

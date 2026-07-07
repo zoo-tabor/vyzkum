@@ -793,6 +793,20 @@ UPDATE dog_genotypes SET source = 'sekvenace' WHERE source IS NULL;
 ALTER TABLE owners
   ADD COLUMN IF NOT EXISTS language VARCHAR(5) NULL AFTER preferred_contact_method;
 
+-- i18n: obecna prekladova vrstva pro admin-authored obsah (dotazniky ap.).
+CREATE TABLE IF NOT EXISTS translations (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  entity_type VARCHAR(40) NOT NULL,
+  entity_id INT UNSIGNED NOT NULL,
+  field VARCHAR(40) NOT NULL,
+  locale VARCHAR(5) NOT NULL,
+  text TEXT NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NULL,
+  UNIQUE KEY translations_uq (entity_type, entity_id, field, locale),
+  INDEX translations_lookup_idx (entity_type, locale)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Oznaceni migraci jako provedenych (bez chyby, kdyz uz tam jsou).
 INSERT IGNORE INTO schema_migrations (version)
 VALUES ('001_core.sql'), ('002_dogs_owners.sql'), ('003_invites_mail.sql'),
@@ -802,4 +816,5 @@ VALUES ('001_core.sql'), ('002_dogs_owners.sql'), ('003_invites_mail.sql'),
        ('012_form_assignments.sql'), ('013_owner_onboarding.sql'),
        ('014_genotype_gene.sql'), ('015_message_reads.sql'),
        ('016_death_causes.sql'), ('017_sample_dna_gwas.sql'),
-       ('018_genotype_source_note.sql'), ('019_owners_language.sql');
+       ('018_genotype_source_note.sql'), ('019_owners_language.sql'),
+       ('020_translations.sql');

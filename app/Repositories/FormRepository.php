@@ -154,6 +154,7 @@ final class FormRepository
     private function cloneQuestions(int $fromVersionId, int $toVersionId): void
     {
         $pdo = $this->pdo();
+        $tx = new TranslationRepository();
         $questions = $this->questions($fromVersionId);
         $insQ = $pdo->prepare(
             'INSERT INTO form_questions (form_version_id, question_key, label, help_text, type, is_required, position, config_json)
@@ -174,8 +175,11 @@ final class FormRepository
                 'c' => $q['config_json'],
             ]);
             $newQid = (int) $pdo->lastInsertId();
+            // Preklady otazky prenest na nove id (klic prekladu = radkove id).
+            $tx->copyEntity(TranslationRepository::FORM_QUESTION, (int) $q['id'], $newQid);
             foreach ($this->optionsFor((int) $q['id']) as $o) {
                 $insO->execute(['q' => $newQid, 'k' => $o['option_key'], 'l' => $o['label'], 'p' => $o['position']]);
+                $tx->copyEntity(TranslationRepository::FORM_OPTION, (int) $o['id'], (int) $pdo->lastInsertId());
             }
         }
     }

@@ -182,6 +182,8 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $router->get('/admin/forms/{id}', [$forms, 'show']);
         $router->post('/admin/forms/{id}/publish', [$forms, 'publish']);
         $router->post('/admin/forms/{id}/new-version', [$forms, 'newVersion']);
+        $router->get('/admin/forms/{id}/translations', [$forms, 'translations']);
+        $router->post('/admin/forms/{id}/translations', [$forms, 'saveTranslations']);
         $router->get('/admin/forms/{id}/send', [$forms, 'broadcastForm']);
         $router->post('/admin/forms/{id}/send', [$forms, 'sendBroadcast']);
         $router->post('/admin/forms/{id}/questions', [$forms, 'addQuestion']);

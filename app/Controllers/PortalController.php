@@ -15,6 +15,7 @@ use App\Repositories\HealthEventRepository;
 use App\Repositories\MessageRepository;
 use App\Repositories\OwnerRepository;
 use App\Repositories\TransferRepository;
+use App\Repositories\TranslationRepository;
 use App\Repositories\UserRepository;
 use App\Services\Auth;
 use App\Services\AuditService;
@@ -139,12 +140,21 @@ final class PortalController
             redirect('/portal/dogs/' . $id);
         }
 
+        // Dotaznik zobraz v jazyce majitele (overlay, cesky zdroj jako fallback).
+        $locale = \App\Support\I18n::locale();
+        $questions = $forms->questions((int) $version['id']);
+        $options = $forms->optionsByQuestion((int) $version['id']);
+        $tx = new TranslationRepository();
+        $tx->applyRow(TranslationRepository::FORM_DEFINITION, $def, ['name', 'description'], $locale);
+        $tx->apply(TranslationRepository::FORM_QUESTION, $questions, ['label', 'help_text'], $locale);
+        $tx->applyGrouped(TranslationRepository::FORM_OPTION, $options, ['label'], $locale);
+
         return view('portal/form', [
             'title' => $def['name'],
             'dog' => $dog,
             'def' => $def,
-            'questions' => $forms->questions((int) $version['id']),
-            'options' => $forms->optionsByQuestion((int) $version['id']),
+            'questions' => $questions,
+            'options' => $options,
             'error' => Session::flash('portal_error'),
         ]);
     }
@@ -516,7 +526,7 @@ final class PortalController
         return view('portal/form_response', [
             'title' => 'Dotazník',
             'response' => $response,
-            'answers' => $responses->answers((int) $id),
+            'answers' => $responses->answersLocalized((int) $id, \App\Support\I18n::locale()),
         ]);
     }
 

@@ -46,6 +46,10 @@ $defId = (int) $def['id'];
         </form>
         <span class="muted"><?= t('Publikovaná verze je zamčená.') ?></span>
     <?php endif; ?>
+    <?php if ($editing !== null && $questions !== []): ?>
+        <a class="btn" href="/admin/forms/<?= $defId ?>/translations"><?= t('Překlady') ?></a>
+        <span class="muted"><?= t('Zadejte texty dotazníku v dalších jazycích (portál je majiteli ukáže dle jeho jazyka).') ?></span>
+    <?php endif; ?>
 </div>
 
 <div class="card">

@@ -11,11 +11,13 @@ use App\Repositories\FormAssignmentRepository;
 use App\Repositories\FormRepository;
 use App\Repositories\FormResponseRepository;
 use App\Repositories\HealthEventRepository;
+use App\Repositories\TranslationRepository;
 use App\Services\Auth;
 use App\Services\AuditService;
 use App\Services\BreedContext;
 use App\Services\FormBroadcastService;
 use App\Support\FormSchema;
+use App\Support\I18n;
 
 final class FormController
 {
@@ -307,8 +309,114 @@ final class FormController
         return view('admin/forms/response', [
             'title' => 'Odpověď dotazníku',
             'response' => $response,
-            'answers' => $repo->answers((int) $id),
+            'answers' => $repo->answersLocalized((int) $id, \App\Support\I18n::locale()),
         ]);
+    }
+
+    /** Obrazovka prekladu dotazniku (jazyk se vybira nahore, tabulka zdroj -> preklad). */
+    public function translations(string $id): string
+    {
+        $repo = new FormRepository();
+        $def = $repo->findDefinition((int) $id);
+        if ($def === null) {
+            http_response_code(404);
+            return view('errors/404', ['title' => 'Dotazník nenalezen']);
+        }
+
+        $editing = $repo->draftVersion((int) $id) ?? $repo->publishedVersion((int) $id);
+        $questions = $editing !== null ? $repo->questions((int) $editing['id']) : [];
+        $options = $editing !== null ? $repo->optionsByQuestion((int) $editing['id']) : [];
+
+        $target = $this->targetLocales();
+        $lang = (string) input('lang');
+        if (!in_array($lang, $target, true)) {
+            $lang = $target[0] ?? 'en';
+        }
+
+        $tx = new TranslationRepository();
+        $qIds = array_map(static fn ($q): int => (int) $q['id'], $questions);
+        $optIds = [];
+        foreach ($options as $list) {
+            foreach ($list as $o) {
+                $optIds[] = (int) $o['id'];
+            }
+        }
+
+        return view('admin/forms/translations', [
+            'title' => 'Překlady dotazníku',
+            'def' => $def,
+            'editing' => $editing,
+            'questions' => $questions,
+            'options' => $options,
+            'targetLocales' => $target,
+            'lang' => $lang,
+            'defTx' => $tx->allForEntities(TranslationRepository::FORM_DEFINITION, [(int) $def['id']], $lang)[(int) $def['id']] ?? [],
+            'qTx' => $tx->allForEntities(TranslationRepository::FORM_QUESTION, $qIds, $lang),
+            'oTx' => $tx->allForEntities(TranslationRepository::FORM_OPTION, $optIds, $lang),
+            'notice' => Session::flash('form_notice'),
+            'error' => Session::flash('form_error'),
+        ]);
+    }
+
+    /** Ulozeni prekladu pro jeden jazyk (prazdne pole = smazani -> fallback na cestinu). */
+    public function saveTranslations(string $id): string
+    {
+        Csrf::verify();
+        $repo = new FormRepository();
+        $def = $repo->findDefinition((int) $id);
+        if ($def === null) {
+            redirect('/admin/forms');
+        }
+
+        $lang = (string) input('lang');
+        if (!in_array($lang, $this->targetLocales(), true)) {
+            Session::flash('form_error', t('Neplatný jazyk.'));
+            redirect('/admin/forms/' . $id . '/translations');
+        }
+
+        $editing = $repo->draftVersion((int) $id) ?? $repo->publishedVersion((int) $id);
+        $questions = $editing !== null ? $repo->questions((int) $editing['id']) : [];
+        $options = $editing !== null ? $repo->optionsByQuestion((int) $editing['id']) : [];
+
+        $tx = new TranslationRepository();
+        // Definice (popis jen kdyz ma cesky zdroj - jinak by vznikl orphan).
+        $tx->set(TranslationRepository::FORM_DEFINITION, (int) $def['id'], 'name', $lang, (string) input('def_name'));
+        if (trim((string) ($def['description'] ?? '')) !== '') {
+            $tx->set(TranslationRepository::FORM_DEFINITION, (int) $def['id'], 'description', $lang, (string) input('def_description'));
+        }
+
+        // Otazky (jen id z editovane verze; help jen kdyz ma cesky zdroj).
+        $qLabel = (array) ($_POST['q_label'] ?? []);
+        $qHelp = (array) ($_POST['q_help'] ?? []);
+        foreach ($questions as $q) {
+            $qid = (int) $q['id'];
+            $tx->set(TranslationRepository::FORM_QUESTION, $qid, 'label', $lang, (string) ($qLabel[$qid] ?? ''));
+            if (trim((string) ($q['help_text'] ?? '')) !== '') {
+                $tx->set(TranslationRepository::FORM_QUESTION, $qid, 'help_text', $lang, (string) ($qHelp[$qid] ?? ''));
+            }
+        }
+
+        // Moznosti.
+        $oLabel = (array) ($_POST['o_label'] ?? []);
+        foreach ($options as $list) {
+            foreach ($list as $o) {
+                $oid = (int) $o['id'];
+                $tx->set(TranslationRepository::FORM_OPTION, $oid, 'label', $lang, (string) ($oLabel[$oid] ?? ''));
+            }
+        }
+
+        AuditService::log(Auth::id(), Auth::role(), 'form_translations_saved', 'form_definition', $id, null, ['locale' => $lang]);
+        Session::flash('form_notice', t('Překlady uloženy ({lang}).', ['lang' => I18n::name($lang)]));
+        redirect('/admin/forms/' . $id . '/translations?lang=' . $lang);
+    }
+
+    /** @return array<int, string> cilove jazyky (vsechny krome zdrojoveho cs) */
+    private function targetLocales(): array
+    {
+        return array_values(array_filter(
+            array_keys(I18n::available()),
+            static fn (string $l): bool => $l !== I18n::defaultLocale()
+        ));
     }
 
     /** @param array<int, string> $existing */
