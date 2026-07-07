@@ -556,6 +556,7 @@ return [
     'Vítejte – dokončení registrace' => '',
     'Vítejte – zkontrolujte prosím své údaje' => '',
     'Výsledek' => '',
+    'Výzkum <span>ZOO Tábor</span>' => '',
     'Výzkumný tým' => '',
     'Věk' => '',
     'Všechna plemena' => '',

@@ -59,7 +59,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
 <?php if ($user !== null && $isOwner): ?>
     <header class="topbar">
         <button type="button" class="nav-toggle" aria-label="Menu" aria-controls="sidebar" aria-expanded="false">&#9776;</button>
-        <div class="topbar__brand"><a href="/portal"><img class="topbar__logo" src="/favicon/favicon.svg" width="28" height="28" alt=""> Výzkum <span>ZOO Tábor</span></a></div>
+        <div class="topbar__brand"><a href="/portal"><img class="topbar__logo" src="/favicon/favicon.svg" width="28" height="28" alt=""> <?= t('Výzkum <span>ZOO Tábor</span>') ?></a></div>
         <div class="topbar__user">
             <?php include ROOT_PATH . '/app/Views/partials/lang_switch.php'; ?>
             <span class="topbar__email"><?= e($user['email']) ?></span>
@@ -90,7 +90,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
 <?php elseif ($user !== null && $isClub): ?>
     <header class="topbar">
         <button type="button" class="nav-toggle" aria-label="Menu" aria-controls="sidebar" aria-expanded="false">&#9776;</button>
-        <div class="topbar__brand"><a href="/club"><img class="topbar__logo" src="/favicon/favicon.svg" width="28" height="28" alt=""> Výzkum <span>ZOO Tábor</span></a></div>
+        <div class="topbar__brand"><a href="/club"><img class="topbar__logo" src="/favicon/favicon.svg" width="28" height="28" alt=""> <?= t('Výzkum <span>ZOO Tábor</span>') ?></a></div>
         <div class="topbar__user">
             <?php include ROOT_PATH . '/app/Views/partials/lang_switch.php'; ?>
             <span class="topbar__email"><?= e($user['email']) ?></span>
@@ -114,7 +114,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
     <header class="topbar">
         <button type="button" class="nav-toggle" aria-label="Menu" aria-controls="sidebar" aria-expanded="false">&#9776;</button>
         <div class="topbar__brand">
-            <a href="/admin"><img class="topbar__logo" src="/favicon/favicon.svg" width="28" height="28" alt=""> Výzkum <span>ZOO Tábor</span></a>
+            <a href="/admin"><img class="topbar__logo" src="/favicon/favicon.svg" width="28" height="28" alt=""> <?= t('Výzkum <span>ZOO Tábor</span>') ?></a>
         </div>
 
         <form class="breed-switch" method="post" action="/admin/breed-context">
