@@ -7,8 +7,17 @@ test('available locales come from registry and isValid checks them', function ()
     I18n::flush();
     $avail = I18n::available();
     assert_true(isset($avail['cs']) && isset($avail['en']) && isset($avail['es']), 'cs/en/es v registru');
-    assert_true(I18n::isValid('en'), 'en je platny');
-    assert_false(I18n::isValid('de'), 'de neni platny');
+    assert_true(I18n::isValid('de'), 'de je platny');
+    assert_false(I18n::isValid('xx'), 'xx neni platny');
+});
+
+test('name and flag come from the registry', function () {
+    I18n::flush();
+    assert_same('Čeština', I18n::name('cs'));
+    assert_same('cz', I18n::flag('cs'));
+    assert_same('English', I18n::name('en'));
+    assert_same('gb', I18n::flag('en'));
+    assert_same('Русский', I18n::name('ru'));
 });
 
 test('default locale returns source text and interpolates params', function () {
@@ -28,7 +37,7 @@ test('missing translation falls back to Czech source', function () {
 
 test('invalid locale falls back to default', function () {
     I18n::flush();
-    I18n::setLocale('de');
+    I18n::setLocale('xx');
     assert_same('cs', I18n::locale());
 });
 

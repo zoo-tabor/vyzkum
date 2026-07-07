@@ -15,7 +15,10 @@ define('ROOT_PATH', dirname(__DIR__));
 const CTX_SEP = "\x04"; // oddelovac kontext/text (jako gettext msgctxt)
 
 $scanDirs = [ROOT_PATH . '/app'];
-$locales = ['en', 'es'];
+
+// Cilove jazyky = vsechny z registru krome zdrojoveho (cs).
+$registry = require ROOT_PATH . '/resources/lang/locales.php';
+$locales = array_values(array_filter(array_keys($registry), static fn (string $c): bool => $c !== 'cs'));
 
 /** @return string PHP single-quote unescape (jen \' a \\). */
 $unescape = static fn (string $s): string => str_replace(['\\\\', "\\'"], ['\\', "'"], $s);

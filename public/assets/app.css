@@ -233,16 +233,37 @@ code { background: #f3f4f6; padding: 0.1rem 0.3rem; border-radius: 4px; }
 .cause-note { margin-top: 0.5rem; max-width: 440px; }
 .dog-cause { margin-bottom: 1rem; max-width: 440px; }
 
-/* Prepinac jazyka */
-.lang-switch { display: inline-flex; gap: 0.2rem; align-items: center; }
-.lang-switch__item {
-    text-decoration: none; color: var(--muted); font-size: 0.82rem;
-    padding: 0.15rem 0.45rem; border-radius: 999px; line-height: 1.4;
+/* Prepinac jazyka (rozbalovaci, vlajka + nazev) */
+.lang-switch { position: relative; display: inline-block; }
+.lang-switch__current {
+    display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer;
+    list-style: none; padding: 0.3rem 0.6rem; border: 1px solid var(--line);
+    border-radius: 999px; background: var(--panel); font-size: 0.85rem; color: var(--ink);
+    user-select: none; white-space: nowrap;
 }
-.lang-switch__item:hover { color: var(--ink); background: var(--bg); }
-.lang-switch__item.is-active { color: var(--brand-ink); background: var(--brand); font-weight: 600; }
-.auth-inner { width: 100%; max-width: 380px; }
-.auth-inner .lang-switch { display: flex; justify-content: flex-end; margin-bottom: 0.6rem; }
+.lang-switch__current::-webkit-details-marker { display: none; }
+.lang-switch__current::marker { content: ''; }
+.lang-switch__current:hover { background: var(--bg); }
+.lang-switch__name { font-weight: 600; }
+.lang-switch__caret { color: var(--muted); font-size: 0.7rem; }
+.lang-switch__flag {
+    width: 20px; height: 15px; border-radius: 3px; object-fit: cover; display: block;
+    box-shadow: 0 0 0 1px rgba(31, 41, 51, 0.08);
+}
+.lang-switch__menu {
+    position: absolute; right: 0; top: calc(100% + 6px); z-index: 60; min-width: 175px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: 0 10px 30px rgba(31, 41, 51, 0.15); padding: 0.3rem;
+}
+.lang-switch__opt {
+    display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--ink);
+    padding: 0.4rem 0.6rem; border-radius: 8px; font-size: 0.85rem; white-space: nowrap;
+}
+.lang-switch__opt:hover { background: var(--bg); }
+.lang-switch__opt.is-active { font-weight: 700; }
+
+.auth-inner { width: 100%; max-width: 380px; display: flex; flex-direction: column; }
+.auth-inner .lang-switch { align-self: flex-end; margin-bottom: 0.6rem; }
 
 /* Hamburger + responsivita (telefon/tablet) */
 .nav-toggle {

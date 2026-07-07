@@ -24,13 +24,15 @@ final class I18n
         return self::DEFAULT;
     }
 
-    /** @return array<string, string> kod => nazev v originalnim jazyce */
+    /** @return array<string, array{name:string, flag:string}> kod => meta */
     public static function available(): array
     {
         if (self::$available === null) {
             $file = self::root() . '/resources/lang/locales.php';
             $data = is_file($file) ? require $file : [];
-            self::$available = (is_array($data) && $data !== []) ? $data : [self::DEFAULT => 'Čeština'];
+            self::$available = (is_array($data) && $data !== [])
+                ? $data
+                : [self::DEFAULT => ['name' => 'Čeština', 'flag' => 'cz']];
         }
         return self::$available;
     }
@@ -38,6 +40,20 @@ final class I18n
     public static function isValid(string $locale): bool
     {
         return isset(self::available()[$locale]);
+    }
+
+    /** Nazev jazyka v jeho originalnim jazyce. */
+    public static function name(string $locale): string
+    {
+        $meta = self::available()[$locale] ?? null;
+        return is_array($meta) ? (string) ($meta['name'] ?? $locale) : $locale;
+    }
+
+    /** Kod vlajky (soubor public/assets/flags/<flag>.svg). */
+    public static function flag(string $locale): string
+    {
+        $meta = self::available()[$locale] ?? null;
+        return is_array($meta) ? (string) ($meta['flag'] ?? '') : '';
     }
 
     public static function setLocale(string $locale): void
