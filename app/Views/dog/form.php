@@ -74,10 +74,9 @@ $sex = $sample['sex'] ?? 'unknown';
 
         <fieldset>
             <legend><?= t('Souhlas') ?></legend>
-            <p><label><input type="checkbox" name="main_consent" value="1" required> <?= t('Souhlasím se {link} pro účely výzkumné studie.', [
-                'link' => '<a href="/gdpr" target="_blank" rel="noopener">' . t('zpracováním osobních a genetických údajů') . '</a>',
+            <p><label><input type="checkbox" name="main_consent" value="1" required> <?= t('Uděluji {link} pro účely výzkumné studie dlouhověkosti psů.', [
+                'link' => '<a href="/gdpr" target="_blank" rel="noopener">' . t('informovaný souhlas se zpracováním osobních a genetických údajů') . '</a>',
             ]) ?></label></p>
-            <p><label><input type="checkbox" name="future_contact_consent" value="1"> <?= t('Souhlasím s budoucím kontaktováním ohledně aktualizace informací týkajících se výzkumu dlouhověkosti.') ?></label></p>
         </fieldset>
 
         <button type="submit" class="btn btn--primary"><?= t('Odeslat registraci') ?></button>

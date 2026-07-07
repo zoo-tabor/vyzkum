@@ -1,30 +1,42 @@
 <?php
 /**
- * PLACEHOLDER (lorem ipsum) - finalni text doda pravni oddeleni.
- * Stranka je verejna, odkazuje se na ni prvni souhlas v registraci psa (/dog/...).
+ * Informovany souhlas se zpracovanim osobnich udaju - vyzkum dlouhovekosti psu.
+ * Verejna stranka, odkazuje se na ni souhlas v registraci psa (/dog/...), onboardingu
+ * a nastaveni. Zdroj textu: internal_docs/ZOO TABOR - informovany souhlas ... .docx.
+ * Texty obaleny do t() pro preklad (souhlas ma byt "ve vsech jazycich").
  */
 ?>
-<div class="card">
-    <h1>Zásady zpracování osobních údajů (GDPR)</h1>
-    <p class="muted"><em>Předběžné znění – konečný text doplní právní oddělení.</em></p>
+<div class="card gdpr">
+    <h1><?= t('Informovaný souhlas se zpracováním osobních údajů') ?></h1>
 
-    <h2>1. Správce údajů</h2>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum vestibulum. Cras venenatis euismod malesuada. Správcem osobních údajů je ZOO Tábor a. s., se sídlem lorem ipsum, IČO 00000000.</p>
+    <p><?= t('Tímto, jako vlastník psa, uděluji Zoologické zahradě Tábor, a.s., IČ: 04074025, se sídlem Praha 7, Dukelských hrdinů 747/19, PSČ: 170 00, tel. 233 372 021, e-mail: sekretariat@zootabor.eu, jako správci osobních údajů, (dále jen „správce“) souhlas se zpracováním svých osobních údajů za účelem výzkumu dlouhověkosti psů realizovaného správcem, a to v rozsahu:') ?></p>
+    <p><strong><?= t('jméno, příjmení, adresa bydliště, telefonní číslo, e-mailová adresa') ?></strong></p>
 
-    <h2>2. Jaké údaje zpracováváme</h2>
-    <p>Nulla vitae elit libero, a pharetra augue. Zpracováváme zejména identifikační a kontaktní údaje majitele (jméno, e-mail, telefon, adresa), údaje o psovi (jméno, plemeno, číslo čipu, číslo průkazu původu, datum narození) a genetická data získaná z odebraných vzorků.</p>
+    <p><?= t('Dále uděluji správci pro výše uvedený výzkum souhlas se zpracováním a bezúplatným využitím těchto údajů o mém psovi:') ?></p>
+    <p><strong><?= t('jméno psa, fotografie psa, název chovné stanice, datum narození, číslo čipu, číslo registrace, datum úmrtí, příčina úmrtí, zdravotní data, zdravotní dokumentace, výsledky genetických testů, jméno a příjmení chovatele.') ?></strong></p>
 
-    <h2>3. Účel a právní základ</h2>
-    <p>Maecenas faucibus mollis interdum. Údaje zpracováváme na základě uděleného souhlasu za účelem realizace výzkumné studie dlouhověkosti psů a souvisejícího vědeckého výzkumu.</p>
+    <p><?= t('Dále uděluji správci souhlas se zpětným kontaktováním mé osoby zejm. za účelem ověření či doplnění poskytnutých údajů, opravy poskytnutých údajů, předání informací o novém majiteli uvedeného psa pro případ, že přestanu být jeho vlastníkem a v dalších případech nezbytných pro účely výzkumu.') ?></p>
 
-    <h2>4. Doba uložení</h2>
-    <p>Donec ullamcorper nulla non metus auctor fringilla. Údaje uchováváme po dobu trvání výzkumné studie a dále po dobu vyžadovanou příslušnými právními předpisy.</p>
+    <p><?= t('Správce je oprávněn zpracovávat výše uvedené údaje manuálně i automatizovaně rovněž prostřednictvím určených zpracovatelů.') ?></p>
 
-    <h2>5. Vaše práva</h2>
-    <p>Cum sociis natoque penatibus et magnis dis parturient montes. Máte právo na přístup k údajům, jejich opravu nebo výmaz, omezení zpracování, přenositelnost údajů a právo souhlas kdykoli odvolat.</p>
+    <p><?= t('Udělením tohoto souhlasu potvrzuji, že jsem byl/a správcem informován/a o účelu zpracování osobních údajů, době zpracování osobních údajů a o svých právech vyplývajících z výše uvedeného zpracování osobních údajů, zejm. o svém právu') ?></p>
+    <ul>
+        <li><?= t('na přístup k osobním údajům,') ?></li>
+        <li><?= t('na opravu nepřesných nebo nepravdivých osobních údajů,') ?></li>
+        <li><?= t('na výmaz osobních údajů, nejsou-li již osobní údaje potřebné pro účely, pro které byly shromážděny či jinak zpracovány,') ?></li>
+        <li><?= t('na omezení zpracování osobních údajů,') ?></li>
+        <li><?= t('vznést námitku proti zpracování,') ?></li>
+        <li><?= t('podat proti správci stížnost u dozorového orgánu,') ?></li>
+        <li><?= t('poskytnutý souhlas kdykoli odvolat.') ?></li>
+    </ul>
 
-    <h2>6. Kontakt</h2>
-    <p>V případě dotazů ke zpracování osobních údajů nás kontaktujte na lorem@ipsum.example. Etiam porta sem malesuada magna mollis euismod.</p>
+    <p><?= t('Dále prohlašuji, že jsem byl poučen o tom, že poskytnutí osobních údajů prostřednictvím tohoto formuláře je zcela dobrovolné, a že výše uvedené údaje budou předány Ústavu molekulární genetiky AV ČR, v. v. i., a dále chovatelskému klubu zastřešujícímu chov plemene mého psa.') ?></p>
 
-    <p><a href="/" class="btn">Zpět</a></p>
+    <p><?= t('Dále uděluji bezúplatně správci souhlas, aby zveřejnil jméno a věk mého psa, název chovatelské stanice a všechny další jemu poskytnuté údaje o mém psovi, včetně fotografií, v publikacích o výzkumu dlouhověkosti psů, a i v dalších publikacích, článcích i jiných prezentacích, jejichž autorem je správce či předseda představenstva správce RNDr. Evžen Korec, CSc., a to ve všech jazycích.') ?></p>
+
+    <p><?= t('Tento souhlas je udělen dle zákona č. 110/2019 Sb., o zpracování osobních údajů a Nařízení Evropského parlamentu a Rady (EU) 2016/679 ze dne 27. dubna 2016 o ochraně fyzických osob v souvislosti se zpracováním osobních údajů a o volném pohybu těchto údajů a o zrušení směrnice 95/46/ES (obecné nařízení o ochraně osobních údajů), a to na dobu trvání výše uvedeného výzkumu, a dále po dobu ….. let od zveřejnění výsledků výzkumu za účelem revize zjištěných poznatků, příp. do odvolání tohoto souhlasu.') ?></p>
+
+    <p><?= t('Právním základem zpracování osobních údajů je tento souhlas.') ?></p>
+
+    <p><a href="/" class="btn"><?= t('Zpět') ?></a></p>
 </div>

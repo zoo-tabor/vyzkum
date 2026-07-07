@@ -11,14 +11,13 @@ use App\Repositories\SampleRepository;
 use App\Support\FileStorage;
 
 /**
- * Registrace psa majitelem pres QR: zalozi/najde majitele, psa, vazbu, souhlas,
- * rodokmen (souborovy system) a napoji na vzorek. Po commitu posle pozvanku pro
- * nastaveni hesla (pristup do portalu).
+ * Registrace psa majitelem pres QR: zalozi/najde majitele, psa, vazbu, rodokmen
+ * (souborovy system) a napoji na vzorek. Informovany souhlas (/gdpr) je povinny a
+ * uklada se do owners.contact_consent (jako u onboardingu). Po commitu posle
+ * pozvanku pro nastaveni hesla (pristup do portalu).
  */
 final class OwnerQrRegistrationService
 {
-    private const CONSENT_VERSION = '2026-01';
-
     /**
      * @param array<string, mixed> $sample
      * @param array<string, mixed> $data
@@ -42,7 +41,9 @@ final class OwnerQrRegistrationService
                     'display_name' => trim((string) $data['owner_name']),
                     'address' => trim((string) ($data['owner_address'] ?? '')) ?: null,
                     'preferred_contact_method' => 'email',
-                    'contact_consent' => !empty($data['future_contact_consent']),
+                    // Informovany souhlas (/gdpr) je povinny (validace ve formulari),
+                    // takze pri registraci je vzdy udelen - jako markOnboarded(true).
+                    'contact_consent' => true,
                 ]);
                 $owners->addEmail($ownerId, $email, true);
                 $phone = trim((string) ($data['owner_phone'] ?? ''));
@@ -69,7 +70,6 @@ final class OwnerQrRegistrationService
                 $dogs->addHealthDocument($dogId, $ownerId, $fileId, 'rodokmen', null, null);
             }
 
-            $this->insertConsent($pdo, (int) $sample['id'], $dogId, $ownerId, $data);
             (new SampleRepository())->attachDog((int) $sample['id'], $dogId);
 
             $pdo->commit();
@@ -86,27 +86,5 @@ final class OwnerQrRegistrationService
         }
 
         return ['owner_id' => $ownerId, 'dog_id' => $dogId];
-    }
-
-    /** @param array<string, mixed> $data */
-    private function insertConsent(\PDO $pdo, int $sampleId, int $dogId, int $ownerId, array $data): void
-    {
-        $stmt = $pdo->prepare(
-            'INSERT INTO consents
-                (sample_id, dog_id, owner_id, consent_version, research_consent, gdpr_consent,
-                 future_contact_consent, results_consent, owner_name_at_consent, ip_address)
-             VALUES
-                (:s, :d, :o, :v, 1, 1, :fc, :rc, :name, :ip)'
-        );
-        $stmt->execute([
-            's' => $sampleId,
-            'd' => $dogId,
-            'o' => $ownerId,
-            'v' => self::CONSENT_VERSION,
-            'fc' => !empty($data['future_contact_consent']) ? 1 : 0,
-            'rc' => !empty($data['results_consent']) ? 1 : 0,
-            'name' => trim((string) $data['owner_name']),
-            'ip' => $_SERVER['REMOTE_ADDR'] ?? null,
-        ]);
     }
 }

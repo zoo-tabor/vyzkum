@@ -360,23 +360,8 @@ CREATE TABLE IF NOT EXISTS samples (
   CONSTRAINT samples_vet_fk FOREIGN KEY (vet_id) REFERENCES vets(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS consents (
-  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  sample_id INT UNSIGNED NOT NULL,
-  dog_id INT UNSIGNED NULL,
-  owner_id INT UNSIGNED NULL,
-  consent_version VARCHAR(40) NOT NULL,
-  research_consent TINYINT(1) NOT NULL DEFAULT 0,
-  gdpr_consent TINYINT(1) NOT NULL DEFAULT 0,
-  future_contact_consent TINYINT(1) NOT NULL DEFAULT 0,
-  results_consent TINYINT(1) NOT NULL DEFAULT 0,
-  owner_name_at_consent VARCHAR(160) NOT NULL,
-  ip_address VARCHAR(45) NULL,
-  consented_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT consents_sample_fk FOREIGN KEY (sample_id) REFERENCES samples(id) ON DELETE CASCADE,
-  CONSTRAINT consents_dog_fk FOREIGN KEY (dog_id) REFERENCES dogs(id) ON DELETE SET NULL,
-  CONSTRAINT consents_owner_fk FOREIGN KEY (owner_id) REFERENCES owners(id) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- Tabulka `consents` zrusena: informovany souhlas (/gdpr) je povinny a uklada se
+-- do owners.contact_consent (sjednoceno s onboardingem/adminem). DROP se provede rucne.
 
 CREATE TABLE IF NOT EXISTS genes (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

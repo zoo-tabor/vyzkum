@@ -116,7 +116,6 @@ final class PublicSampleController
             'owner_email' => trim((string) input('owner_email')),
             'owner_phone' => trim((string) input('owner_phone')),
             'owner_address' => trim((string) input('owner_address')),
-            'future_contact_consent' => (bool) input('future_contact_consent'),
         ];
 
         // Plemeno: bud z davky (sample.breed_id), nebo z formulare.
