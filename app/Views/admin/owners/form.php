@@ -33,6 +33,13 @@ $phonesText = implode('; ', array_map(static fn ($p) => $p['phone'], $phones));
                     <option value="email"<?= $pcm === 'email' ? ' selected' : '' ?>><?= t('e-mail') ?></option>
                     <option value="phone"<?= $pcm === 'phone' ? ' selected' : '' ?>><?= t('telefon') ?></option>
                 </select></div>
+            <div><label for="language"><?= t('Preferovaný jazyk') ?></label>
+                <select id="language" name="language">
+                    <option value=""><?= t('— neurčeno —') ?></option>
+                    <?php foreach (\App\Support\I18n::available() as $__code => $__meta): ?>
+                        <option value="<?= e($__code) ?>"<?= ($owner['language'] ?? '') === $__code ? ' selected' : '' ?>><?= e($__meta['name']) ?></option>
+                    <?php endforeach; ?>
+                </select></div>
         </div>
 
         <label for="address"><?= t('Adresa') ?></label>

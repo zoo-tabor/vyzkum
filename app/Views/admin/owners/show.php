@@ -47,6 +47,10 @@
         <tr><th style="width:200px"><?= t('Jméno') ?></th><td><?= e(trim(($owner['first_name'] ?? '') . ' ' . ($owner['last_name'] ?? ''))) ?: e($owner['display_name']) ?></td></tr>
         <tr><th><?= t('Adresa') ?></th><td><?= e($owner['address'] ?? '') ?></td></tr>
         <tr><th><?= t('Preferovaný kontakt') ?></th><td><?= e($owner['preferred_contact_method']) ?></td></tr>
+        <tr><th><?= t('Preferovaný jazyk') ?></th><td>
+            <?php if (!empty($owner['language'])): ?><?= e(\App\Support\I18n::name($owner['language'])) ?>
+            <?php else: ?><span class="muted"><?= t('neurčeno') ?></span><?php endif; ?>
+        </td></tr>
         <tr><th><?= t('Souhlas s kontaktem') ?></th><td><?= ((int) $owner['contact_consent']) === 1 ? t('ano') : t('ne') ?></td></tr>
     </table>
 

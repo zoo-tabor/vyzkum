@@ -346,6 +346,7 @@ return [
     'Počet sad musí být 1 až 200.' => '',
     'Počet zkumavek' => '',
     'Pošle na {email} odkaz pro nastavení hesla (platí 1 měsíc).' => '',
+    'Preferovaný jazyk' => '',
     'Preferovaný kontakt' => '',
     'Primární e-mail' => '',
     'Primární e-mail (přihlašovací):' => '',
@@ -662,6 +663,7 @@ return [
     'nekastrovaný/á' => '',
     'nenalezen' => '',
     'neudělen' => '',
+    'neurčeno' => '',
     'nové' => '',
     'nápověda' => '',
     'název dotazníku' => '',
@@ -724,4 +726,5 @@ return [
     'Žádný řádek se nepodařilo spárovat. Zkontrolujte, že sample_id odpovídá vzorkům v systému.' => '',
     'živý' => '',
     '– vyberte –' => '',
+    '— neurčeno —' => '',
 ];

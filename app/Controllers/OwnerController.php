@@ -136,6 +136,9 @@ final class OwnerController
         $repo->replaceSecondaryEmails((int) $id, $this->splitList((string) input('secondary_emails')));
         $repo->replacePhones((int) $id, $this->splitList((string) input('phones')));
 
+        $lang = trim((string) input('language'));
+        $repo->setLanguage((int) $id, \App\Support\I18n::isValid($lang) ? $lang : null);
+
         AuditService::log(Auth::id(), Auth::role(), 'owner_updated', 'owner', $id, null, ['display_name' => $displayName]);
         Session::flash('owner_notice', t('Změny majitele byly uloženy.'));
         redirect('/admin/owners/' . $id);
@@ -199,6 +202,11 @@ final class OwnerController
         }
         foreach ($this->splitList((string) input('phones')) as $phone) {
             $repo->addPhone($id, $phone, null, false);
+        }
+
+        $lang = trim((string) input('language'));
+        if (\App\Support\I18n::isValid($lang)) {
+            $repo->setLanguage($id, $lang);
         }
 
         AuditService::log(Auth::id(), Auth::role(), 'owner_created', 'owner', (string) $id, null, ['display_name' => $displayName]);

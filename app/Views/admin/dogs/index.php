@@ -9,7 +9,6 @@
 use App\Support\Age;
 use App\Support\Countries;
 use App\Support\Dates;
-use App\Support\Gwas;
 ?>
 <div class="page-head" style="display:flex; justify-content:space-between; align-items:center;">
     <h1><?= t('Psi') ?></h1>
@@ -38,11 +37,9 @@ use App\Support\Gwas;
                 <th data-type="num"><?= t('Věk') ?></th>
                 <th><?= t('Země') ?></th>
                 <th data-nofilter><?= t('Vzorky') ?></th>
-                <th><?= t('DNA izol.') ?></th>
                 <?php foreach ($genes as $g): ?>
                     <th><?= e($g['symbol']) ?></th>
                 <?php endforeach; ?>
-                <th>GWAS</th>
                 <th><?= t('Majitel') ?></th>
                 <th><?= t('Stav') ?></th>
             </tr>
@@ -72,11 +69,9 @@ use App\Support\Gwas;
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </td>
-                    <td data-sort="<?= e($d['dna_isolated_at'] ?? '') ?>"><?= e(Dates::toCz($d['dna_isolated_at'] ?? null)) ?: '-' ?></td>
                     <?php foreach ($genes as $g): ?>
                         <td><?= e($dogGenos[$g['id']] ?? '') ?: '-' ?></td>
                     <?php endforeach; ?>
-                    <td><?= e(Gwas::label($d['gwas_status'] ?? null)) ?></td>
                     <td>
                         <?php if (!empty($d['owner_id'])): ?>
                             <a href="/admin/owners/<?= (int) $d['owner_id'] ?>"><?= e($d['owner_name']) ?></a>

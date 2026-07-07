@@ -262,9 +262,10 @@ final class OwnerRepository
         $stmt->execute(['c' => $consent ? 1 : 0, 'id' => $ownerId]);
     }
 
-    /** Ulozi preferovany jazyk rozhrani majitele (kod locale). */
-    public function setLanguage(int $ownerId, string $language): void
+    /** Ulozi preferovany jazyk rozhrani majitele (kod locale; prazdne/null = neurceno). */
+    public function setLanguage(int $ownerId, ?string $language): void
     {
+        $language = ($language !== null && $language !== '') ? $language : null;
         $stmt = $this->pdo()->prepare('UPDATE owners SET language = :l, updated_at = NOW() WHERE id = :id');
         $stmt->execute(['l' => $language, 'id' => $ownerId]);
     }
