@@ -94,27 +94,33 @@ Drobne, bez migrace.
       dojoinuje death_causes.code (LEFT JOIN pres death_cause_id), club/dashboard pouziva
       td('death_causes', code, cause). Free-text/neuvedeno fallback (t('(neuvedeno)')).
 
-## Faze 11 - vicejazycne e-maily (sablony) [VLASTNI NAVRH PRED IMPLEMENTACI]
-Nejvetsi kus. Prechod z natvrdo generovanych PHP tel na EDITOVATELNE sablony s preklady per
-jazyk, rozeslani dle jazyka prijemce. Ma vlastni navrh builder UX - KONZULTOVAT pred zacatkem.
+## Faze 11 - vicejazycne e-maily (sablony)  [HOTOVO - commit 3e0fe34]
+Prechod z natvrdo generovanych PHP tel na EDITOVATELNE sablony s preklady per jazyk,
+rozeslani dle jazyka prijemce. Rozhodnuti usera: zdroj editovatelny z UI (Nastaveni),
+broadcast take vicejazycny (jako dotazniky, rozeslani dle owners.language).
 
-- [ ] KROK 1 - inventura odesilatelu a sablon: zmapovat vsechny e-maily a jejich placeholdery.
-      Kandidati: pozvanka k nastaveni hesla (`InviteService`), pripadny reset hesla, prevod
-      vlastnictvi (`OwnershipTransferService`), rozeslani dotazniku (`FormBroadcastService`),
-      dalsi transakcni e-maily. (Testovaci e-mail z Diagnostiky = neprekladat.)
-- [ ] KROK 2 - migrace `email_templates` (id, `key` UNIQUE, subject, body, placeholders_doc,
-      updated_at) + seed z dnesnich ceskych tel (cestina = kanonicky zdroj). Registrace v
-      `ensure_schema.sql` (+ numbered migrace).
-- [ ] KROK 3 - preklady subject/body pres stavajici tabulku `translations`
-      (entity_type='email_template', field 'subject'/'body') + `TranslationRepository`.
-- [ ] KROK 4 - admin UI "Sablony e-mailu": seznam sablon + per-sablona obrazovka Preklady
-      (jazyk + zdroj->preklad, jako u dotazniku). Zobrazit seznam povolenych placeholderu.
-- [ ] KROK 5 - render v odeslani: MailService/odesilatele skladaji e-mail podle `key` + jazyka
-      prijemce (owners.language), interpolace placeholderu (placeholdery ZUSTAVAJI nedotcene
-      napric jazyky, jako u `t()` params). Fallback na cestinu.
-- [ ] KROK 6 - urceni jazyka prijemce kdyz owner nezname (napr. prevod na novy e-mail bez uctu):
-      fallback cs (pripadne volba jazyka pri akci).
-- [ ] Lint + testy + commit + push. Migrace: spustit `ensure_schema.sql` v phpMyAdmin.
+- [x] KROK 1 - inventura: set_password, password_reset (InviteService), ownership_transfer
+      (OwnershipTransferService), form_broadcast (FormBroadcastService). Test = neprekladat.
+      MessageRepository e-mail neposila. MailService::send(to,subject,body,tag) = jen odesilac.
+- [x] KROK 2 - migrace `021_email_templates` (key UNIQUE, subject, body, placeholders) + seed
+      4 sablon (cesky zdroj) + ensure_schema + registrace. EmailTemplateRepository (guard).
+- [x] KROK 3 - preklady subject/body pres translations (entity_type='email_template').
+- [x] KROK 4 - admin UI Nastaveni -> Sablony e-mailu (/admin/email-templates): seznam + editace
+      ceskeho zdroje + preklady per jazyk na JEDNE obrazovce (subject+body). Placeholdery zobrazeny.
+- [x] KROK 5 - MailTemplateService::render/send: skladá e-mail dle key + jazyka prijemce,
+      interpoluje placeholdery ({odkaz},{pes},{majitel},{dotaznik}), vestaveny fallback DEFAULTS
+      (posle i bez migrace/tabulky). Odesilatele prepnuti. Broadcast: per prijemce dle
+      owners.language + {dotaznik} = prelozeny nazev dotazniku; admin uz text nepise rucne.
+- [x] KROK 6 - jazyk prijemce: InviteService=owners.language, transfer=aktualni locale (novy
+      majitel bez uctu), broadcast=owners.language; vsude fallback cs.
+- [x] Lint (13) + testy (74/0) + smoke + commit + push + overeno (login 200, route 302).
+      Vyzaduje ensure_schema.sql (jinak fallback DEFAULTS = jen cesky).
+
+## HOTOVO CELE
+Vsech 11 fazi (PLAN_PREKLADY.md 0-6 + PLAN_PREKLADY_2.md 7-11) nasazeno. Zbyva UZ JEN doplnit
+hodnoty prekladu (katalogy resources/lang/*, death_causes/*, enum domeny; DB: dotazniky, plemena,
+email sablony pres admin UI) - to se dela az bude vse pripravene. + spustit ensure_schema.sql
+(translations, email_templates) a dropnout consents.
 
 ---
 
