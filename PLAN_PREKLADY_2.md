@@ -32,19 +32,23 @@ rucne pres `ensure_schema.sql`; po fazi rovnou commit + push.
 
 ---
 
-## Faze 7 - enum labely (domenove katalogy `td()`)
-Mechanicka, uzavrena, bez migrace. Zvaliduje `td()` pro enumy pred sirsim nasazenim (faze 8).
+## Faze 7 - enum labely (domenove katalogy `td()`)  [HOTOVO - commit d4267ca]
+Mechanicka, uzavrena, bez migrace. Zvalidovala `td()` pro enumy pred sirsim nasazenim (faze 8).
 
-- [ ] `resources/lang/form_types/{loc}.php` - typy otazek (`FormSchema::TYPES`), klic = kod typu
-      (short_text, long_text, single_choice, ...). Overlay v admin builderu: `admin/forms/show.php`,
-      `admin/forms/question.php` (sloupec/volba Typ).
-- [ ] `resources/lang/health_event_types/{loc}.php` - `HealthEventRepository::TYPES`. Overlay
-      vsude, kde se typ zdrav. udalosti zobrazuje (admin health, karta psa, builder dropdown).
-- [ ] `resources/lang/sample_status/{loc}.php` - stavy vzorku. Overlay v `admin/samples/*`.
-- [ ] GWAS: `resources/lang/gwas/{loc}.php` klicovane stavem; `Gwas::label()` prida locale-overlay
-      (fallback stavajici cesky label). Overlay automaticky vsude, kde se `Gwas::label` vola.
-- [ ] Generator(y) `bin/i18n_enums.php` (nebo rozsirit stavajici) - kostry vsech enum katalogu.
-- [ ] Lint + testy + commit + push.
+- [x] `resources/lang/form_types/{loc}.php` - typy otazek (`FormSchema::TYPES`), klic = kod typu.
+      Overlay pres novou `FormSchema::typeLabel()` v `admin/forms/show.php` + `question.php`.
+- [x] `resources/lang/health_event_types/{loc}.php` - nova `App\Support\HealthEventType` (cesky
+      zdroj + `label()` s td overlay; kody dle `HealthEventRepository::TYPES`). Overlay v
+      admin health/index, dogs/show, club/dashboard, builder dropdown (show/question).
+      POZN: typy se dosud zobrazovaly jako syrove EN kody -> ted maji i cesky popisek.
+- [x] `resources/lang/sample_status/{loc}.php` - nova `App\Support\SampleStatus` (cesky zdroj +
+      `label()`). Overlay v `admin/samples/index` + `detail` (radek Stav i select). CSV export
+      zustava syrovy kod (data). POZN: taktez dosud syrove EN kody.
+- [x] GWAS: `resources/lang/gwas/{loc}.php`; `Gwas::label()`/`options()` pridano td overlay ->
+      automaticky vsude, kde se volaji (dogs/show, samples index/detail/edit).
+- [x] Generator `bin/i18n_enums.php` - cte konstanty ze Support trid (jeden zdroj pravdy),
+      generuje kostry vsech 4 enum katalogu (merge zachova vyplnene).
+- [x] Lint + testy (74/0) + funkcni test overlay + commit + push. Katalogy ZATIM PRAZDNE.
 
 ## Faze 8 - plemena (`td('breeds', slug, nazev)`)
 Owner-facing (nejvyssi dopad na portal). Stejny mechanismus jako faze 7, ale sirsi zasah
