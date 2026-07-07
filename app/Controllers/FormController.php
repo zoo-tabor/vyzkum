@@ -115,8 +115,6 @@ final class FormController
             'livingEmailCount' => count(array_filter($living, $hasEmail)),
             'allCount' => count($all),
             'allEmailCount' => count(array_filter($all, $hasEmail)),
-            'defaultSubject' => FormBroadcastService::DEFAULT_SUBJECT,
-            'defaultBody' => FormBroadcastService::defaultBody((string) $def['name']),
             'error' => Session::flash('form_error'),
         ]);
     }
@@ -135,15 +133,8 @@ final class FormController
             redirect('/admin/forms/' . $id);
         }
 
-        $subject = trim((string) input('subject'));
-        $body = trim((string) input('body'));
-        if ($subject === '' || $body === '') {
-            Session::flash('form_error', t('Vyplňte předmět i text e-mailu.'));
-            redirect('/admin/forms/' . $id . '/send');
-        }
-
         $livingOnly = (string) input('recipients') !== 'all';
-        $result = (new FormBroadcastService())->send($def, $published, $subject, $body, Auth::id(), $livingOnly);
+        $result = (new FormBroadcastService())->send($def, $published, Auth::id(), $livingOnly);
 
         if ($result['total'] === 0) {
             Session::flash('form_error', $livingOnly

@@ -792,6 +792,71 @@ CREATE TABLE IF NOT EXISTS translations (
   INDEX translations_lookup_idx (entity_type, locale)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Sablony transakcnich e-mailu (cesky zdroj editovatelny z UI, preklady v translations).
+CREATE TABLE IF NOT EXISTS email_templates (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  `key` VARCHAR(64) NOT NULL,
+  subject VARCHAR(255) NOT NULL,
+  body TEXT NOT NULL,
+  placeholders VARCHAR(255) NULL,
+  updated_at DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY email_templates_key_uq (`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO email_templates (`key`, subject, body, placeholders) VALUES
+('set_password', 'Nastavení hesla - Výzkum ZOO Tábor',
+'Dobrý den,
+
+do systému výzkumu plemen psů ZOO Tábor vám byl založen účet.
+Pro nastavení hesla použijte tento odkaz (platí 1 měsíc):
+
+{odkaz}
+
+Po nastavení hesla se budete moci přihlásit a vidět své psy.
+
+S pozdravem
+Výzkumný tým ZOO Tábor', '{odkaz}'),
+
+('password_reset', 'Obnova hesla - Výzkum ZOO Tábor',
+'Dobrý den,
+
+obdrželi jsme žádost o obnovu hesla k vašemu účtu ve výzkumu plemen psů ZOO Tábor.
+Nové heslo si nastavíte tímto odkazem (platí 2 hodiny):
+
+{odkaz}
+
+Pokud jste o obnovu hesla nežádali, tento e-mail ignorujte - vaše heslo zůstává beze změny.
+
+S pozdravem
+Výzkumný tým ZOO Tábor', '{odkaz}'),
+
+('ownership_transfer', 'Převzetí psa - Výzkum ZOO Tábor',
+'Dobrý den,
+
+stávající majitel vás uvedl jako nového majitele psa v rámci výzkumu plemen psů ZOO Tábor.
+Pro potvrzení převzetí psa použijte tento odkaz (platí 1 měsíc):
+
+{odkaz}
+
+Po potvrzení vám přijde odkaz pro nastavení hesla do portálu.
+
+S pozdravem
+Výzkumný tým ZOO Tábor', '{odkaz}'),
+
+('form_broadcast', 'Dotazník k vašemu psovi - Výzkum ZOO Tábor',
+'Dobrý den,
+
+v rámci výzkumu dlouhověkosti psů ZOO Tábor vás prosíme o vyplnění dotazníku "{dotaznik}" k vašemu psovi {pes}.
+
+Dotazník vyplníte po přihlášení do portálu zde:
+{odkaz}
+
+Předem děkujeme za spolupráci.
+
+S pozdravem
+Výzkumný tým ZOO Tábor', '{dotaznik}, {pes}, {majitel}, {odkaz}');
+
 -- Oznaceni migraci jako provedenych (bez chyby, kdyz uz tam jsou).
 INSERT IGNORE INTO schema_migrations (version)
 VALUES ('001_core.sql'), ('002_dogs_owners.sql'), ('003_invites_mail.sql'),
@@ -802,4 +867,4 @@ VALUES ('001_core.sql'), ('002_dogs_owners.sql'), ('003_invites_mail.sql'),
        ('014_genotype_gene.sql'), ('015_message_reads.sql'),
        ('016_death_causes.sql'), ('017_sample_dna_gwas.sql'),
        ('018_genotype_source_note.sql'), ('019_owners_language.sql'),
-       ('020_translations.sql');
+       ('020_translations.sql'), ('021_email_templates.sql');

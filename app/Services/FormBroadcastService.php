@@ -6,11 +6,14 @@ namespace App\Services;
 use App\Core\Config;
 use App\Repositories\DogRepository;
 use App\Repositories\FormAssignmentRepository;
+use App\Repositories\TranslationRepository;
+use App\Support\I18n;
 
 /**
  * Rozesle publikovany dotaznik majitelum psu daneho plemene: jeden ukol
- * (form_assignment) + jeden e-mail na psa. Text e-mailu (predmet + telo) edituje
- * admin pred odeslanim; v tele se nahrazuji zastupne znacky {pes}, {majitel}, {odkaz}.
+ * (form_assignment) + jeden e-mail na psa. Text e-mailu je sablona 'form_broadcast'
+ * (editovatelna z admin UI vc. prekladu); kazdy majitel dostane e-mail ve svem
+ * jazyce (owners.language, fallback cs). Placeholdery: {dotaznik}, {pes}, {majitel}, {odkaz}.
  */
 final class FormBroadcastService
 {
@@ -20,28 +23,20 @@ final class FormBroadcastService
     ) {
     }
 
-    public const DEFAULT_SUBJECT = 'Dotazník k vašemu psovi - Výzkum ZOO Tábor';
-
-    public static function defaultBody(string $formName): string
-    {
-        return "Dobrý den,\n\n"
-            . "v rámci výzkumu dlouhověkosti psů ZOO Tábor vás prosíme o vyplnění dotazníku "
-            . "\"{$formName}\" k vašemu psovi {pes}.\n\n"
-            . "Dotazník vyplníte po přihlášení do portálu zde:\n{odkaz}\n\n"
-            . "Předem děkujeme za spolupráci.\n\n"
-            . "S pozdravem\nVýzkumný tým ZOO Tábor";
-    }
-
     /**
      * @param array<string, mixed> $def     definice dotazniku (findDefinition)
      * @param array<string, mixed> $version publikovana verze
      * @return array{total:int, sent:int, failed:int, skipped:int}
      */
-    public function send(array $def, array $version, string $subject, string $bodyTemplate, ?int $userId, bool $livingOnly = true): array
+    public function send(array $def, array $version, ?int $userId, bool $livingOnly = true): array
     {
         $defId = (int) $def['id'];
         $versionId = (int) $version['id'];
         $appUrl = rtrim((string) Config::instance()->get('APP_URL', ''), '/');
+        $czName = (string) $def['name'];
+
+        // Prelozene nazvy dotazniku (pro {dotaznik} v jazyce prijemce), fallback cs.
+        $nameByLocale = (new TranslationRepository())->localesFor(TranslationRepository::FORM_DEFINITION, $defId, 'name');
 
         $recipients = $this->dogs->recipientsForBreed((int) $def['breed_id'], $livingOnly);
         $result = ['total' => count($recipients), 'sent' => 0, 'failed' => 0, 'skipped' => 0];
@@ -54,29 +49,21 @@ final class FormBroadcastService
                 continue;
             }
 
+            $locale = (string) ($r['owner_language'] ?? '') ?: I18n::defaultLocale();
+            $formName = ($locale !== I18n::defaultLocale() && !empty($nameByLocale[$locale])) ? $nameByLocale[$locale] : $czName;
             $link = $appUrl . '/portal/dogs/' . (int) $r['dog_id'] . '/forms/' . $defId;
-            $body = $this->personalize($bodyTemplate, (string) $r['dog_name'], (string) $r['owner_name'], $link);
 
-            $ok = MailService::send($email, $subject, $body, 'form_broadcast');
+            $ok = MailTemplateService::send('form_broadcast', $email, [
+                'dotaznik' => $formName,
+                'pes' => (string) $r['dog_name'],
+                'majitel' => (string) $r['owner_name'],
+                'odkaz' => $link,
+            ], $locale);
             $this->assignments->create($defId, $versionId, (int) $r['dog_id'], (int) $r['owner_id'], $email, $ok ? 'sent' : 'failed');
             $ok ? $result['sent']++ : $result['failed']++;
         }
 
         AuditService::log($userId, 'research_admin', 'form_broadcast', 'form_definition', (string) $defId, null, $result);
         return $result;
-    }
-
-    private function personalize(string $template, string $dogName, string $ownerName, string $link): string
-    {
-        $body = strtr($template, [
-            '{pes}' => $dogName,
-            '{majitel}' => $ownerName,
-            '{odkaz}' => $link,
-        ]);
-        // Kdyz admin znacku {odkaz} z textu smazal, odkaz presto pripojime na konec.
-        if (!str_contains($template, '{odkaz}')) {
-            $body .= "\n\n" . $link;
-        }
-        return $body;
     }
 }

@@ -4,8 +4,6 @@
 /** @var int $livingEmailCount */
 /** @var int $allCount */
 /** @var int $allEmailCount */
-/** @var string $defaultSubject */
-/** @var string $defaultBody */
 /** @var string|null $error */
 $defId = (int) $def['id'];
 ?>
@@ -26,12 +24,12 @@ $defId = (int) $def['id'];
 <div class="card">
     <h2><?= t('Text e-mailu') ?></h2>
     <p class="muted">
-        <?= t('Můžete použít zástupné značky: {pes} (jméno psa), {majitel} (jméno majitele), {odkaz} (odkaz na vyplnění). Pokud {odkaz} vynecháte, přidá se automaticky na konec.', [
-            'pes' => '<code>{pes}</code>',
-            'majitel' => '<code>{majitel}</code>',
-            'odkaz' => '<code>{odkaz}</code>',
+        <?= t('Použije se šablona {template}, každý majitel dostane e-mail ve svém jazyce (dle nastaveného jazyka, jinak česky).', [
+            'template' => '<a href="/admin/email-templates/form_broadcast"><strong>' . t('Rozeslání dotazníku') . '</strong></a>',
         ]) ?>
+        <?= t('Text šablony (vč. překladů) upravíte v Nastavení → Šablony e-mailů.') ?>
     </p>
+
     <form method="post" action="/admin/forms/<?= $defId ?>/send"
           onsubmit="return confirm(<?= e(json_encode(t('Opravdu rozeslat dotazník vybraným majitelům?'), JSON_UNESCAPED_UNICODE)) ?>);">
         <?= \App\Core\Csrf::field() ?>
@@ -44,12 +42,6 @@ $defId = (int) $def['id'];
             <label class="inline"><input type="radio" name="recipients" value="all">
                 <?= t('Všem psům plemene i uhynulým') ?> <span class="muted">(<?= t('{emails} e-mailů z {dogs} psů', ['emails' => (int) $allEmailCount, 'dogs' => (int) $allCount]) ?>)</span></label>
         </fieldset>
-
-        <label for="subject"><?= t('Předmět') ?> *</label>
-        <input type="text" id="subject" name="subject" required value="<?= e($defaultSubject) ?>">
-
-        <label for="body"><?= t('Text') ?> *</label>
-        <textarea id="body" name="body" rows="12" required><?= e($defaultBody) ?></textarea>
 
         <p>
             <button type="submit" class="btn btn--primary"<?= $allEmailCount === 0 ? ' disabled' : '' ?>><?= t('Odeslat majitelům') ?></button>

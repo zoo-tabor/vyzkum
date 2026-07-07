@@ -84,34 +84,20 @@ final class InviteService
         $appUrl = rtrim((string) Config::instance()->get('APP_URL', ''), '/');
         $link = $appUrl . '/set-password/' . $token;
 
-        $subject = $isReset ? 'Obnova hesla - Výzkum ZOO Tábor' : 'Nastavení hesla - Výzkum ZOO Tábor';
-        $body = $isReset ? $this->buildResetBody($name, $link) : $this->buildBody($name, $link);
-        $sent = MailService::send($email, $subject, $body, $isReset ? 'password_reset' : 'set_password');
+        // Jazyk prijemce = preferovany jazyk majitele (kdyz je znamy), jinak cestina.
+        $locale = null;
+        if ($ownerId !== null) {
+            $lang = (string) ($this->owners->find($ownerId)['language'] ?? '');
+            $locale = $lang !== '' ? $lang : null;
+        }
+
+        $key = $isReset ? 'password_reset' : 'set_password';
+        $sent = MailTemplateService::send($key, $email, ['odkaz' => $link, 'jmeno' => $name], $locale);
 
         if (!$sent) {
             return ['ok' => false, 'message' => 'Pozvánka vytvořena, ale e-mail se nepodařilo odeslat (viz email log).'];
         }
 
         return ['ok' => true, 'message' => 'Odkaz pro nastavení hesla byl odeslán na ' . $email . '.'];
-    }
-
-    private function buildBody(string $name, string $link): string
-    {
-        return "Dobrý den,\n\n"
-            . "do systému výzkumu plemen psů ZOO Tábor vám byl založen účet.\n"
-            . "Pro nastavení hesla použijte tento odkaz (platí 1 měsíc):\n\n"
-            . $link . "\n\n"
-            . "Po nastavení hesla se budete moci přihlásit a vidět své psy.\n\n"
-            . "S pozdravem\nVýzkumný tým ZOO Tábor";
-    }
-
-    private function buildResetBody(string $name, string $link): string
-    {
-        return "Dobrý den,\n\n"
-            . "obdrželi jsme žádost o obnovu hesla k vašemu účtu ve výzkumu plemen psů ZOO Tábor.\n"
-            . "Nové heslo si nastavíte tímto odkazem (platí 2 hodiny):\n\n"
-            . $link . "\n\n"
-            . "Pokud jste o obnovu hesla nežádali, tento e-mail ignorujte - vaše heslo zůstává beze změny.\n\n"
-            . "S pozdravem\nVýzkumný tým ZOO Tábor";
     }
 }

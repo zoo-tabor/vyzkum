@@ -239,6 +239,11 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $router->post('/admin/security/disable', [$twoFactor, 'disable']);
         $router->post('/admin/security/password', [$twoFactor, 'changePassword']);
 
+        $emailTemplates = new \App\Controllers\EmailTemplateController();
+        $router->get('/admin/email-templates', [$emailTemplates, 'index']);
+        $router->get('/admin/email-templates/{key}', [$emailTemplates, 'edit']);
+        $router->post('/admin/email-templates/{key}', [$emailTemplates, 'save']);
+
         $diagnostics = new \App\Controllers\DiagnosticsController();
         $router->get('/admin/diagnostics/smtp', [$diagnostics, 'smtp']);
         $router->post('/admin/diagnostics/smtp/send-test', [$diagnostics, 'sendTest']);

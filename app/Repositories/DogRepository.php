@@ -427,12 +427,12 @@ final class DogRepository
      * (jeden ukol/e-mail na psa). E-mail muze byt NULL - majitel bez primarniho
      * e-mailu se preskoci.
      *
-     * @return array<int, array{dog_id:int, dog_name:string, owner_id:int, owner_name:string, email:?string}>
+     * @return array<int, array{dog_id:int, dog_name:string, owner_id:int, owner_name:string, owner_language:?string, email:?string}>
      */
     public function recipientsForBreed(int $breedId, bool $livingOnly = true): array
     {
         $sql = 'SELECT d.id AS dog_id, d.name AS dog_name,
-                    o.id AS owner_id, o.display_name AS owner_name,
+                    o.id AS owner_id, o.display_name AS owner_name, o.language AS owner_language,
                     (SELECT e.email FROM owner_emails e
                        WHERE e.owner_id = o.id AND e.is_primary = 1 LIMIT 1) AS email
              FROM dogs d
