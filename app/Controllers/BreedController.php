@@ -35,12 +35,12 @@ final class BreedController
         $repo = new BreedRepository();
 
         if ($name === '' || $slug === '') {
-            Session::flash('breed_error', 'Vyplňte název plemena.');
+            Session::flash('breed_error', t('Vyplňte název plemena.'));
             redirect('/admin/breeds');
         }
 
         if ($repo->existsSlug($slug)) {
-            Session::flash('breed_error', 'Plemeno se slugem "' . $slug . '" už existuje.');
+            Session::flash('breed_error', t('Plemeno se slugem "{slug}" už existuje.', ['slug' => $slug]));
             redirect('/admin/breeds');
         }
 
@@ -50,7 +50,7 @@ final class BreedController
             'name' => $name,
         ]);
 
-        Session::flash('breed_notice', 'Plemeno "' . $name . '" bylo vytvořeno.');
+        Session::flash('breed_notice', t('Plemeno "{name}" bylo vytvořeno.', ['name' => $name]));
         redirect('/admin/breeds');
     }
 
@@ -72,7 +72,7 @@ final class BreedController
         );
 
         if (!Policy::canAccessBreed($user, $breedId, $accessible)) {
-            Session::flash('breed_error', 'K tomuto plemeni nemáte přístup.');
+            Session::flash('breed_error', t('K tomuto plemeni nemáte přístup.'));
             back('/admin');
         }
 

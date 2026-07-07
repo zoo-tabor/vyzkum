@@ -36,7 +36,7 @@ final class ClubAdminController
         Csrf::verify();
         $email = strtolower(trim((string) input('email')));
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            Session::flash('club_error', 'Zadejte platný e-mail.');
+            Session::flash('club_error', t('Zadejte platný e-mail.'));
             redirect('/admin/clubs');
         }
 
@@ -47,7 +47,7 @@ final class ClubAdminController
         $result = (new InviteService())->sendUserInvite($userId, $email, Auth::id());
         AuditService::log(Auth::id(), Auth::role(), 'club_created', 'user', (string) $userId, null, ['email' => $email]);
 
-        Session::flash('club_notice', 'Klubový účet připraven. ' . $result['message']);
+        Session::flash('club_notice', t('Klubový účet připraven.') . ' ' . $result['message']);
         redirect('/admin/clubs');
     }
 
@@ -56,7 +56,7 @@ final class ClubAdminController
         Csrf::verify();
         (new UserRepository())->setBreedAccess((int) $id, array_map('intval', (array) ($_POST['breeds'] ?? [])));
         AuditService::log(Auth::id(), Auth::role(), 'club_access_updated', 'user', $id);
-        Session::flash('club_notice', 'Přístup k plemenům aktualizován.');
+        Session::flash('club_notice', t('Přístup k plemenům aktualizován.'));
         redirect('/admin/clubs');
     }
 
@@ -66,13 +66,13 @@ final class ClubAdminController
         $users = new UserRepository();
         $user = $users->findById((int) $id);
         if ($user === null || ($user['role'] ?? '') !== 'club_viewer') {
-            Session::flash('club_error', 'Klubový účet nenalezen.');
+            Session::flash('club_error', t('Klubový účet nenalezen.'));
             redirect('/admin/clubs');
         }
 
         $users->delete((int) $id);
         AuditService::log(Auth::id(), Auth::role(), 'club_deleted', 'user', $id, null, ['email' => $user['email']]);
-        Session::flash('club_notice', 'Klubový účet byl smazán.');
+        Session::flash('club_notice', t('Klubový účet byl smazán.'));
         redirect('/admin/clubs');
     }
 }

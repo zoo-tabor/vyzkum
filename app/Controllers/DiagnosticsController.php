@@ -35,7 +35,7 @@ final class DiagnosticsController
 
         $to = trim((string) input('to'));
         if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
-            Session::flash('mail_test_error', 'Zadejte platný e-mail.');
+            Session::flash('mail_test_error', t('Zadejte platný e-mail.'));
             redirect('/admin/diagnostics/smtp');
         }
 
@@ -48,9 +48,9 @@ final class DiagnosticsController
         AuditService::log(Auth::id(), Auth::role(), 'mail_test', 'email', $to, null, ['ok' => $ok]);
 
         if ($ok) {
-            Session::flash('mail_test_notice', 'Pokus o odeslání na ' . $to . ' proběhl. Stav najdete v email_log (při MAIL_ENABLED=false se jen zalogoval do mail.log).');
+            Session::flash('mail_test_notice', t('Pokus o odeslání na {to} proběhl. Stav najdete v email_log (při MAIL_ENABLED=false se jen zalogoval do mail.log).', ['to' => $to]));
         } else {
-            Session::flash('mail_test_error', 'Odeslání selhalo - viz email_log / storage/logs/mail.log.');
+            Session::flash('mail_test_error', t('Odeslání selhalo - viz email_log / storage/logs/mail.log.'));
         }
         redirect('/admin/diagnostics/smtp');
     }

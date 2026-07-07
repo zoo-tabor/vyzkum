@@ -31,16 +31,16 @@ final class ColourController
         $breedId = (int) BreedContext::current();
         $name = trim((string) input('name'));
         if ($breedId <= 0) {
-            Session::flash('colour_error', 'Vyberte nejdříve plemeno v přepínači nahoře.');
+            Session::flash('colour_error', t('Vyberte nejdříve plemeno v přepínači nahoře.'));
             redirect('/admin/colours');
         }
         if ($name === '') {
-            Session::flash('colour_error', 'Zadejte název barvy.');
+            Session::flash('colour_error', t('Zadejte název barvy.'));
             redirect('/admin/colours');
         }
         (new ColourRepository())->create($breedId, $name);
         AuditService::log(Auth::id(), Auth::role(), 'colour_created', 'breed', (string) $breedId, null, ['name' => $name]);
-        Session::flash('colour_notice', 'Barva přidána.');
+        Session::flash('colour_notice', t('Barva přidána.'));
         redirect('/admin/colours');
     }
 
@@ -48,7 +48,7 @@ final class ColourController
     {
         Csrf::verify();
         (new ColourRepository())->delete((int) $id);
-        Session::flash('colour_notice', 'Barva odebrána.');
+        Session::flash('colour_notice', t('Barva odebrána.'));
         redirect('/admin/colours');
     }
 }

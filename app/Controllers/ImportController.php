@@ -37,16 +37,16 @@ final class ImportController
 
         $file = $_FILES['file'] ?? null;
         if (!is_array($file) || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-            Session::flash('import_error', 'Nahrajte CSV soubor.');
+            Session::flash('import_error', t('Nahrajte CSV soubor.'));
             redirect('/admin/import');
         }
         if ((int) $file['size'] > self::MAX_BYTES) {
-            Session::flash('import_error', 'Soubor je příliš velký (max 2 MB).');
+            Session::flash('import_error', t('Soubor je příliš velký (max 2 MB).'));
             redirect('/admin/import');
         }
         $ext = strtolower(pathinfo((string) $file['name'], PATHINFO_EXTENSION));
         if (!in_array($ext, ['csv', 'txt'], true)) {
-            Session::flash('import_error', 'Povolen je jen CSV soubor.');
+            Session::flash('import_error', t('Povolen je jen CSV soubor.'));
             redirect('/admin/import');
         }
 
@@ -72,7 +72,7 @@ final class ImportController
 
         $content = Session::get('import_csv');
         if (!is_string($content) || $content === '') {
-            Session::flash('import_error', 'Relace importu vypršela, nahrajte soubor znovu.');
+            Session::flash('import_error', t('Relace importu vypršela, nahrajte soubor znovu.'));
             redirect('/admin/import');
         }
 
@@ -83,13 +83,12 @@ final class ImportController
         Session::forget('import_csv');
         Session::forget('import_name');
 
-        Session::flash('dog_notice', sprintf(
-            'Import dokončen: %d psů, %d nových majitelů (%d znovu použito), %d řádků přeskočeno.',
-            $result['dogs'],
-            $result['owners_created'],
-            $result['owners_reused'],
-            $result['skipped']
-        ));
+        Session::flash('dog_notice', t('Import dokončen: {dogs} psů, {created} nových majitelů ({reused} znovu použito), {skipped} řádků přeskočeno.', [
+            'dogs' => $result['dogs'],
+            'created' => $result['owners_created'],
+            'reused' => $result['owners_reused'],
+            'skipped' => $result['skipped'],
+        ]));
         redirect('/admin/dogs');
     }
 

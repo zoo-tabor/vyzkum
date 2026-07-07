@@ -95,12 +95,12 @@ final class TwoFactorController
 
         $secret = Session::get('2fa_setup_secret');
         if (!is_string($secret)) {
-            Session::flash('security_error', 'Relace pro nastavení 2FA vypršela, zkuste to znovu.');
+            Session::flash('security_error', t('Relace pro nastavení 2FA vypršela, zkuste to znovu.'));
             redirect('/admin/security');
         }
 
         if (!Totp::verify($secret, (string) input('code'))) {
-            Session::flash('security_error', 'Kód nesedí. Zkontrolujte čas v aplikaci a zkuste znovu.');
+            Session::flash('security_error', t('Kód nesedí. Zkontrolujte čas v aplikaci a zkuste znovu.'));
             redirect('/admin/security');
         }
 
@@ -109,7 +109,7 @@ final class TwoFactorController
         AuditService::log(Auth::id(), Auth::role(), '2fa_enabled', 'user', (string) Auth::id());
         Auth::flush();
 
-        Session::flash('security_notice', 'Dvoufaktorové ověření bylo aktivováno.');
+        Session::flash('security_notice', t('Dvoufaktorové ověření bylo aktivováno.'));
         redirect('/admin/security');
     }
 
@@ -119,7 +119,7 @@ final class TwoFactorController
 
         $user = Auth::user();
         if (empty($user['totp_secret']) || !Totp::verify((string) $user['totp_secret'], (string) input('code'))) {
-            Session::flash('security_error', 'Pro vypnutí 2FA zadejte platný aktuální kód.');
+            Session::flash('security_error', t('Pro vypnutí 2FA zadejte platný aktuální kód.'));
             redirect('/admin/security');
         }
 
@@ -127,7 +127,7 @@ final class TwoFactorController
         AuditService::log(Auth::id(), Auth::role(), '2fa_disabled', 'user', (string) Auth::id());
         Auth::flush();
 
-        Session::flash('security_notice', 'Dvoufaktorové ověření bylo vypnuto.');
+        Session::flash('security_notice', t('Dvoufaktorové ověření bylo vypnuto.'));
         redirect('/admin/security');
     }
 
@@ -141,15 +141,15 @@ final class TwoFactorController
         $confirm = (string) input('new_password_confirm');
 
         if (empty($user['password_hash']) || !password_verify($current, (string) $user['password_hash'])) {
-            Session::flash('security_error', 'Současné heslo nesedí.');
+            Session::flash('security_error', t('Současné heslo nesedí.'));
             redirect('/admin/security');
         }
         if (strlen($new) < 10) {
-            Session::flash('security_error', 'Nové heslo musí mít alespoň 10 znaků.');
+            Session::flash('security_error', t('Nové heslo musí mít alespoň 10 znaků.'));
             redirect('/admin/security');
         }
         if ($new !== $confirm) {
-            Session::flash('security_error', 'Nová hesla se neshodují.');
+            Session::flash('security_error', t('Nová hesla se neshodují.'));
             redirect('/admin/security');
         }
 
@@ -157,7 +157,7 @@ final class TwoFactorController
         AuditService::log(Auth::id(), Auth::role(), 'password_changed', 'user', (string) Auth::id());
         Auth::flush();
 
-        Session::flash('security_notice', 'Heslo bylo změněno.');
+        Session::flash('security_notice', t('Heslo bylo změněno.'));
         redirect('/admin/security');
     }
 }
