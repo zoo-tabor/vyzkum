@@ -67,13 +67,22 @@ final class StatsRepository
         ];
     }
 
-    /** @return array<int, array{cause:string, c:int}> */
+    /**
+     * Cetnost pricin umrti. Dojoinuje kod z ciselniku (death_causes), aby UI mohlo
+     * zobrazit stitek v jazyce diveka (td); free-text/neuvedeno ma code = ''.
+     *
+     * @return array<int, array{code:string, cause:string, c:int}>
+     */
     public function deathCauses(int $breedId): array
     {
         $stmt = $this->pdo()->prepare(
-            "SELECT COALESCE(NULLIF(death_cause, ''), '(neuvedeno)') AS cause, COUNT(*) AS c
-             FROM dogs WHERE breed_id = :b AND death_date IS NOT NULL
-             GROUP BY cause ORDER BY c DESC LIMIT 20"
+            "SELECT COALESCE(dc.code, '') AS code,
+                    COALESCE(d.death_cause, '') AS cause,
+                    COUNT(*) AS c
+             FROM dogs d
+             LEFT JOIN death_causes dc ON dc.id = d.death_cause_id
+             WHERE d.breed_id = :b AND d.death_date IS NOT NULL
+             GROUP BY code, cause ORDER BY c DESC LIMIT 20"
         );
         $stmt->execute(['b' => $breedId]);
         return $stmt->fetchAll();

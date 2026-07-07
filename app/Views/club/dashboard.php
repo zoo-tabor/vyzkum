@@ -4,7 +4,7 @@
 /** @var array{total:int, alive:int, dead:int} $counts */
 /** @var float|null $avgAge */
 /** @var array{b0:int,b1:int,b2:int,b3:int} $buckets */
-/** @var array<int, array{cause:string, c:int}> $deathCauses */
+/** @var array<int, array{code:string, cause:string, c:int}> $deathCauses */
 /** @var array<int, array{gene_symbol:string, marker_code:string, genotype:string, c:int}> $genetics */
 /** @var array<int, array{event_type:string, c:int}> $healthFreq */
 ?>
@@ -48,7 +48,12 @@
                 <thead><tr><th><?= t('Příčina') ?></th><th><?= t('Počet') ?></th></tr></thead>
                 <tbody>
                 <?php foreach ($deathCauses as $d): ?>
-                    <tr><td><?= e($d['cause']) ?></td><td><?= (int) $d['c'] ?></td></tr>
+                    <?php
+                    $causeLabel = (string) $d['code'] !== ''
+                        ? td('death_causes', (string) $d['code'], (string) $d['cause'])
+                        : ((string) $d['cause'] !== '' ? (string) $d['cause'] : t('(neuvedeno)'));
+                    ?>
+                    <tr><td><?= e($causeLabel) ?></td><td><?= (int) $d['c'] ?></td></tr>
                 <?php endforeach; ?>
                 </tbody>
             </table>

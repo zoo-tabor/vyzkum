@@ -8,6 +8,7 @@ return [
     '(alespoň 10 znaků)' => '',
     '(nepovinné)' => '',
     '(nepovinné, oddělte středníkem)' => '',
+    '(neuvedeno)' => '',
     '(více oddělte středníkem)' => '',
     ', nedoručeno: {failed} (viz e-mail log)' => '',
     ', přeskočeno bez e-mailu: {skipped}' => '',
