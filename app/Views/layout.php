@@ -37,6 +37,9 @@ $nav = [
     ['/admin/messages', 'Zprávy', true],
     ['#', 'Statistiky', false],
 ];
+// i18n: menu se renderuje pres t($label) (promenna), extraktor potrebuje literaly.
+// t('Dashboard'); t('Psi'); t('Majitelé'); t('Vzorky'); t('Formuláře');
+// t('Zdraví'); t('Genetika'); t('Zprávy'); t('Statistiky');
 $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
 ?>
 <!DOCTYPE html>
@@ -116,16 +119,16 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
 
         <form class="breed-switch" method="post" action="/admin/breed-context">
             <?= \App\Core\Csrf::field() ?>
-            <label for="breed_id">Plemeno:</label>
+            <label for="breed_id"><?= t('Plemeno:') ?></label>
             <select id="breed_id" name="breed_id" onchange="this.form.submit()">
-                <option value="all"<?= $currentBreedId === null ? ' selected' : '' ?>>Všechna plemena</option>
+                <option value="all"<?= $currentBreedId === null ? ' selected' : '' ?>><?= t('Všechna plemena') ?></option>
                 <?php foreach ($accessibleBreeds as $breed): ?>
                     <option value="<?= (int) $breed['id'] ?>"<?= $currentBreedId === (int) $breed['id'] ? ' selected' : '' ?>>
                         <?= e($breed['name']) ?>
                     </option>
                 <?php endforeach; ?>
             </select>
-            <noscript><button type="submit">Přepnout</button></noscript>
+            <noscript><button type="submit"><?= t('Přepnout') ?></button></noscript>
         </form>
 
         <div class="topbar__user">
@@ -152,18 +155,18 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
                     <li>
                         <a href="<?= e($href) ?>"
                            class="<?= $active ? 'active' : '' ?> <?= $enabled ? '' : 'disabled' ?>"
-                           <?= $enabled ? '' : 'title="Připravuje se v další fázi"' ?>>
-                            <?= e($label) ?><?= $href === '/admin/messages' ? $badgeHtml($msgBadge) : '' ?>
+                           <?= $enabled ? '' : 'title="' . e(t('Připravuje se v další fázi')) . '"' ?>>
+                            <?= e(t($label)) ?><?= $href === '/admin/messages' ? $badgeHtml($msgBadge) : '' ?>
                         </a>
                     </li>
                 <?php endforeach; ?>
                 <?php if (($user['role'] ?? '') === 'research_admin'): ?>
-                    <li class="sidebar__section">Nastavení</li>
-                    <li><a href="/admin/breeds" class="<?= $currentPath === '/admin/breeds' ? 'active' : '' ?>">Plemena</a></li>
-                    <li><a href="/admin/colours" class="<?= str_starts_with((string) $currentPath, '/admin/colours') ? 'active' : '' ?>">Barvy</a></li>
-                    <li><a href="/admin/clubs" class="<?= str_starts_with((string) $currentPath, '/admin/clubs') ? 'active' : '' ?>">Kluby</a></li>
-                    <li><a href="/admin/import" class="<?= str_starts_with((string) $currentPath, '/admin/import') ? 'active' : '' ?>">Import CSV</a></li>
-                    <li><a href="/admin/security" class="<?= $currentPath === '/admin/security' ? 'active' : '' ?>">Zabezpečení</a></li>
+                    <li class="sidebar__section"><?= t('Nastavení') ?></li>
+                    <li><a href="/admin/breeds" class="<?= $currentPath === '/admin/breeds' ? 'active' : '' ?>"><?= t('Plemena') ?></a></li>
+                    <li><a href="/admin/colours" class="<?= str_starts_with((string) $currentPath, '/admin/colours') ? 'active' : '' ?>"><?= t('Barvy') ?></a></li>
+                    <li><a href="/admin/clubs" class="<?= str_starts_with((string) $currentPath, '/admin/clubs') ? 'active' : '' ?>"><?= t('Kluby') ?></a></li>
+                    <li><a href="/admin/import" class="<?= str_starts_with((string) $currentPath, '/admin/import') ? 'active' : '' ?>"><?= t('Import CSV') ?></a></li>
+                    <li><a href="/admin/security" class="<?= $currentPath === '/admin/security' ? 'active' : '' ?>"><?= t('Zabezpečení') ?></a></li>
                 <?php endif; ?>
             </ul>
         </nav>

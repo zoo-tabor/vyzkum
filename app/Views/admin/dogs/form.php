@@ -13,7 +13,7 @@ $action = $isEdit ? '/admin/dogs/' . (int) $dog['id'] : '/admin/dogs';
 $v = static fn (string $key): string => e((string) ($dog[$key] ?? ''));
 $breedSel = $isEdit ? (int) $dog['breed_id'] : (int) ($defaultBreedId ?? 0);
 ?>
-<div class="page-head"><h1><?= $isEdit ? 'Upravit psa' : 'Nový pes' ?></h1></div>
+<div class="page-head"><h1><?= $isEdit ? t('Upravit psa') : t('Nový pes') ?></h1></div>
 
 <?php if (!empty($error)): ?><div class="alert alert--error"><?= e($error) ?></div><?php endif; ?>
 
@@ -21,38 +21,38 @@ $breedSel = $isEdit ? (int) $dog['breed_id'] : (int) ($defaultBreedId ?? 0);
     <form method="post" action="<?= e($action) ?>">
         <?= \App\Core\Csrf::field() ?>
 
-        <label for="breed_id">Plemeno *</label>
+        <label for="breed_id"><?= t('Plemeno') ?> *</label>
         <select id="breed_id" name="breed_id" required>
-            <option value="">- vyberte -</option>
+            <option value=""><?= t('- vyberte -') ?></option>
             <?php foreach ($breeds as $b): ?>
                 <option value="<?= (int) $b['id'] ?>"<?= $breedSel === (int) $b['id'] ? ' selected' : '' ?>><?= e($b['name']) ?></option>
             <?php endforeach; ?>
         </select>
 
-        <label for="name">Jméno psa *</label>
+        <label for="name"><?= t('Jméno psa') ?> *</label>
         <input type="text" id="name" name="name" value="<?= $v('name') ?>" required>
 
         <div class="form-row">
-            <div><label for="kennel_name">Chovná stanice</label>
+            <div><label for="kennel_name"><?= t('Chovná stanice') ?></label>
                 <input type="text" id="kennel_name" name="kennel_name" value="<?= $v('kennel_name') ?>"></div>
-            <div><label for="sex">Pohlaví</label>
+            <div><label for="sex"><?= t('Pohlaví') ?></label>
                 <select id="sex" name="sex">
-                    <?php foreach (['unknown' => 'neznámé', 'male' => 'pes', 'female' => 'fena'] as $k => $lbl): ?>
-                        <option value="<?= $k ?>"<?= ($dog['sex'] ?? 'unknown') === $k ? ' selected' : '' ?>><?= $lbl ?></option>
+                    <?php foreach (['unknown' => tc('pohlaví', 'neznámé'), 'male' => tc('pohlaví', 'pes'), 'female' => tc('pohlaví', 'fena')] as $k => $lbl): ?>
+                        <option value="<?= $k ?>"<?= ($dog['sex'] ?? 'unknown') === $k ? ' selected' : '' ?>><?= e($lbl) ?></option>
                     <?php endforeach; ?>
                 </select></div>
-            <div><label for="birth_date">Datum narození</label>
+            <div><label for="birth_date"><?= t('Datum narození') ?></label>
                 <input type="date" id="birth_date" name="birth_date" value="<?= $v('birth_date') ?>"></div>
         </div>
 
         <div class="form-row">
-            <div><label for="chip_number">Číslo čipu</label>
+            <div><label for="chip_number"><?= t('Číslo čipu') ?></label>
                 <input type="text" id="chip_number" name="chip_number" value="<?= $v('chip_number') ?>"></div>
-            <div><label for="pedigree_number">Číslo průkazu</label>
+            <div><label for="pedigree_number"><?= t('Číslo průkazu') ?></label>
                 <input type="text" id="pedigree_number" name="pedigree_number" value="<?= $v('pedigree_number') ?>"></div>
-            <div><label for="country">Země původu</label>
+            <div><label for="country"><?= t('Země původu') ?></label>
                 <select id="country" name="country">
-                    <option value="">- neuvedeno -</option>
+                    <option value=""><?= t('- neuvedeno -') ?></option>
                     <?php foreach (Countries::all() as $code => $name): ?>
                         <option value="<?= e($code) ?>"<?= ($dog['country'] ?? '') === $code ? ' selected' : '' ?>><?= e($name) ?> (<?= e($code) ?>)</option>
                     <?php endforeach; ?>
@@ -61,20 +61,20 @@ $breedSel = $isEdit ? (int) $dog['breed_id'] : (int) ($defaultBreedId ?? 0);
 
         <div class="form-row">
             <div>
-                <label for="color_select">Barva</label>
+                <label for="color_select"><?= t('Barva') ?></label>
                 <select id="color_select" name="color_select"></select>
-                <input type="text" id="color_other" name="color_other" placeholder="jiná barva" style="display:none; margin-top:0.4rem">
+                <input type="text" id="color_other" name="color_other" placeholder="<?= e(t('jiná barva')) ?>" style="display:none; margin-top:0.4rem">
             </div>
-            <div><label for="test_group">Testovací skupina</label>
+            <div><label for="test_group"><?= t('Testovací skupina') ?></label>
                 <input type="text" id="test_group" name="test_group" value="<?= $v('test_group') ?>"></div>
             <div></div>
         </div>
-        <p class="muted">Datum izolace DNA a stav GWAS se nyní evidují u konkrétního vzorku (sekce Vzorky).</p>
+        <p class="muted"><?= t('Datum izolace DNA a stav GWAS se nyní evidují u konkrétního vzorku (sekce Vzorky).') ?></p>
 
         <div class="form-row">
-            <div><label for="castration_status">Kastrace</label>
+            <div><label for="castration_status"><?= t('Kastrace') ?></label>
                 <?php
-                $castrationOpts = ['' => '- neuvedeno -', 'intact' => 'nekastrovaný/á', 'castrated' => 'kastrovaný/á'];
+                $castrationOpts = ['' => t('- neuvedeno -'), 'intact' => t('nekastrovaný/á'), 'castrated' => t('kastrovaný/á')];
                 $castCur = (string) ($dog['castration_status'] ?? '');
                 if ($castCur !== '' && !isset($castrationOpts[$castCur])) {
                     $castrationOpts[$castCur] = $castCur; // zachovat pripadnou starsi volnou hodnotu
@@ -85,14 +85,14 @@ $breedSel = $isEdit ? (int) $dog['breed_id'] : (int) ($defaultBreedId ?? 0);
                         <option value="<?= e($k) ?>"<?= $castCur === $k ? ' selected' : '' ?>><?= e($lbl) ?></option>
                     <?php endforeach; ?>
                 </select></div>
-            <div><label for="castration_date">Datum kastrace</label>
+            <div><label for="castration_date"><?= t('Datum kastrace') ?></label>
                 <input type="date" id="castration_date" name="castration_date" value="<?= $v('castration_date') ?>"></div>
             <div></div>
         </div>
 
         <?php if ($isEdit): ?>
             <div class="form-row">
-                <div><label for="death_date">Datum úmrtí</label>
+                <div><label for="death_date"><?= t('Datum úmrtí') ?></label>
                     <input type="date" id="death_date" name="death_date" value="<?= $v('death_date') ?>"></div>
                 <div></div>
                 <div></div>
@@ -100,29 +100,29 @@ $breedSel = $isEdit ? (int) $dog['breed_id'] : (int) ($defaultBreedId ?? 0);
 
             <?php $causeTree = $causeTree ?? []; $causeId = (int) ($dog['death_cause_id'] ?? 0); ?>
             <div class="dog-cause">
-                <label>Příčina úmrtí</label>
+                <label><?= t('Příčina úmrtí') ?></label>
                 <?php if ($causeTree !== []): ?>
                     <div class="cause-picker" data-cause-picker data-selected="<?= $causeId ?>">
                         <div class="cause-levels"></div>
                         <input type="hidden" name="death_cause_id" value="<?= $causeId ?: '' ?>">
                         <div class="cause-note"<?= !empty($dog['death_cause_note']) ? '' : ' hidden' ?>>
-                            <label for="death_cause_note">Poznámka</label>
+                            <label for="death_cause_note"><?= t('Poznámka') ?></label>
                             <textarea id="death_cause_note" name="death_cause_note" rows="2"><?= e($dog['death_cause_note'] ?? '') ?></textarea>
                         </div>
                     </div>
                     <?php if ($causeId === 0 && !empty($dog['death_cause'])): ?>
-                        <p class="muted">Aktuálně uvedeno (mimo číselník): <strong><?= e($dog['death_cause']) ?></strong></p>
+                        <p class="muted"><?= t('Aktuálně uvedeno (mimo číselník): {cause}', ['cause' => '<strong>' . e($dog['death_cause']) . '</strong>']) ?></p>
                     <?php endif; ?>
-                    <p class="muted">Vyplňte jen když je zadané datum úmrtí. Podbody se odkryjí po výběru nadřazené položky.</p>
+                    <p class="muted"><?= t('Vyplňte jen když je zadané datum úmrtí. Podbody se odkryjí po výběru nadřazené položky.') ?></p>
                 <?php else: ?>
-                    <input type="text" name="death_cause" value="<?= $v('death_cause') ?>" placeholder="volný text">
+                    <input type="text" name="death_cause" value="<?= $v('death_cause') ?>" placeholder="<?= e(t('volný text')) ?>">
                 <?php endif; ?>
             </div>
         <?php else: ?>
             <div class="form-row">
-                <div><label for="owner_id">Majitel (nepovinné)</label>
+                <div><label for="owner_id"><?= t('Majitel (nepovinné)') ?></label>
                     <select id="owner_id" name="owner_id">
-                        <option value="">- bez majitele -</option>
+                        <option value=""><?= t('- bez majitele -') ?></option>
                         <?php foreach ($owners as $o): ?>
                             <option value="<?= (int) $o['id'] ?>"><?= e($o['display_name']) ?></option>
                         <?php endforeach; ?>
@@ -132,23 +132,23 @@ $breedSel = $isEdit ? (int) $dog['breed_id'] : (int) ($defaultBreedId ?? 0);
             </div>
 
             <fieldset>
-                <legend>Vzorek (nepovinné)</legend>
+                <legend><?= t('Vzorek (nepovinné)') ?></legend>
                 <div class="form-row">
-                    <div><label for="sample_id">Číslo vzorku</label>
-                        <input type="text" id="sample_id" name="sample_id" placeholder="např. CKCML1"></div>
-                    <div><label for="sample_received_at">Datum přijetí vzorku</label>
+                    <div><label for="sample_id"><?= t('Číslo vzorku') ?></label>
+                        <input type="text" id="sample_id" name="sample_id" placeholder="<?= e(t('např. CKCML1')) ?>"></div>
+                    <div><label for="sample_received_at"><?= t('Datum přijetí vzorku') ?></label>
                         <input type="date" id="sample_received_at" name="sample_received_at"></div>
                     <div></div>
                 </div>
-                <p class="muted">Vyplněné číslo vzorku se rovnou spáruje s tímto psem (napojení na genetiku).</p>
+                <p class="muted"><?= t('Vyplněné číslo vzorku se rovnou spáruje s tímto psem (napojení na genetiku).') ?></p>
             </fieldset>
         <?php endif; ?>
 
-        <label for="health_summary">Zdravotní shrnutí</label>
+        <label for="health_summary"><?= t('Zdravotní shrnutí') ?></label>
         <textarea id="health_summary" name="health_summary" rows="3"><?= $v('health_summary') ?></textarea>
 
-        <button type="submit" class="btn btn--primary"><?= $isEdit ? 'Uložit změny' : 'Vytvořit psa' ?></button>
-        <a class="btn" href="<?= $isEdit ? '/admin/dogs/' . (int) $dog['id'] : '/admin/dogs' ?>">Zrušit</a>
+        <button type="submit" class="btn btn--primary"><?= $isEdit ? t('Uložit změny') : t('Vytvořit psa') ?></button>
+        <a class="btn" href="<?= $isEdit ? '/admin/dogs/' . (int) $dog['id'] : '/admin/dogs' ?>"><?= t('Zrušit') ?></a>
     </form>
 </div>
 
@@ -169,11 +169,11 @@ $breedSel = $isEdit ? (int) $dog['breed_id'] : (int) ($defaultBreedId ?? 0);
         var list = (COLOURS[breedId] || []);
         var want = keepValue !== undefined ? keepValue : CURRENT;
         colSel.innerHTML = '';
-        var empty = document.createElement('option'); empty.value = ''; empty.textContent = '- vyberte -'; colSel.appendChild(empty);
+        var empty = document.createElement('option'); empty.value = ''; empty.textContent = <?= json_encode(t('- vyberte -'), JSON_UNESCAPED_UNICODE) ?>; colSel.appendChild(empty);
         list.forEach(function (name) {
             var o = document.createElement('option'); o.value = name; o.textContent = name; colSel.appendChild(o);
         });
-        var other = document.createElement('option'); other.value = '__other__'; other.textContent = 'jiné...'; colSel.appendChild(other);
+        var other = document.createElement('option'); other.value = '__other__'; other.textContent = <?= json_encode(t('jiné...'), JSON_UNESCAPED_UNICODE) ?>; colSel.appendChild(other);
 
         if (want && list.indexOf(want) === -1) {
             colSel.value = '__other__'; colOther.style.display = ''; colOther.value = want;

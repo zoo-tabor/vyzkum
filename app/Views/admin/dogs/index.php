@@ -12,39 +12,39 @@ use App\Support\Dates;
 use App\Support\Gwas;
 ?>
 <div class="page-head" style="display:flex; justify-content:space-between; align-items:center;">
-    <h1>Psi</h1>
+    <h1><?= t('Psi') ?></h1>
     <span>
-        <a class="btn" href="/admin/import">Import CSV</a>
-        <a class="btn" href="/admin/dogs/export.csv">Export CSV</a>
-        <a class="btn btn--primary" href="/admin/dogs/new">+ Nový pes</a>
+        <a class="btn" href="/admin/import"><?= t('Import CSV') ?></a>
+        <a class="btn" href="/admin/dogs/export.csv"><?= t('Export CSV') ?></a>
+        <a class="btn btn--primary" href="/admin/dogs/new">+ <?= t('Nový pes') ?></a>
     </span>
 </div>
 
 <?php if (!empty($notice)): ?><div class="alert alert--ok"><?= e($notice) ?></div><?php endif; ?>
 <?php if ($currentBreedId === null): ?>
-    <p class="muted">Zobrazuji všechna plemena. Pro sloupce genotypů vyberte konkrétní plemeno v přepínači nahoře.</p>
+    <p class="muted"><?= t('Zobrazuji všechna plemena. Pro sloupce genotypů vyberte konkrétní plemeno v přepínači nahoře.') ?></p>
 <?php endif; ?>
 
 <div class="card">
     <?php if ($dogs === []): ?>
-        <p class="muted">Žádní psi.</p>
+        <p class="muted"><?= t('Žádní psi.') ?></p>
     <?php else: ?>
         <table class="table table--dogs" data-datatable data-per-page="25" data-per-page-options="25,50,100,all">
             <thead>
             <tr>
-                <th>Jméno</th>
-                <th>Plemeno</th>
-                <th>Pohlaví</th>
-                <th data-type="num">Věk</th>
-                <th>Země</th>
-                <th data-nofilter>Vzorky</th>
-                <th>DNA izol.</th>
+                <th><?= t('Jméno') ?></th>
+                <th><?= t('Plemeno') ?></th>
+                <th><?= t('Pohlaví') ?></th>
+                <th data-type="num"><?= t('Věk') ?></th>
+                <th><?= t('Země') ?></th>
+                <th data-nofilter><?= t('Vzorky') ?></th>
+                <th><?= t('DNA izol.') ?></th>
                 <?php foreach ($genes as $g): ?>
                     <th><?= e($g['symbol']) ?></th>
                 <?php endforeach; ?>
                 <th>GWAS</th>
-                <th>Majitel</th>
-                <th>Stav</th>
+                <th><?= t('Majitel') ?></th>
+                <th><?= t('Stav') ?></th>
             </tr>
             </thead>
             <tbody>
@@ -82,12 +82,12 @@ use App\Support\Gwas;
                             <a href="/admin/owners/<?= (int) $d['owner_id'] ?>"><?= e($d['owner_name']) ?></a>
                         <?php else: ?><span class="muted">-</span><?php endif; ?>
                     </td>
-                    <td><?= empty($d['death_date']) ? 'živý' : 'uhynulý' ?></td>
+                    <td><?= empty($d['death_date']) ? t('živý') : t('uhynulý') ?></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>
         </table>
-        <p class="muted">Řazení: klik na záhlaví sloupce (A→Z / Z→A). Filtr sloupce: ikona ⌕ v záhlaví.</p>
+        <p class="muted"><?= t('Řazení: klik na záhlaví sloupce (A→Z / Z→A). Filtr sloupce: ikona ⌕ v záhlaví.') ?></p>
     <?php endif; ?>
 </div>
 

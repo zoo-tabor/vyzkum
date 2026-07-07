@@ -146,7 +146,7 @@ final class DogController
 
         $data = $this->fromInput();
         if ($data['name'] === '' || (int) $data['breed_id'] <= 0) {
-            Session::flash('dog_error', 'Vyplňte jméno psa a plemeno.');
+            Session::flash('dog_error', t('Vyplňte jméno psa a plemeno.'));
             redirect('/admin/dogs/new');
         }
 
@@ -168,7 +168,7 @@ final class DogController
             'name' => $data['name'],
             'breed_id' => $data['breed_id'],
         ]);
-        Session::flash('dog_notice', 'Pes byl vytvořen.');
+        Session::flash('dog_notice', t('Pes byl vytvořen.'));
         redirect('/admin/dogs/' . $id);
     }
 
@@ -205,13 +205,13 @@ final class DogController
 
         $data = $this->fromInput();
         if ($data['name'] === '' || (int) $data['breed_id'] <= 0) {
-            Session::flash('dog_error', 'Vyplňte jméno psa a plemeno.');
+            Session::flash('dog_error', t('Vyplňte jméno psa a plemeno.'));
             redirect('/admin/dogs/' . $id . '/edit');
         }
 
         $repo->update((int) $id, $data);
         AuditService::log(Auth::id(), Auth::role(), 'dog_updated', 'dog', (string) $id, null, ['name' => $data['name']]);
-        Session::flash('dog_notice', 'Změny byly uloženy.');
+        Session::flash('dog_notice', t('Změny byly uloženy.'));
         redirect('/admin/dogs/' . $id);
     }
 
@@ -226,7 +226,7 @@ final class DogController
 
         $repo->delete((int) $id);
         AuditService::log(Auth::id(), Auth::role(), 'dog_deleted', 'dog', (string) $id, null, ['name' => $dog['name']]);
-        Session::flash('dog_notice', 'Pes byl smazán.');
+        Session::flash('dog_notice', t('Pes byl smazán.'));
         redirect('/admin/dogs');
     }
 

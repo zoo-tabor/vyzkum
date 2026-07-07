@@ -114,12 +114,12 @@ final class OwnerController
 
         $displayName = trim((string) input('display_name'));
         if ($displayName === '') {
-            Session::flash('owner_error', 'Vyplňte jméno majitele.');
+            Session::flash('owner_error', t('Vyplňte jméno majitele.'));
             redirect('/admin/owners/' . $id . '/edit');
         }
         $primaryEmail = trim((string) input('primary_email'));
         if ($primaryEmail !== '' && !filter_var($primaryEmail, FILTER_VALIDATE_EMAIL)) {
-            Session::flash('owner_error', 'Primární e-mail nemá platný formát.');
+            Session::flash('owner_error', t('Primární e-mail nemá platný formát.'));
             redirect('/admin/owners/' . $id . '/edit');
         }
 
@@ -137,7 +137,7 @@ final class OwnerController
         $repo->replacePhones((int) $id, $this->splitList((string) input('phones')));
 
         AuditService::log(Auth::id(), Auth::role(), 'owner_updated', 'owner', $id, null, ['display_name' => $displayName]);
-        Session::flash('owner_notice', 'Změny majitele byly uloženy.');
+        Session::flash('owner_notice', t('Změny majitele byly uloženy.'));
         redirect('/admin/owners/' . $id);
     }
 
@@ -152,13 +152,13 @@ final class OwnerController
 
         $currentDogs = $repo->currentDogCount((int) $id);
         if ($currentDogs > 0) {
-            Session::flash('owner_error', 'Nelze smazat: majitel má přiřazené psy (' . $currentDogs . '). Nejdříve je převeďte nebo smažte.');
+            Session::flash('owner_error', t('Nelze smazat: majitel má přiřazené psy ({count}). Nejdříve je převeďte nebo smažte.', ['count' => $currentDogs]));
             redirect('/admin/owners/' . $id);
         }
 
         $repo->delete((int) $id);
         AuditService::log(Auth::id(), Auth::role(), 'owner_deleted', 'owner', $id, null, ['display_name' => $owner['display_name']]);
-        Session::flash('owner_notice', 'Majitel byl smazán.');
+        Session::flash('owner_notice', t('Majitel byl smazán.'));
         redirect('/admin/owners');
     }
 
@@ -168,13 +168,13 @@ final class OwnerController
 
         $displayName = trim((string) input('display_name'));
         if ($displayName === '') {
-            Session::flash('owner_error', 'Vyplňte jméno majitele.');
+            Session::flash('owner_error', t('Vyplňte jméno majitele.'));
             redirect('/admin/owners/new');
         }
 
         $primaryEmail = trim((string) input('primary_email'));
         if ($primaryEmail !== '' && !filter_var($primaryEmail, FILTER_VALIDATE_EMAIL)) {
-            Session::flash('owner_error', 'Primární e-mail nemá platný formát.');
+            Session::flash('owner_error', t('Primární e-mail nemá platný formát.'));
             redirect('/admin/owners/new');
         }
 
@@ -202,7 +202,7 @@ final class OwnerController
         }
 
         AuditService::log(Auth::id(), Auth::role(), 'owner_created', 'owner', (string) $id, null, ['display_name' => $displayName]);
-        Session::flash('owner_notice', 'Majitel byl vytvořen.');
+        Session::flash('owner_notice', t('Majitel byl vytvořen.'));
         redirect('/admin/owners/' . $id);
     }
 

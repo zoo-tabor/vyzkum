@@ -3,27 +3,27 @@
 /** @var string|null $notice */
 ?>
 <div class="page-head" style="display:flex; justify-content:space-between; align-items:center;">
-    <h1>Majitelé</h1>
-    <a class="btn btn--primary" href="/admin/owners/new">+ Nový majitel</a>
+    <h1><?= t('Majitelé') ?></h1>
+    <a class="btn btn--primary" href="/admin/owners/new">+ <?= t('Nový majitel') ?></a>
 </div>
 
 <?php if (!empty($notice)): ?><div class="alert alert--ok"><?= e($notice) ?></div><?php endif; ?>
 
 <div class="card">
     <?php if ($owners === []): ?>
-        <p class="muted">Žádní majitelé.</p>
+        <p class="muted"><?= t('Žádní majitelé.') ?></p>
     <?php else: ?>
         <table class="table" data-datatable data-per-page="25" data-per-page-options="25,50,100,all">
             <thead>
             <tr>
-                <th>Jméno</th>
-                <th>Primární e-mail</th>
-                <th>Tel. číslo</th>
-                <th data-type="num">Psi</th>
-                <th>Registrován</th>
-                <th>Jazyk</th>
-                <th>Aktualizace</th>
-                <th data-nofilter>Poznámka</th>
+                <th><?= t('Jméno') ?></th>
+                <th><?= t('Primární e-mail') ?></th>
+                <th><?= t('Tel. číslo') ?></th>
+                <th data-type="num"><?= t('Psi') ?></th>
+                <th><?= t('Registrován') ?></th>
+                <th><?= t('Jazyk') ?></th>
+                <th><?= t('Aktualizace') ?></th>
+                <th data-nofilter><?= t('Poznámka') ?></th>
             </tr>
             </thead>
             <tbody>
@@ -40,7 +40,7 @@
                     <td><?= e($o['primary_email'] ?? '') ?: '-' ?></td>
                     <td><?= e(\App\Support\Phone::formatCz($o['primary_phone'] ?? null)) ?: '-' ?></td>
                     <td data-sort="<?= (int) $o['dog_count'] ?>"><?= (int) $o['dog_count'] ?></td>
-                    <td><?= ((int) ($o['registered'] ?? 0)) === 1 ? 'Ano' : 'Ne' ?></td>
+                    <td><?= ((int) ($o['registered'] ?? 0)) === 1 ? t('Ano') : t('Ne') ?></td>
                     <td><?= !empty($o['language']) ? e(\App\Support\I18n::name((string) $o['language'])) : '-' ?></td>
                     <td data-sort="<?= e($lastSort) ?>"><?= e($lastActShow) ?></td>
                     <td><?= $note !== '' ? e(mb_strimwidth($note, 0, 40, '…')) : '-' ?></td>
@@ -48,7 +48,7 @@
             <?php endforeach; ?>
             </tbody>
         </table>
-        <p class="muted">Řazení: šipky ↑/↓ v záhlaví. Filtr sloupce: ikona ⌕. Nahoře vpravo hledání a počet záznamů.</p>
+        <p class="muted"><?= t('Řazení: šipky ↑/↓ v záhlaví. Filtr sloupce: ikona ⌕. Nahoře vpravo hledání a počet záznamů.') ?></p>
     <?php endif; ?>
 </div>
 
