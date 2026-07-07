@@ -76,12 +76,12 @@ final class PortalController
         Csrf::verify();
         [$owner, $dog] = $this->ownerAndDog((int) $id, true);
         if ($dog === null) {
-            Session::flash('portal_error', 'K tomuto psovi nemáte přístup.');
+            Session::flash('portal_error', t('K tomuto psovi nemáte přístup.'));
             redirect('/portal');
         }
         $body = trim((string) input('body'));
         if ($body === '') {
-            Session::flash('portal_error', 'Zpráva nesmí být prázdná.');
+            Session::flash('portal_error', t('Zpráva nesmí být prázdná.'));
             redirect('/portal/dogs/' . $id);
         }
 
@@ -89,7 +89,7 @@ final class PortalController
         $threadId = $messages->findOrCreateDogThread((int) $id, Auth::id());
         $messages->addMessage($threadId, Auth::id(), 'owner', $body, 'open');
         AuditService::log(Auth::id(), 'owner', 'message_sent', 'dog', $id);
-        Session::flash('portal_notice', 'Zpráva odeslána výzkumnému týmu.');
+        Session::flash('portal_notice', t('Zpráva odeslána výzkumnému týmu.'));
         redirect('/portal/dogs/' . $id);
     }
 
@@ -98,14 +98,14 @@ final class PortalController
         Csrf::verify();
         [$owner, $dog] = $this->ownerAndDog((int) $id, true);
         if ($dog === null) {
-            Session::flash('portal_error', 'K tomuto psovi nemáte přístup.');
+            Session::flash('portal_error', t('K tomuto psovi nemáte přístup.'));
             redirect('/portal');
         }
 
         $name = trim((string) input('new_owner_name'));
         $email = trim((string) input('new_owner_email'));
         if ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            Session::flash('portal_error', 'Zadejte jméno a platný e-mail nového majitele.');
+            Session::flash('portal_error', t('Zadejte jméno a platný e-mail nového majitele.'));
             redirect('/portal/dogs/' . $id);
         }
 
@@ -127,7 +127,7 @@ final class PortalController
         $def = $forms->findDefinition((int) $defId);
         $version = $forms->publishedVersion((int) $defId);
         if ($def === null || $version === null || (int) $def['breed_id'] !== (int) $dog['breed_id']) {
-            Session::flash('portal_error', 'Dotazník není dostupný.');
+            Session::flash('portal_error', t('Dotazník není dostupný.'));
             redirect('/portal/dogs/' . $id);
         }
 
@@ -146,7 +146,7 @@ final class PortalController
         Csrf::verify();
         [$owner, $dog] = $this->ownerAndDog((int) $id, true);
         if ($dog === null) {
-            Session::flash('portal_error', 'K tomuto psovi nemáte přístup.');
+            Session::flash('portal_error', t('K tomuto psovi nemáte přístup.'));
             redirect('/portal');
         }
 
@@ -154,7 +154,7 @@ final class PortalController
         $def = $forms->findDefinition((int) $defId);
         $version = $forms->publishedVersion((int) $defId);
         if ($def === null || $version === null || (int) $def['breed_id'] !== (int) $dog['breed_id']) {
-            Session::flash('portal_error', 'Dotazník není dostupný.');
+            Session::flash('portal_error', t('Dotazník není dostupný.'));
             redirect('/portal/dogs/' . $id);
         }
 
@@ -188,7 +188,7 @@ final class PortalController
         (new FormAssignmentRepository())->markCompleted((int) $defId, (int) $id, $responseId);
 
         AuditService::log(Auth::id(), 'owner', 'form_submitted', 'form_response', (string) $responseId, null, ['dog_id' => (int) $id]);
-        Session::flash('portal_notice', 'Děkujeme, dotazník byl odeslán.');
+        Session::flash('portal_notice', t('Děkujeme, dotazník byl odeslán.'));
         redirect('/portal/dogs/' . $id);
     }
 
@@ -279,13 +279,13 @@ final class PortalController
         Csrf::verify();
         [$owner, $dog] = $this->ownerAndDog((int) $id, true);
         if ($dog === null) {
-            Session::flash('portal_error', 'K tomuto psovi nemáte přístup.');
+            Session::flash('portal_error', t('K tomuto psovi nemáte přístup.'));
             redirect('/portal');
         }
 
         (new DogRepository())->confirmOwnership((int) $id, (int) $owner['id']);
         AuditService::log(Auth::id(), 'owner', 'dog_confirmed', 'dog', $id);
-        Session::flash('portal_notice', 'Potvrdili jste, že pes je stále váš. Děkujeme.');
+        Session::flash('portal_notice', t('Potvrdili jste, že pes je stále váš. Děkujeme.'));
         redirect('/portal/dogs/' . $id);
     }
 
@@ -294,7 +294,7 @@ final class PortalController
         Csrf::verify();
         [$owner, $dog] = $this->ownerAndDog((int) $id, true);
         if ($dog === null) {
-            Session::flash('portal_error', 'K tomuto psovi nemáte přístup.');
+            Session::flash('portal_error', t('K tomuto psovi nemáte přístup.'));
             redirect('/portal');
         }
 
@@ -303,7 +303,7 @@ final class PortalController
         if (!$alive) {
             $deathIso = Dates::fromCz((string) input('death_date'));
             if ($deathIso === null) {
-                Session::flash('portal_error', 'Zadejte platné datum úmrtí ve formátu DD.MM.RRRR.');
+                Session::flash('portal_error', t('Zadejte platné datum úmrtí ve formátu DD.MM.RRRR.'));
                 redirect('/portal/dogs/' . $id);
             }
 
@@ -311,7 +311,7 @@ final class PortalController
             $causeId = (int) input('death_cause_id');
             $leaf = (new DeathCauseRepository())->findLeaf($causeId, (int) $dog['breed_id']);
             if ($leaf === null) {
-                Session::flash('portal_error', 'Vyberte prosím příčinu úmrtí ze seznamu.');
+                Session::flash('portal_error', t('Vyberte prosím příčinu úmrtí ze seznamu.'));
                 redirect('/portal/dogs/' . $id);
             }
             // Poznamka je dobrovolna a jen u polozek, ktere ji umoznuji.
@@ -319,11 +319,11 @@ final class PortalController
 
             (new DogRepository())->setAliveStatus((int) $id, (int) $owner['id'], false, $deathIso, $note, 'owner', $causeId, (string) $leaf['label']);
             AuditService::log(Auth::id(), 'owner', 'dog_death_reported', 'dog', $id, null, ['death_date' => $deathIso, 'cause_id' => $causeId]);
-            Session::flash('portal_notice', 'Děkujeme, zaznamenali jsme informace o úmrtí.');
+            Session::flash('portal_notice', t('Děkujeme, zaznamenali jsme informace o úmrtí.'));
         } else {
             (new DogRepository())->setAliveStatus((int) $id, (int) $owner['id'], true, null, null);
             AuditService::log(Auth::id(), 'owner', 'dog_alive_confirmed', 'dog', $id);
-            Session::flash('portal_notice', 'Děkujeme za potvrzení, že pes žije.');
+            Session::flash('portal_notice', t('Děkujeme za potvrzení, že pes žije.'));
         }
         redirect('/portal/dogs/' . $id);
     }
@@ -333,7 +333,7 @@ final class PortalController
         Csrf::verify();
         [$owner, $dog] = $this->ownerAndDog((int) $id, true);
         if ($dog === null) {
-            Session::flash('portal_error', 'K tomuto psovi nemáte přístup.');
+            Session::flash('portal_error', t('K tomuto psovi nemáte přístup.'));
             redirect('/portal');
         }
 
@@ -342,9 +342,9 @@ final class PortalController
             $fileId = (new FilesRepository())->create('dog', (int) $id, $stored['original'], $stored['relative'], $stored['mime'], $stored['size'], Auth::id());
             (new DogRepository())->addHealthDocument((int) $id, (int) $owner['id'], $fileId, trim((string) input('document_type')) ?: null, Dates::fromCz((string) input('document_date')), trim((string) input('note')) ?: null);
             AuditService::log(Auth::id(), 'owner', 'health_document_uploaded', 'dog', $id, null, ['file_id' => $fileId]);
-            Session::flash('portal_notice', 'Dokument byl nahrán.');
+            Session::flash('portal_notice', t('Dokument byl nahrán.'));
         } catch (\Throwable $e) {
-            Session::flash('portal_error', 'Nahrání se nepodařilo: ' . $e->getMessage());
+            Session::flash('portal_error', t('Nahrání se nepodařilo: ') . $e->getMessage());
         }
         redirect('/portal/dogs/' . $id);
     }
@@ -382,7 +382,7 @@ final class PortalController
         $repo->replaceSecondaryEmails((int) $owner['id'], $this->splitList((string) input('secondary_emails')));
 
         AuditService::log(Auth::id(), 'owner', 'owner_contacts_updated', 'owner', (string) $owner['id']);
-        Session::flash('portal_notice', 'Kontaktní údaje byly uloženy.');
+        Session::flash('portal_notice', t('Kontaktní údaje byly uloženy.'));
         redirect('/portal/contacts');
     }
 
@@ -411,12 +411,12 @@ final class PortalController
             redirect('/portal');
         }
         if (empty(input('main_consent'))) {
-            Session::flash('portal_error', 'Bez souhlasu se zpracováním údajů nelze pokračovat.');
+            Session::flash('portal_error', t('Bez souhlasu se zpracováním údajů nelze pokračovat.'));
             redirect('/portal/onboarding');
         }
 
         (new OwnerOnboardingService())->applyFromRequest((int) $owner['id'], Auth::id());
-        Session::flash('portal_notice', 'Děkujeme, vaše údaje byly uloženy.');
+        Session::flash('portal_notice', t('Děkujeme, vaše údaje byly uloženy.'));
         redirect('/portal');
     }
 
@@ -445,21 +445,21 @@ final class PortalController
         $confirm = (string) input('new_password_confirm');
 
         if (empty($user['password_hash']) || !password_verify($current, (string) $user['password_hash'])) {
-            Session::flash('portal_error', 'Současné heslo není správné.');
+            Session::flash('portal_error', t('Současné heslo není správné.'));
             redirect('/portal/settings');
         }
         if (strlen($new) < 10) {
-            Session::flash('portal_error', 'Nové heslo musí mít alespoň 10 znaků.');
+            Session::flash('portal_error', t('Nové heslo musí mít alespoň 10 znaků.'));
             redirect('/portal/settings');
         }
         if ($new !== $confirm) {
-            Session::flash('portal_error', 'Nová hesla se neshodují.');
+            Session::flash('portal_error', t('Nová hesla se neshodují.'));
             redirect('/portal/settings');
         }
 
         (new UserRepository())->updatePasswordHash((int) $user['id'], Auth::hash($new));
         AuditService::log((int) $user['id'], 'owner', 'password_changed', 'user', (string) $user['id']);
-        Session::flash('portal_notice', 'Heslo bylo změněno.');
+        Session::flash('portal_notice', t('Heslo bylo změněno.'));
         redirect('/portal/settings');
     }
 
@@ -475,7 +475,7 @@ final class PortalController
         $consent = !empty(input('contact_consent'));
         $repo->setContactConsent((int) $owner['id'], $consent);
         AuditService::log(Auth::id(), 'owner', 'owner_consent_updated', 'owner', (string) $owner['id'], null, ['contact_consent' => $consent]);
-        Session::flash('portal_notice', $consent ? 'Souhlas byl uložen.' : 'Souhlas byl odvolán.');
+        Session::flash('portal_notice', $consent ? t('Souhlas byl uložen.') : t('Souhlas byl odvolán.'));
         redirect('/portal/settings');
     }
 
@@ -565,7 +565,7 @@ final class PortalController
 
         if ($ref === 'general') {
             $thread = $messages->ownerThread((int) $owner['id']);
-            $heading = 'Obecná zpráva';
+            $heading = t('Obecná zpráva');
             $dogId = 0;
         } else {
             $dogId = (int) $ref;
@@ -608,7 +608,7 @@ final class PortalController
 
         $body = trim((string) input('body'));
         if ($body === '') {
-            Session::flash('portal_error', 'Zpráva nesmí být prázdná.');
+            Session::flash('portal_error', t('Zpráva nesmí být prázdná.'));
             redirect($target);
         }
 
@@ -622,7 +622,7 @@ final class PortalController
             $target = '/portal/messages/general';
         }
         $messages->addMessage($threadId, Auth::id(), 'owner', $body, 'open');
-        Session::flash('portal_notice', 'Zpráva byla odeslána výzkumnému týmu.');
+        Session::flash('portal_notice', t('Zpráva byla odeslána výzkumnému týmu.'));
         redirect($target);
     }
 

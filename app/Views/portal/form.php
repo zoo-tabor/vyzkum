@@ -7,7 +7,7 @@
 ?>
 <div class="page-head">
     <h1><?= e($def['name']) ?></h1>
-    <p class="muted">Pes: <?= e($dog['name']) ?> / <?= e($dog['breed_name']) ?> &middot; <a href="/portal/dogs/<?= (int) $dog['id'] ?>">zpět</a></p>
+    <p class="muted"><?= t('Pes:') ?> <?= e($dog['name']) ?> / <?= e($dog['breed_name']) ?> &middot; <a href="/portal/dogs/<?= (int) $dog['id'] ?>"><?= t('zpět') ?></a></p>
 </div>
 
 <?php if (!empty($error)): ?><div class="alert alert--error"><?= e($error) ?></div><?php endif; ?>
@@ -43,8 +43,8 @@
                 <?php elseif ($type === 'file'): ?>
                     <input type="file" name="<?= $field ?>" accept=".pdf,.jpg,.jpeg,.png,.webp" <?= $req ? 'required' : '' ?>>
                 <?php elseif ($type === 'yes_no'): ?>
-                    <div><label><input type="radio" name="<?= $field ?>" value="yes"> Ano</label>
-                        <label><input type="radio" name="<?= $field ?>" value="no"> Ne</label></div>
+                    <div><label><input type="radio" name="<?= $field ?>" value="yes"> <?= t('Ano') ?></label>
+                        <label><input type="radio" name="<?= $field ?>" value="no"> <?= t('Ne') ?></label></div>
                 <?php elseif ($type === 'single_choice'): ?>
                     <?php foreach ($qOptions as $o): ?>
                         <div><label><input type="radio" name="<?= $field ?>" value="<?= e($o['option_key']) ?>"> <?= e($o['label']) ?></label></div>
@@ -57,10 +57,10 @@
             </div>
         <?php endforeach; ?>
 
-        <label for="note"><strong>Poznámka na závěr</strong></label>
-        <textarea id="note" name="note" rows="3" placeholder="Cokoliv, co se do dotazníku nevejde..."></textarea>
+        <label for="note"><strong><?= t('Poznámka na závěr') ?></strong></label>
+        <textarea id="note" name="note" rows="3" placeholder="<?= e(t('Cokoliv, co se do dotazníku nevejde...')) ?>"></textarea>
 
-        <button type="submit" class="btn btn--primary">Odeslat dotazník</button>
+        <button type="submit" class="btn btn--primary"><?= t('Odeslat dotazník') ?></button>
     </form>
 </div>
 

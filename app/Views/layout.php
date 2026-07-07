@@ -62,7 +62,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
             <span class="topbar__email"><?= e($user['email']) ?></span>
             <form method="post" action="/logout" class="inline">
                 <?= \App\Core\Csrf::field() ?>
-                <button type="submit" class="btn btn--ghost">Odhlásit</button>
+                <button type="submit" class="btn btn--ghost"><?= t('Odhlásit') ?></button>
             </form>
         </div>
     </header>
@@ -75,11 +75,11 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
     <div class="shell">
         <nav class="sidebar" id="sidebar">
             <ul>
-                <li><a href="/portal" class="<?= $portalActive('/portal') ?>">Moji psi</a></li>
-                <li><a href="/portal/forms" class="<?= $portalActive('/portal/forms') ?>">Dotazníky</a></li>
-                <li><a href="/portal/messages" class="<?= $portalActive('/portal/messages') ?>">Zprávy<?= $badgeHtml($msgBadge) ?></a></li>
-                <li><a href="/portal/contacts" class="<?= $portalActive('/portal/contacts') ?>">Moje údaje</a></li>
-                <li><a href="/portal/settings" class="<?= $portalActive('/portal/settings') ?>">Nastavení</a></li>
+                <li><a href="/portal" class="<?= $portalActive('/portal') ?>"><?= t('Moji psi') ?></a></li>
+                <li><a href="/portal/forms" class="<?= $portalActive('/portal/forms') ?>"><?= t('Dotazníky') ?></a></li>
+                <li><a href="/portal/messages" class="<?= $portalActive('/portal/messages') ?>"><?= t('Zprávy') ?><?= $badgeHtml($msgBadge) ?></a></li>
+                <li><a href="/portal/contacts" class="<?= $portalActive('/portal/contacts') ?>"><?= t('Moje údaje') ?></a></li>
+                <li><a href="/portal/settings" class="<?= $portalActive('/portal/settings') ?>"><?= t('Nastavení') ?></a></li>
             </ul>
         </nav>
         <main class="content"><?= $content ?></main>
@@ -94,7 +94,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
             <span class="topbar__role">klub</span>
             <form method="post" action="/logout" class="inline">
                 <?= \App\Core\Csrf::field() ?>
-                <button type="submit" class="btn btn--ghost">Odhlásit</button>
+                <button type="submit" class="btn btn--ghost"><?= t('Odhlásit') ?></button>
             </form>
         </div>
     </header>
@@ -134,7 +134,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
             <span class="topbar__role"><?= e($user['role']) ?></span>
             <form method="post" action="/logout" class="inline">
                 <?= \App\Core\Csrf::field() ?>
-                <button type="submit" class="btn btn--ghost">Odhlásit</button>
+                <button type="submit" class="btn btn--ghost"><?= t('Odhlásit') ?></button>
             </form>
         </div>
     </header>
