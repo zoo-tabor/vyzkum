@@ -48,6 +48,12 @@ foreach ($scanDirs as $dir) {
                 $keys[$unescape($hit[1])] = true;
             }
         }
+        // 'title' => 'text'  (titulky stranek se prekladaji pres t($title) v layoutu)
+        if (preg_match_all('/\'title\'\s*=>\s*\'((?:\\\\.|[^\'\\\\])*)\'/', $code, $m, PREG_SET_ORDER)) {
+            foreach ($m as $hit) {
+                $keys[$unescape($hit[1])] = true;
+            }
+        }
     }
 }
 $found = array_keys($keys);

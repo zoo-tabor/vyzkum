@@ -1,10 +1,10 @@
 <?php
 /** @var string $content */
 /** @var string|null $title */
-$pageTitle = isset($title) ? $title . ' - Výzkum ZOO Tábor' : 'Výzkum ZOO Tábor';
+$pageTitle = isset($title) ? t($title) . ' - ' . t('Výzkum ZOO Tábor') : t('Výzkum ZOO Tábor');
 ?>
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="<?= e(\App\Support\I18n::locale()) ?>">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">

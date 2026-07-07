@@ -2,7 +2,7 @@
 /** @var string $content */
 /** @var string|null $title */
 $user = \App\Services\Auth::user();
-$pageTitle = isset($title) ? $title . ' - Výzkum ZOO Tábor' : 'Výzkum ZOO Tábor';
+$pageTitle = isset($title) ? t($title) . ' - ' . t('Výzkum ZOO Tábor') : t('Výzkum ZOO Tábor');
 $isOwner = $user !== null && ($user['role'] ?? '') === 'owner';
 $isClub = $user !== null && ($user['role'] ?? '') === 'club_viewer';
 
@@ -43,7 +43,7 @@ $nav = [
 $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
 ?>
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="<?= e(\App\Support\I18n::locale()) ?>">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -94,7 +94,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
         <div class="topbar__user">
             <?php include ROOT_PATH . '/app/Views/partials/lang_switch.php'; ?>
             <span class="topbar__email"><?= e($user['email']) ?></span>
-            <span class="topbar__role">klub</span>
+            <span class="topbar__role"><?= t('klub') ?></span>
             <form method="post" action="/logout" class="inline">
                 <?= \App\Core\Csrf::field() ?>
                 <button type="submit" class="btn btn--ghost"><?= t('Odhlásit') ?></button>
@@ -104,8 +104,8 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
     <div class="shell">
         <nav class="sidebar" id="sidebar">
             <ul>
-                <li><a href="/club" class="<?= $currentPath === '/club' ? 'active' : '' ?>">Přehled</a></li>
-                <li><a href="/club/dogs" class="<?= $currentPath === '/club/dogs' ? 'active' : '' ?>">Psi</a></li>
+                <li><a href="/club" class="<?= $currentPath === '/club' ? 'active' : '' ?>"><?= t('Přehled') ?></a></li>
+                <li><a href="/club/dogs" class="<?= $currentPath === '/club/dogs' ? 'active' : '' ?>"><?= t('Psi') ?></a></li>
             </ul>
         </nav>
         <main class="content"><?= $content ?></main>
