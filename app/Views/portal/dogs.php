@@ -36,7 +36,7 @@
                 <?php foreach ($dogs as $d): ?>
                     <tr>
                         <td><a href="/portal/dogs/<?= (int) $d['id'] ?>"><?= e($d['name']) ?></a></td>
-                        <td><?= e($d['breed_name']) ?></td>
+                        <td><?= e(\App\Support\Breeds::translate($d['breed_name'])) ?></td>
                         <td><?= e(\App\Support\Dates::toCz(substr((string) ($d['updated_at'] ?? ''), 0, 10))) ?: '-' ?></td>
                         <td><a href="/portal/dogs/<?= (int) $d['id'] ?>"><?= t('Detail') ?> &rarr;</a></td>
                     </tr>

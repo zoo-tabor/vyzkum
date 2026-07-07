@@ -22,11 +22,11 @@ $sex = $sample['sex'] ?? 'unknown';
                 <select id="breed_id" name="breed_id" required>
                     <option value="">- <?= t('vyberte') ?> -</option>
                     <?php foreach ($breeds as $b): ?>
-                        <option value="<?= (int) $b['id'] ?>"<?= (int) ($sample['breed_id'] ?? 0) === (int) $b['id'] ? ' selected' : '' ?>><?= e($b['name']) ?></option>
+                        <option value="<?= (int) $b['id'] ?>"<?= (int) ($sample['breed_id'] ?? 0) === (int) $b['id'] ? ' selected' : '' ?>><?= e(\App\Support\Breeds::translate($b['name'])) ?></option>
                     <?php endforeach; ?>
                 </select>
             <?php else: ?>
-                <p><?= t('Plemeno:') ?> <strong><?= e($sample['breed_name'] ?? '') ?></strong></p>
+                <p><?= t('Plemeno:') ?> <strong><?= e(\App\Support\Breeds::translate($sample['breed_name'] ?? '')) ?></strong></p>
             <?php endif; ?>
 
             <label for="chip_number"><?= t('Číslo čipu psa') ?></label>

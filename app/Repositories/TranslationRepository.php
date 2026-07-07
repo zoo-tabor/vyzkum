@@ -171,6 +171,28 @@ final class TranslationRepository
     }
 
     /**
+     * Vsechny jazykove verze jednoho pole entity: [locale => text]. Pro editacni
+     * obrazovku, kde se zadava jedno pole napric vsemi jazyky najednou.
+     *
+     * @return array<string, string>
+     */
+    public function localesFor(string $entityType, int $entityId, string $field): array
+    {
+        if (!$this->enabled()) {
+            return [];
+        }
+        $stmt = $this->pdo()->prepare(
+            'SELECT locale, text FROM translations WHERE entity_type = :e AND entity_id = :i AND field = :f'
+        );
+        $stmt->execute(['e' => $entityType, 'i' => $entityId, 'f' => $field]);
+        $out = [];
+        foreach ($stmt->fetchAll() as $r) {
+            $out[(string) $r['locale']] = (string) $r['text'];
+        }
+        return $out;
+    }
+
+    /**
      * Ulozi preklad (upsert). Prazdny text preklad SMAZE (=> fallback na cestinu).
      */
     public function set(string $entityType, int $entityId, string $field, string $locale, string $text): void

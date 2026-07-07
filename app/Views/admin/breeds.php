@@ -40,7 +40,7 @@
     <?php else: ?>
         <table class="table">
             <thead>
-            <tr><th>ID</th><th><?= t('Název') ?></th><th><?= t('Slug') ?></th><th><?= t('Stav') ?></th></tr>
+            <tr><th>ID</th><th><?= t('Název') ?></th><th><?= t('Slug') ?></th><th><?= t('Stav') ?></th><th><?= t('Překlady') ?></th></tr>
             </thead>
             <tbody>
             <?php foreach ($breeds as $breed): ?>
@@ -49,6 +49,7 @@
                     <td><?= e($breed['name']) ?></td>
                     <td><code><?= e($breed['slug']) ?></code></td>
                     <td><?= ((int) $breed['is_active']) === 1 ? t('aktivní') : t('neaktivní') ?></td>
+                    <td><a class="btn btn--ghost" href="/admin/breeds/<?= (int) $breed['id'] ?>/translations"><?= t('Překlady') ?></a></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>

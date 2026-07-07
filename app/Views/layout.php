@@ -124,7 +124,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
                 <option value="all"<?= $currentBreedId === null ? ' selected' : '' ?>><?= t('Všechna plemena') ?></option>
                 <?php foreach ($accessibleBreeds as $breed): ?>
                     <option value="<?= (int) $breed['id'] ?>"<?= $currentBreedId === (int) $breed['id'] ? ' selected' : '' ?>>
-                        <?= e($breed['name']) ?>
+                        <?= e(\App\Support\Breeds::translate($breed['name'])) ?>
                     </option>
                 <?php endforeach; ?>
             </select>

@@ -22,7 +22,7 @@ $row = static function (string $label, mixed $value): void {
     <table class="table">
         <?php
         $row(t('Stav'), \App\Support\SampleStatus::label($sample['status']));
-        $row(t('Plemeno'), $sample['breed_name']);
+        $row(t('Plemeno'), \App\Support\Breeds::translate($sample['breed_name']));
         $row(t('Veterinář'), trim((string) ($sample['vet_name'] ?? '') . (($sample['clinic_name'] ?? '') ? ' / ' . $sample['clinic_name'] : '')));
         $row(t('Číslo čipu (vet)'), $sample['chip_number_vet']);
         $row(t('Typ vzorku'), $sample['sample_type']);

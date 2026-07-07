@@ -7,7 +7,7 @@
 ?>
 <div class="page-head">
     <h1><?= e($def['name']) ?></h1>
-    <p class="muted"><?= t('Pes:') ?> <?= e($dog['name']) ?> / <?= e($dog['breed_name']) ?> &middot; <a href="/portal/dogs/<?= (int) $dog['id'] ?>"><?= t('zpět') ?></a></p>
+    <p class="muted"><?= t('Pes:') ?> <?= e($dog['name']) ?> / <?= e(\App\Support\Breeds::translate($dog['breed_name'])) ?> &middot; <a href="/portal/dogs/<?= (int) $dog['id'] ?>"><?= t('zpět') ?></a></p>
 </div>
 
 <?php if (!empty($error)): ?><div class="alert alert--error"><?= e($error) ?></div><?php endif; ?>

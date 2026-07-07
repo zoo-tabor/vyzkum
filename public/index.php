@@ -125,6 +125,8 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
     $router->group([new RequireRole('research_admin')], function (Router $router) use ($breeds, $twoFactor): void {
         $router->get('/admin/breeds', [$breeds, 'index']);
         $router->post('/admin/breeds', [$breeds, 'create']);
+        $router->get('/admin/breeds/{id}/translations', [$breeds, 'translations']);
+        $router->post('/admin/breeds/{id}/translations', [$breeds, 'saveTranslations']);
 
         // Psi (poradi: staticke routy pred {id})
         $dogs = new DogController();

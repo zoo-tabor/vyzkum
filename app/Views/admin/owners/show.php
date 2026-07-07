@@ -84,7 +84,7 @@
             <?php foreach ($dogs as $d): ?>
                 <tr>
                     <td><a href="/admin/dogs/<?= (int) $d['id'] ?>"><?= e($d['name']) ?></a></td>
-                    <td><?= e($d['breed_name']) ?></td>
+                    <td><?= e(\App\Support\Breeds::translate($d['breed_name'])) ?></td>
                     <td><?= ((int) $d['is_current']) === 1 ? t('aktuální') : t('bývalý') ?></td>
                 </tr>
             <?php endforeach; ?>

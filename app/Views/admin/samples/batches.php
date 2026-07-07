@@ -20,7 +20,7 @@
                 <tr>
                     <td><?= (int) $b['id'] ?></td>
                     <td><?= e($b['label'] ?? '') ?></td>
-                    <td><?= e($b['breed_name'] ?? '') ?></td>
+                    <td><?= e(\App\Support\Breeds::translate($b['breed_name'] ?? '')) ?></td>
                     <td><?= e($b['vet_name'] ?? '') ?></td>
                     <td><?= (int) $b['sample_count'] ?></td>
                     <td><?= e(\App\Support\Dates::toCz(substr((string) $b['created_at'], 0, 10))) ?></td>

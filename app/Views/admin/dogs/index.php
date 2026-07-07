@@ -56,7 +56,7 @@ use App\Support\Dates;
                     <td class="col-name"><a href="/admin/dogs/<?= (int) $d['id'] ?>"><?= e($d['name']) ?></a>
                         <?php if (!empty($d['chip_number'])): ?><br><span class="muted"><?= e($d['chip_number']) ?></span><?php endif; ?>
                     </td>
-                    <td><?= e($d['breed_name']) ?></td>
+                    <td><?= e(\App\Support\Breeds::translate($d['breed_name'])) ?></td>
                     <td><?= e($d['sex']) ?></td>
                     <td data-sort="<?= $age ?? -1 ?>"><?= $age !== null ? number_format($age, 2, '.', '') : '-' ?></td>
                     <td title="<?= e(Countries::name($d['country'] ?? null) ?? '') ?>"><?= e($d['country'] ?? '') ?: '-' ?></td>

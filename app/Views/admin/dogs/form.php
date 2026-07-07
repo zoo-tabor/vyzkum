@@ -25,7 +25,7 @@ $breedSel = $isEdit ? (int) $dog['breed_id'] : (int) ($defaultBreedId ?? 0);
         <select id="breed_id" name="breed_id" required>
             <option value=""><?= t('- vyberte -') ?></option>
             <?php foreach ($breeds as $b): ?>
-                <option value="<?= (int) $b['id'] ?>"<?= $breedSel === (int) $b['id'] ? ' selected' : '' ?>><?= e($b['name']) ?></option>
+                <option value="<?= (int) $b['id'] ?>"<?= $breedSel === (int) $b['id'] ? ' selected' : '' ?>><?= e(\App\Support\Breeds::translate($b['name'])) ?></option>
             <?php endforeach; ?>
         </select>
 

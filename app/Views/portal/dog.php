@@ -57,7 +57,7 @@ $renderAliveForm = static function (?string $prefillDeathDate) use ($dogId): voi
 <?php };
 ?>
 <div class="page-head">
-    <h1><?= e($dog['name']) ?> <span class="muted">/ <?= e($dog['breed_name']) ?></span></h1>
+    <h1><?= e($dog['name']) ?> <span class="muted">/ <?= e(\App\Support\Breeds::translate($dog['breed_name'])) ?></span></h1>
     <p><a href="/portal">&larr; <?= t('Zpět na moje psy') ?></a></p>
 </div>
 
@@ -67,7 +67,7 @@ $renderAliveForm = static function (?string $prefillDeathDate) use ($dogId): voi
 <div class="card">
     <h2><?= t('Údaje') ?></h2>
     <table class="table">
-        <tr><th style="width:220px"><?= t('Plemeno') ?></th><td><?= e($dog['breed_name']) ?></td></tr>
+        <tr><th style="width:220px"><?= t('Plemeno') ?></th><td><?= e(\App\Support\Breeds::translate($dog['breed_name'])) ?></td></tr>
         <tr><th><?= t('Číslo čipu') ?></th><td><?= e($dog['chip_number'] ?? '') ?: '-' ?></td></tr>
         <tr><th><?= t('Číslo průkazu původu') ?></th><td><?= e($dog['pedigree_number'] ?? '') ?: '-' ?></td></tr>
         <tr><th><?= t('Pohlaví') ?></th><td><?= e($sexLabel) ?></td></tr>

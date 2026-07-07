@@ -36,7 +36,7 @@ $lastAt = static function (?array $thread): string {
                 <?php foreach ($dogs as $row): $d = $row['dog']; $did = (int) $d['id']; $u = !empty($row['unseen']); ?>
                     <tr<?= $u ? ' style="font-weight:600"' : '' ?>>
                         <td><a href="/portal/messages/<?= $did ?>"><?= e($d['name']) ?></a>
-                            <span class="muted">/ <?= e($d['breed_name'] ?? '') ?></span>
+                            <span class="muted">/ <?= e(\App\Support\Breeds::translate($d['breed_name'] ?? '')) ?></span>
                             <?php if ($u): ?> <span class="badge-new"><?= t('nové') ?></span><?php endif; ?></td>
                         <td><?= (int) $row['count'] ?></td>
                         <td><?= e($lastAt($row['thread'])) ?></td>

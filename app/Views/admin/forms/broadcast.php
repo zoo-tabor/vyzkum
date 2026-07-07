@@ -17,7 +17,7 @@ $defId = (int) $def['id'];
 <?php if (!empty($error)): ?><div class="alert alert--error"><?= e($error) ?></div><?php endif; ?>
 
 <div class="card">
-    <p><?= t('Plemeno: {breed}. Odešle se 1 e-mail na psa (majitelé bez e-mailu se přeskočí).', ['breed' => '<strong>' . e($def['breed_name']) . '</strong>']) ?></p>
+    <p><?= t('Plemeno: {breed}. Odešle se 1 e-mail na psa (majitelé bez e-mailu se přeskočí).', ['breed' => '<strong>' . e(\App\Support\Breeds::translate($def['breed_name'])) . '</strong>']) ?></p>
     <?php if ($allEmailCount === 0): ?>
         <p class="muted"><?= t('Žádný majitel nemá primární e-mail - není komu rozeslat.') ?></p>
     <?php endif; ?>

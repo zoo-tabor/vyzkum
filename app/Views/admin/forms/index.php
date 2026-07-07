@@ -38,7 +38,7 @@
             <?php foreach ($forms as $f): ?>
                 <tr>
                     <td><a href="/admin/forms/<?= (int) $f['id'] ?>"><?= e($f['name']) ?></a></td>
-                    <td><?= e($f['breed_name']) ?></td>
+                    <td><?= e(\App\Support\Breeds::translate($f['breed_name'])) ?></td>
                     <td><?= e($f['status']) ?><?= (int) $f['draft_count'] > 0 ? ' (+draft)' : '' ?></td>
                     <td><?= (int) $f['latest_version'] ?></td>
                     <td><a href="/admin/forms/<?= (int) $f['id'] ?>"><?= t('Otevřít') ?> &rarr;</a></td>

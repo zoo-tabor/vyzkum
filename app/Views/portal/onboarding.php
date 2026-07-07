@@ -41,7 +41,7 @@ $emailList = implode('; ', array_map(static fn ($e) => $e['email'], $secondaryEm
         <?php else: ?>
             <?php foreach ($dogs as $d): $id = (int) $d['id']; ?>
                 <fieldset class="onb-dog">
-                    <legend><?= e($d['name']) ?> <span class="muted">(<?= e($d['breed_name']) ?>)</span></legend>
+                    <legend><?= e($d['name']) ?> <span class="muted">(<?= e(\App\Support\Breeds::translate($d['breed_name'])) ?>)</span></legend>
                     <p><?= t('Jste stále majitelem tohoto psa?') ?></p>
                     <p>
                         <label class="inline"><input type="radio" name="dog_<?= $id ?>" value="keep" required> <?= t('Ano') ?></label>

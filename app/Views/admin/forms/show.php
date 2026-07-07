@@ -15,7 +15,7 @@ use App\Support\FormSchema;
 $defId = (int) $def['id'];
 ?>
 <div class="page-head">
-    <h1><?= e($def['name']) ?> <span class="muted">/ <?= e($def['breed_name']) ?></span></h1>
+    <h1><?= e($def['name']) ?> <span class="muted">/ <?= e(\App\Support\Breeds::translate($def['breed_name'])) ?></span></h1>
     <p><a href="/admin/forms">&larr; <?= t('Zpět na seznam') ?></a></p>
 </div>
 
@@ -57,7 +57,7 @@ $defId = (int) $def['id'];
     <?php if ($published !== null): ?>
         <p>
             <a class="btn btn--primary" href="/admin/forms/<?= $defId ?>/send"><?= t('Rozeslat dotazník') ?></a>
-            <span class="muted"><?= t('Rozešle e-mail s odkazem všem majitelům žijících psů plemene {breed} (1 e-mail na psa).', ['breed' => '<strong>' . e($def['breed_name']) . '</strong>']) ?></span>
+            <span class="muted"><?= t('Rozešle e-mail s odkazem všem majitelům žijících psů plemene {breed} (1 e-mail na psa).', ['breed' => '<strong>' . e(\App\Support\Breeds::translate($def['breed_name'])) . '</strong>']) ?></span>
         </p>
         <?php if ($assignmentStats['total'] > 0): ?>
             <p class="muted">

@@ -8,7 +8,7 @@
 $dogId = (int) $dog['id'];
 ?>
 <div class="page-head">
-    <h1><?= t('Genetika:') ?> <?= e($dog['name']) ?> <span class="muted">(<?= e($dog['breed_name'] ?? '') ?>)</span></h1>
+    <h1><?= t('Genetika:') ?> <?= e($dog['name']) ?> <span class="muted">(<?= e(\App\Support\Breeds::translate($dog['breed_name'] ?? '')) ?>)</span></h1>
     <p>
         <a href="/admin/genetics">&larr; <?= t('Zpět na přehled') ?></a>
         &nbsp;·&nbsp;

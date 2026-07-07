@@ -6,9 +6,12 @@ namespace App\Controllers;
 use App\Core\Csrf;
 use App\Core\Session;
 use App\Repositories\BreedRepository;
+use App\Repositories\TranslationRepository;
 use App\Services\Auth;
 use App\Services\AuditService;
 use App\Services\BreedContext;
+use App\Support\Breeds;
+use App\Support\I18n;
 use App\Support\Policy;
 
 final class BreedController
@@ -52,6 +55,53 @@ final class BreedController
 
         Session::flash('breed_notice', t('Plemeno "{name}" bylo vytvořeno.', ['name' => $name]));
         redirect('/admin/breeds');
+    }
+
+    /** Obrazovka prekladu nazvu plemene (jedno pole 'name' napric vsemi jazyky). */
+    public function translations(string $id): string
+    {
+        $breed = (new BreedRepository())->find((int) $id);
+        if ($breed === null) {
+            http_response_code(404);
+            return view('errors/404', ['title' => 'Plemeno nenalezeno']);
+        }
+
+        return view('admin/breeds_translations', [
+            'title' => 'Překlady plemene',
+            'breed' => $breed,
+            'targetLocales' => $this->targetLocales(),
+            'existing' => (new TranslationRepository())->localesFor(Breeds::ENTITY, (int) $breed['id'], 'name'),
+            'error' => Session::flash('breed_error'),
+        ]);
+    }
+
+    /** Ulozi preklady nazvu plemene (prazdne pole = smaze -> fallback na cestinu). */
+    public function saveTranslations(string $id): string
+    {
+        Csrf::verify();
+        $breed = (new BreedRepository())->find((int) $id);
+        if ($breed === null) {
+            redirect('/admin/breeds');
+        }
+
+        $tx = new TranslationRepository();
+        $names = (array) ($_POST['name'] ?? []);
+        foreach ($this->targetLocales() as $loc) {
+            $tx->set(Breeds::ENTITY, (int) $id, 'name', $loc, (string) ($names[$loc] ?? ''));
+        }
+
+        AuditService::log(Auth::id(), Auth::role(), 'breed_translations_saved', 'breed', $id);
+        Session::flash('breed_notice', t('Překlady plemene „{name}“ byly uloženy.', ['name' => $breed['name']]));
+        redirect('/admin/breeds');
+    }
+
+    /** @return array<int, string> cilove jazyky (vse krome zdrojoveho cs) */
+    private function targetLocales(): array
+    {
+        return array_values(array_filter(
+            array_keys(I18n::available()),
+            static fn (string $l): bool => $l !== I18n::defaultLocale()
+        ));
     }
 
     public function switchContext(): string

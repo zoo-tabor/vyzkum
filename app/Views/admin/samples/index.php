@@ -39,7 +39,7 @@
             <?php foreach ($samples as $s): ?>
                 <tr>
                     <td><a href="/admin/samples/<?= e(rawurlencode($s['sample_id'])) ?>"><code><?= e($s['sample_id']) ?></code></a></td>
-                    <td><?= e($s['breed_name'] ?? '') ?: '-' ?></td>
+                    <td><?= e(\App\Support\Breeds::translate($s['breed_name'] ?? '')) ?: '-' ?></td>
                     <td><?= e($s['dog_name'] ?? '') ?: '-' ?></td>
                     <td><?= e($s['vet_name'] ?? '') ?: '-' ?></td>
                     <td data-sort="<?= e(substr((string) ($s['collection_date'] ?? ''), 0, 10)) ?>"><?= e(\App\Support\Dates::toCz($s['collection_date'] ?? null)) ?></td>

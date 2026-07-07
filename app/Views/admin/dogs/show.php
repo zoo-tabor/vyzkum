@@ -11,7 +11,7 @@ $ageRef = \App\Support\Age::referenceDate($dog['death_date'] ?? null, $dog['aliv
 $age = \App\Support\Age::years($dog['birth_date'] ?? null, $ageRef);
 ?>
 <div class="page-head" style="display:flex; justify-content:space-between; align-items:center;">
-    <h1><?= e($dog['name']) ?> <span class="muted">/ <?= e($dog['breed_name']) ?></span></h1>
+    <h1><?= e($dog['name']) ?> <span class="muted">/ <?= e(\App\Support\Breeds::translate($dog['breed_name'])) ?></span></h1>
     <span style="display:flex; gap:0.5rem; align-items:center;">
         <a class="btn" href="/admin/dogs/<?= (int) $dog['id'] ?>/edit"><?= t('Upravit') ?></a>
         <form method="post" action="/admin/dogs/<?= (int) $dog['id'] ?>/delete" style="margin:0;"
