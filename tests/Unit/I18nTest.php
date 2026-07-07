@@ -47,3 +47,13 @@ test('tc falls back to plain source when no context translation', function () {
     assert_same('Stav', I18n::tc('dog', 'Stav'));
     I18n::flush();
 });
+
+test('td returns Czech fallback for source locale and for missing keys', function () {
+    I18n::flush();
+    // cs = zdroj -> vzdy fallback (kanonicky cesky label)
+    assert_same('Nemoc', I18n::td('death_causes', '1', 'Nemoc'));
+    I18n::setLocale('en'); // katalog kodu je zatim prazdny -> fallback na cesky zdroj
+    assert_same('Nemoc', I18n::td('death_causes', '1', 'Nemoc'));
+    assert_same('Neznámé', I18n::td('death_causes', 'neexistuje', 'Neznámé'));
+    I18n::flush();
+});

@@ -18,6 +18,8 @@ final class I18n
     private static ?array $catalog = null;
     /** @var array<string, string>|null cache registru */
     private static ?array $available = null;
+    /** @var array<string, array<string, string>> cache domenovych katalogu: "domena|locale" => mapa */
+    private static array $domains = [];
 
     public static function defaultLocale(): string
     {
@@ -93,6 +95,36 @@ final class I18n
         return self::render($value, $params);
     }
 
+    /**
+     * Preklad domenoveho ciselniku (napr. pricin umrti) klicovaneho STABILNIM kodem
+     * misto textu. Kanonicka data (kod/id) v DB se nemeni, jen zobrazeni. Chybejici
+     * nebo prazdny preklad -> $fallback (cesky zdroj z DB).
+     * Katalog: resources/lang/{domena}/{locale}.php  ('kod' => 'preklad').
+     */
+    public static function td(string $domain, string $key, string $fallback): string
+    {
+        if (self::$locale === self::DEFAULT) {
+            return $fallback; // cestina je zdroj, katalog neni potreba
+        }
+        $cacheKey = $domain . '|' . self::$locale;
+        if (!isset(self::$domains[$cacheKey])) {
+            self::$domains[$cacheKey] = self::loadDomain($domain, self::$locale);
+        }
+        $value = self::$domains[$cacheKey][$key] ?? null;
+        return (is_string($value) && $value !== '') ? $value : $fallback;
+    }
+
+    /** @return array<string, string> */
+    private static function loadDomain(string $domain, string $locale): array
+    {
+        $file = self::root() . '/resources/lang/' . $domain . '/' . $locale . '.php';
+        if (!is_file($file)) {
+            return [];
+        }
+        $data = require $file;
+        return is_array($data) ? $data : [];
+    }
+
     /** Nalezeny preklad (neprazdny), jinak null. */
     private static function lookup(string $key): ?string
     {
@@ -148,5 +180,6 @@ final class I18n
         self::$locale = self::DEFAULT;
         self::$catalog = null;
         self::$available = null;
+        self::$domains = [];
     }
 }

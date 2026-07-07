@@ -42,7 +42,7 @@ $renderAliveForm = static function (?string $prefillDeathDate) use ($dogId): voi
         <div class="death-block" hidden>
             <label><?= t('Datum úmrtí (DD.MM.RRRR)') ?></label>
             <input type="text" name="death_date" placeholder="DD.MM.RRRR" value="<?= e($prefillDeathDate ?? '') ?>" style="max-width:200px">
-            <div class="cause-picker" data-cause-picker>
+            <div class="cause-picker" data-cause-picker data-placeholder="<?= e(t('– vyberte –')) ?>">
                 <label><?= t('Příčina úmrtí') ?></label>
                 <div class="cause-levels"></div>
                 <input type="hidden" name="death_cause_id" value="">

@@ -102,7 +102,7 @@ $breedSel = $isEdit ? (int) $dog['breed_id'] : (int) ($defaultBreedId ?? 0);
             <div class="dog-cause">
                 <label><?= t('Příčina úmrtí') ?></label>
                 <?php if ($causeTree !== []): ?>
-                    <div class="cause-picker" data-cause-picker data-selected="<?= $causeId ?>">
+                    <div class="cause-picker" data-cause-picker data-selected="<?= $causeId ?>" data-placeholder="<?= e(t('– vyberte –')) ?>">
                         <div class="cause-levels"></div>
                         <input type="hidden" name="death_cause_id" value="<?= $causeId ?: '' ?>">
                         <div class="cause-note"<?= !empty($dog['death_cause_note']) ? '' : ' hidden' ?>>

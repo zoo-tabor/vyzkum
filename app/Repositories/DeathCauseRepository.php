@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Repositories;
 
 use App\Core\Database;
+use App\Support\I18n;
 use PDO;
 
 /**
@@ -40,7 +41,8 @@ final class DeathCauseRepository
     }
 
     /**
-     * Vnoreny strom pro JS (uzly s children a has_note).
+     * Vnoreny strom pro JS (uzly s children a has_note). Labely jsou prelozene do
+     * aktualniho jazyka (overlay dle stabilniho kodu), kanonicka data zustavaji.
      *
      * @return array<int, array<string, mixed>>
      */
@@ -57,7 +59,7 @@ final class DeathCauseRepository
             foreach ($childrenMap[$parentId] ?? [] as $r) {
                 $out[] = [
                     'id' => (int) $r['id'],
-                    'label' => (string) $r['label'],
+                    'label' => I18n::td('death_causes', (string) $r['code'], (string) $r['label']),
                     'has_note' => (int) $r['has_note'] === 1,
                     'children' => $build((int) $r['id']),
                 ];
@@ -66,6 +68,24 @@ final class DeathCauseRepository
         };
 
         return $build(0);
+    }
+
+    /**
+     * Prelozeny label pro dane id (napric plemeny) - pro zobrazeni ulozene priciny
+     * v aktualnim jazyce. Vraci cesky zdroj jako fallback, nebo null kdyz id neexistuje.
+     */
+    public function displayLabel(int $id): ?string
+    {
+        if ($id <= 0) {
+            return null;
+        }
+        $stmt = $this->pdo()->prepare('SELECT code, label FROM death_causes WHERE id = :id LIMIT 1');
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch();
+        if ($row === false) {
+            return null;
+        }
+        return I18n::td('death_causes', (string) $row['code'], (string) $row['label']);
     }
 
     /**

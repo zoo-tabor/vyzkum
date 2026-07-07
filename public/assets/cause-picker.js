@@ -24,7 +24,7 @@
             var sel = document.createElement('select');
             sel.className = 'cause-level';
             var def = document.createElement('option');
-            def.value = ''; def.textContent = '– vyberte –';
+            def.value = ''; def.textContent = picker.getAttribute('data-placeholder') || '– vyberte –';
             sel.appendChild(def);
             nodes.forEach(function (n, i) {
                 var o = document.createElement('option');

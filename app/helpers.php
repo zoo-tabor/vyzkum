@@ -83,3 +83,12 @@ function tc(string $context, string $text, array $params = []): string
 {
     return \App\Support\I18n::tc($context, $text, $params);
 }
+
+/**
+ * Preklad domenoveho ciselniku (napr. pricin umrti) klicovaneho stabilnim kodem.
+ * Chybejici preklad -> $fallback (cesky zdroj z DB). Viz I18n::td().
+ */
+function td(string $domain, string $key, string $fallback): string
+{
+    return \App\Support\I18n::td($domain, $key, $fallback);
+}

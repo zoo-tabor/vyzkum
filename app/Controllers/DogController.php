@@ -115,6 +115,14 @@ final class DogController
             return view('errors/404', ['title' => 'Pes nenalezen']);
         }
 
+        // Pricinu umrti z ciselniku zobraz v aktualnim jazyce (kanonicky ulozeny id).
+        if ((int) ($dog['death_cause_id'] ?? 0) > 0) {
+            $label = (new DeathCauseRepository())->displayLabel((int) $dog['death_cause_id']);
+            if ($label !== null) {
+                $dog['death_cause'] = $label;
+            }
+        }
+
         return view('admin/dogs/show', [
             'title' => $dog['name'],
             'dog' => $dog,

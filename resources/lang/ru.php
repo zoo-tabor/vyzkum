@@ -707,4 +707,5 @@ return [
     'Žádný platný řádek k importu. Opravte chyby a nahrajte znovu.' => '',
     'Žádný řádek se nepodařilo spárovat. Zkontrolujte, že sample_id odpovídá vzorkům v systému.' => '',
     'živý' => '',
+    '– vyberte –' => '',
 ];

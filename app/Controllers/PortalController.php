@@ -54,6 +54,14 @@ final class PortalController
         $messages = new MessageRepository();
         $thread = $messages->dogThread((int) $id);
 
+        // Pricinu umrti z ciselniku zobraz v jazyce majitele (kanonicky ulozeny id).
+        if ((int) ($dog['death_cause_id'] ?? 0) > 0) {
+            $label = (new DeathCauseRepository())->displayLabel((int) $dog['death_cause_id']);
+            if ($label !== null) {
+                $dog['death_cause'] = $label;
+            }
+        }
+
         return view('portal/dog', [
             'title' => $dog['name'],
             'owner' => $owner,
