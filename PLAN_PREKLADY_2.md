@@ -90,8 +90,9 @@ Drobne, bez migrace.
       stavy, pager); nazvy plemen v klubovych selectech pres `Breeds::translate`.
 - [x] ClubController = jen titulky (bez flash) -> reseno extraktorem title literalu.
 - [x] Extrakt + lint + testy (74/0) + commit + push.
-      POZN: agregat pricin umrti v club dashboard zustava cesky (grupovano dle denorm. textu,
-      bez id - mimo rozsah).
+- [x] Agregat pricin umrti v club dashboard PRELOZEN (commit 9f03b8e): StatsRepository::deathCauses
+      dojoinuje death_causes.code (LEFT JOIN pres death_cause_id), club/dashboard pouziva
+      td('death_causes', code, cause). Free-text/neuvedeno fallback (t('(neuvedeno)')).
 
 ## Faze 11 - vicejazycne e-maily (sablony) [VLASTNI NAVRH PRED IMPLEMENTACI]
 Nejvetsi kus. Prechod z natvrdo generovanych PHP tel na EDITOVATELNE sablony s preklady per
