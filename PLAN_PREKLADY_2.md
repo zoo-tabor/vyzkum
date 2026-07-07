@@ -50,21 +50,26 @@ Mechanicka, uzavrena, bez migrace. Zvalidovala `td()` pro enumy pred sirsim nasa
       generuje kostry vsech 4 enum katalogu (merge zachova vyplnene).
 - [x] Lint + testy (74/0) + funkcni test overlay + commit + push. Katalogy ZATIM PRAZDNE.
 
-## Faze 8 - plemena (`td('breeds', slug, nazev)`)
-Owner-facing (nejvyssi dopad na portal). Stejny mechanismus jako faze 7, ale sirsi zasah
-(nazev plemena se zobrazuje na mnoha mistech pres joined `breed_name`).
+## Faze 8 - plemena  [HOTOVO - commit 3dde132]
+Owner-facing (vysoky dopad na portal). ZMENA MECHANISMU vuci puvodnimu navrhu: plemena jsou
+DATA v DB spravovana adminem (ne staticky seed) a user chce editovat preklady PRIMO Z UI
+aplikace (nezavisle na lokalnim DB dumpu) -> misto souboroveho `td()` katalogu pouzita
+tabulka `translations` (z faze 6b) + admin UI. Odpada generator i dev krok pri pridani plemena.
 
-- [ ] `resources/lang/breeds/{loc}.php` - klic = `breeds.slug`, hodnota = preklad nazvu.
-      Generator `bin/i18n_breeds.php` (cte slug+name z tabulky breeds nebo pevny seznam).
-- [ ] Helper/overlay pro preklad nazvu plemene dle slugu (BreedRepository nebo maly support).
-- [ ] Aplikovat na OWNER-FACING mista (priorita): `portal/dogs` (seznam), `portal/dog` (detail),
-      QR `dog/form` (pokud ukazuje plemeno). Poznamka: `breed_name` chodi z joinu -> overlay dle
-      slugu, ktery je take k dispozici (jinak dojoinovat slug).
-- [ ] Aplikovat na ADMIN mista (konzistence): seznam/detail psu, prepinac plemene, owners detail,
-      forms (breed_name).
-- [ ] CAVEAT: pridani plemena v adminu (`BreedController::create`) => novy slug nutno doplnit do
-      katalogu (dev krok). Plemen je malo a pridavaji se vzacne. (Volitelne pozdeji: admin UI.)
-- [ ] Lint + testy + commit + push.
+- [x] Helper `App\Support\Breeds::translate($name)` - overlay nazvu dle jazyka diveka. Klic
+      prekladu = breed id (rename-safe), lookup podle NAZVU (mapa name->id z BreedRepository).
+      Cache per request; cs short-circuit (bez DB dotazu); `enabled()` guard (no-op bez tabulky).
+      Preklad v translations (entity_type 'breed', field 'name').
+- [x] OWNER-FACING obaleno: portal dogs/dog/form/messages/onboarding, auth onboarding, QR dog/form.
+- [x] ADMIN obaleno: dogs index/show/form, samples index/detail/batches, genetics index/dog,
+      forms index/show/broadcast, owners/show, prepinac plemene v layout.
+- [x] Admin UI: `/admin/breeds/{id}/translations` (GET tabulka jazyk->preklad nazvu, jedno pole
+      napric jazyky; POST saveTranslations) + odkaz "Preklady" v seznamu plemen.
+      `TranslationRepository::localesFor()`.
+- [x] NEPREKLADA se: sprava plemen (admin/breeds - kanonicky cesky nazev/zdroj), klubove
+      konfig checkboxy (admin/clubs), JS autocomplete (genetics/samples - z API JSON).
+- [x] Lint (26) + testy (74/0) + smoke + commit + push. Vyzaduje translations tabulku
+      (ensure_schema.sql z faze 6b). Preklady se zadavaji v adminu, ZATIM prazdne -> fallback cs.
 
 ## Faze 9 - titulky stranek (`<title>`)
 Drobne, bez migrace.
