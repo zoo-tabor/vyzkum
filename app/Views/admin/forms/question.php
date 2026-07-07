@@ -13,8 +13,8 @@ $healthEvent = $cfg['health_event']['type'] ?? '';
 $optionsText = implode("\n", array_map(static fn ($o) => $o['option_key'] . '|' . $o['label'], $options));
 ?>
 <div class="page-head">
-    <h1>Upravit otázku</h1>
-    <p><a href="/admin/forms/<?= $defId ?>">&larr; Zpět na dotazník</a></p>
+    <h1><?= t('Upravit otázku') ?></h1>
+    <p><a href="/admin/forms/<?= $defId ?>">&larr; <?= t('Zpět na dotazník') ?></a></p>
 </div>
 
 <?php if (!empty($error)): ?><div class="alert alert--error"><?= e($error) ?></div><?php endif; ?>
@@ -23,14 +23,14 @@ $optionsText = implode("\n", array_map(static fn ($o) => $o['option_key'] . '|' 
     <form method="post" action="/admin/forms/<?= $defId ?>/questions/<?= (int) $question['id'] ?>">
         <?= \App\Core\Csrf::field() ?>
 
-        <p class="muted">Klíč otázky: <code><?= e($question['question_key']) ?></code> (neměnný)</p>
+        <p class="muted"><?= t('Klíč otázky: {key} (neměnný)', ['key' => '<code>' . e($question['question_key']) . '</code>']) ?></p>
 
-        <label for="label">Text otázky *</label>
+        <label for="label"><?= t('Text otázky') ?> *</label>
         <input type="text" id="label" name="label" value="<?= e($question['label']) ?>" required>
 
         <div class="form-row">
             <div>
-                <label for="type">Typ *</label>
+                <label for="type"><?= t('Typ') ?> *</label>
                 <select id="type" name="type" required>
                     <?php foreach (FormSchema::TYPES as $k => $lbl): ?>
                         <option value="<?= $k ?>"<?= $question['type'] === $k ? ' selected' : '' ?>><?= e($lbl) ?></option>
@@ -38,23 +38,23 @@ $optionsText = implode("\n", array_map(static fn ($o) => $o['option_key'] . '|' 
                 </select>
             </div>
             <div>
-                <label for="help_text">Nápověda</label>
+                <label for="help_text"><?= t('Nápověda') ?></label>
                 <input type="text" id="help_text" name="help_text" value="<?= e($question['help_text'] ?? '') ?>">
             </div>
             <div>
                 <label>&nbsp;</label>
-                <label class="inline"><input type="checkbox" name="is_required" value="1"<?= ((int) $question['is_required']) === 1 ? ' checked' : '' ?>> Povinná</label>
+                <label class="inline"><input type="checkbox" name="is_required" value="1"<?= ((int) $question['is_required']) === 1 ? ' checked' : '' ?>> <?= t('Povinná') ?></label>
             </div>
         </div>
 
-        <label for="options">Možnosti (jen pro "volby") - jedna na řádek, <code>klíč|popisek</code></label>
+        <label for="options"><?= t('Možnosti (jen pro "volby") - jedna na řádek, {format}', ['format' => '<code>klíč|popisek</code>']) ?></label>
         <textarea id="options" name="options" rows="3"><?= e($optionsText) ?></textarea>
 
         <div class="form-row">
             <div>
-                <label for="visible_if_question">Zobrazit jen když otázka (klíč)</label>
+                <label for="visible_if_question"><?= t('Zobrazit jen když otázka (klíč)') ?></label>
                 <select id="visible_if_question" name="visible_if_question">
-                    <option value="">- vždy zobrazit -</option>
+                    <option value=""><?= t('- vždy zobrazit -') ?></option>
                     <?php foreach ($otherQuestions as $q): ?>
                         <option value="<?= e($q['question_key']) ?>"<?= ($visibleIf['q'] ?? '') === $q['question_key'] ? ' selected' : '' ?>>
                             <?= e($q['question_key']) ?> (<?= e($q['label']) ?>)
@@ -63,13 +63,13 @@ $optionsText = implode("\n", array_map(static fn ($o) => $o['option_key'] . '|' 
                 </select>
             </div>
             <div>
-                <label for="visible_if_value">má hodnotu</label>
+                <label for="visible_if_value"><?= t('má hodnotu') ?></label>
                 <input type="text" id="visible_if_value" name="visible_if_value" value="<?= e($visibleIf['eq'] ?? '') ?>">
             </div>
             <div>
-                <label for="health_event_type">Zaznamenat jako zdravotní událost</label>
+                <label for="health_event_type"><?= t('Zaznamenat jako zdravotní událost') ?></label>
                 <select id="health_event_type" name="health_event_type">
-                    <option value="">- ne -</option>
+                    <option value=""><?= t('- ne -') ?></option>
                     <?php foreach (\App\Repositories\HealthEventRepository::TYPES as $t): ?>
                         <option value="<?= e($t) ?>"<?= $healthEvent === $t ? ' selected' : '' ?>><?= e($t) ?></option>
                     <?php endforeach; ?>
@@ -77,7 +77,7 @@ $optionsText = implode("\n", array_map(static fn ($o) => $o['option_key'] . '|' 
             </div>
         </div>
 
-        <button type="submit" class="btn btn--primary">Uložit otázku</button>
-        <a class="btn" href="/admin/forms/<?= $defId ?>">Zrušit</a>
+        <button type="submit" class="btn btn--primary"><?= t('Uložit otázku') ?></button>
+        <a class="btn" href="/admin/forms/<?= $defId ?>"><?= t('Zrušit') ?></a>
     </form>
 </div>

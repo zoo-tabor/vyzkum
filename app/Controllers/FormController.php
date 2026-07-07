@@ -41,17 +41,17 @@ final class FormController
         $breedId = (int) BreedContext::current();
         $name = trim((string) input('name'));
         if ($breedId <= 0) {
-            Session::flash('form_error', 'Nejdříve nahoře vyberte konkrétní plemeno.');
+            Session::flash('form_error', t('Nejdříve nahoře vyberte konkrétní plemeno.'));
             redirect('/admin/forms');
         }
         if ($name === '') {
-            Session::flash('form_error', 'Zadejte název dotazníku.');
+            Session::flash('form_error', t('Zadejte název dotazníku.'));
             redirect('/admin/forms');
         }
 
         $id = (new FormRepository())->createDefinition($breedId, $name, trim((string) input('description')) ?: null, Auth::id());
         AuditService::log(Auth::id(), Auth::role(), 'form_created', 'form_definition', (string) $id, null, ['name' => $name]);
-        Session::flash('form_notice', 'Dotazník vytvořen. Přidejte otázky a publikujte.');
+        Session::flash('form_notice', t('Dotazník vytvořen. Přidejte otázky a publikujte.'));
         redirect('/admin/forms/' . $id);
     }
 
@@ -95,7 +95,7 @@ final class FormController
         }
         $published = $repo->publishedVersion((int) $id);
         if ($published === null) {
-            Session::flash('form_error', 'Dotazník nejdříve publikujte, teprve pak jej lze rozeslat.');
+            Session::flash('form_error', t('Dotazník nejdříve publikujte, teprve pak jej lze rozeslat.'));
             redirect('/admin/forms/' . $id);
         }
 
@@ -129,14 +129,14 @@ final class FormController
         }
         $published = $repo->publishedVersion((int) $id);
         if ($published === null) {
-            Session::flash('form_error', 'Dotazník nejdříve publikujte, teprve pak jej lze rozeslat.');
+            Session::flash('form_error', t('Dotazník nejdříve publikujte, teprve pak jej lze rozeslat.'));
             redirect('/admin/forms/' . $id);
         }
 
         $subject = trim((string) input('subject'));
         $body = trim((string) input('body'));
         if ($subject === '' || $body === '') {
-            Session::flash('form_error', 'Vyplňte předmět i text e-mailu.');
+            Session::flash('form_error', t('Vyplňte předmět i text e-mailu.'));
             redirect('/admin/forms/' . $id . '/send');
         }
 
@@ -144,14 +144,16 @@ final class FormController
         $result = (new FormBroadcastService())->send($def, $published, $subject, $body, Auth::id(), $livingOnly);
 
         if ($result['total'] === 0) {
-            Session::flash('form_error', 'Pro toto plemeno nejsou žádní majitelé ' . ($livingOnly ? 'žijících psů' : 'psů') . '.');
+            Session::flash('form_error', $livingOnly
+                ? t('Pro toto plemeno nejsou žádní majitelé žijících psů.')
+                : t('Pro toto plemeno nejsou žádní majitelé psů.'));
         } else {
-            $msg = 'Rozesláno: ' . $result['sent'] . ' e-mailů';
+            $msg = t('Rozesláno: {sent} e-mailů', ['sent' => $result['sent']]);
             if ($result['skipped'] > 0) {
-                $msg .= ', přeskočeno bez e-mailu: ' . $result['skipped'];
+                $msg .= t(', přeskočeno bez e-mailu: {skipped}', ['skipped' => $result['skipped']]);
             }
             if ($result['failed'] > 0) {
-                $msg .= ', nedoručeno: ' . $result['failed'] . ' (viz e-mail log)';
+                $msg .= t(', nedoručeno: {failed} (viz e-mail log)', ['failed' => $result['failed']]);
             }
             Session::flash($result['failed'] > 0 ? 'form_error' : 'form_notice', $msg . '.');
         }
@@ -170,7 +172,7 @@ final class FormController
         $type = (string) input('type');
         $label = trim((string) input('label'));
         if (!FormSchema::isValidType($type) || $label === '') {
-            Session::flash('form_error', 'Vyberte typ a zadejte text otázky.');
+            Session::flash('form_error', t('Vyberte typ a zadejte text otázky.'));
             redirect('/admin/forms/' . $id);
         }
 
@@ -192,7 +194,7 @@ final class FormController
         }
 
         AuditService::log(Auth::id(), Auth::role(), 'form_question_added', 'form_version', (string) $version['id'], null, ['key' => $key]);
-        Session::flash('form_notice', 'Otázka přidána.');
+        Session::flash('form_notice', t('Otázka přidána.'));
         redirect('/admin/forms/' . $id);
     }
 
@@ -205,7 +207,7 @@ final class FormController
             return view('errors/404', ['title' => 'Otázka nenalezena']);
         }
         if ($q['version_status'] !== 'draft') {
-            Session::flash('form_error', 'Publikovanou verzi nelze upravovat. Vytvořte novou verzi.');
+            Session::flash('form_error', t('Publikovanou verzi nelze upravovat. Vytvořte novou verzi.'));
             redirect('/admin/forms/' . $id);
         }
 
@@ -225,14 +227,14 @@ final class FormController
         $repo = new FormRepository();
         $q = $repo->findQuestion((int) $qid);
         if ($q === null || (int) $q['form_definition_id'] !== (int) $id || $q['version_status'] !== 'draft') {
-            Session::flash('form_error', 'Otázku nelze upravit.');
+            Session::flash('form_error', t('Otázku nelze upravit.'));
             redirect('/admin/forms/' . $id);
         }
 
         $type = (string) input('type');
         $label = trim((string) input('label'));
         if (!FormSchema::isValidType($type) || $label === '') {
-            Session::flash('form_error', 'Vyberte typ a zadejte text otázky.');
+            Session::flash('form_error', t('Vyberte typ a zadejte text otázky.'));
             redirect('/admin/forms/' . $id . '/questions/' . $qid . '/edit');
         }
 
@@ -245,7 +247,7 @@ final class FormController
         ]);
         $repo->replaceOptions((int) $qid, FormSchema::needsOptions($type) ? FormSchema::parseOptions((string) input('options')) : []);
 
-        Session::flash('form_notice', 'Otázka uložena.');
+        Session::flash('form_notice', t('Otázka uložena.'));
         redirect('/admin/forms/' . $id);
     }
 
@@ -256,7 +258,7 @@ final class FormController
         $q = $repo->findQuestion((int) $qid);
         if ($q !== null && (int) $q['form_definition_id'] === (int) $id && $q['version_status'] === 'draft') {
             $repo->deleteQuestion((int) $qid);
-            Session::flash('form_notice', 'Otázka smazána.');
+            Session::flash('form_notice', t('Otázka smazána.'));
         }
         redirect('/admin/forms/' . $id);
     }
@@ -278,7 +280,7 @@ final class FormController
         try {
             (new FormRepository())->publish((int) $id);
             AuditService::log(Auth::id(), Auth::role(), 'form_published', 'form_definition', $id);
-            Session::flash('form_notice', 'Dotazník byl publikován.');
+            Session::flash('form_notice', t('Dotazník byl publikován.'));
         } catch (\Throwable $e) {
             Session::flash('form_error', $e->getMessage());
         }
@@ -289,7 +291,7 @@ final class FormController
     {
         Csrf::verify();
         (new FormRepository())->ensureDraft((int) $id);
-        Session::flash('form_notice', 'Vytvořena nová (draft) verze - můžete upravovat.');
+        Session::flash('form_notice', t('Vytvořena nová (draft) verze - můžete upravovat.'));
         redirect('/admin/forms/' . $id);
     }
 

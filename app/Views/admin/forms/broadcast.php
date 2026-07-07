@@ -10,48 +10,50 @@
 $defId = (int) $def['id'];
 ?>
 <div class="page-head">
-    <h1>Rozeslat dotazník <span class="muted">/ <?= e($def['name']) ?></span></h1>
-    <p><a href="/admin/forms/<?= $defId ?>">&larr; Zpět na dotazník</a></p>
+    <h1><?= t('Rozeslat dotazník') ?> <span class="muted">/ <?= e($def['name']) ?></span></h1>
+    <p><a href="/admin/forms/<?= $defId ?>">&larr; <?= t('Zpět na dotazník') ?></a></p>
 </div>
 
 <?php if (!empty($error)): ?><div class="alert alert--error"><?= e($error) ?></div><?php endif; ?>
 
 <div class="card">
-    <p>Plemeno: <strong><?= e($def['breed_name']) ?></strong>. Odešle se 1 e-mail na psa (majitelé bez e-mailu se přeskočí).</p>
+    <p><?= t('Plemeno: {breed}. Odešle se 1 e-mail na psa (majitelé bez e-mailu se přeskočí).', ['breed' => '<strong>' . e($def['breed_name']) . '</strong>']) ?></p>
     <?php if ($allEmailCount === 0): ?>
-        <p class="muted">Žádný majitel nemá primární e-mail - není komu rozeslat.</p>
+        <p class="muted"><?= t('Žádný majitel nemá primární e-mail - není komu rozeslat.') ?></p>
     <?php endif; ?>
 </div>
 
 <div class="card">
-    <h2>Text e-mailu</h2>
+    <h2><?= t('Text e-mailu') ?></h2>
     <p class="muted">
-        Můžete použít zástupné značky: <code>{pes}</code> (jméno psa),
-        <code>{majitel}</code> (jméno majitele), <code>{odkaz}</code> (odkaz na vyplnění).
-        Pokud <code>{odkaz}</code> vynecháte, přidá se automaticky na konec.
+        <?= t('Můžete použít zástupné značky: {pes} (jméno psa), {majitel} (jméno majitele), {odkaz} (odkaz na vyplnění). Pokud {odkaz} vynecháte, přidá se automaticky na konec.', [
+            'pes' => '<code>{pes}</code>',
+            'majitel' => '<code>{majitel}</code>',
+            'odkaz' => '<code>{odkaz}</code>',
+        ]) ?>
     </p>
     <form method="post" action="/admin/forms/<?= $defId ?>/send"
-          onsubmit="return confirm('Opravdu rozeslat dotazník vybraným majitelům?');">
+          onsubmit="return confirm(<?= e(json_encode(t('Opravdu rozeslat dotazník vybraným majitelům?'), JSON_UNESCAPED_UNICODE)) ?>);">
         <?= \App\Core\Csrf::field() ?>
 
         <fieldset style="border:1px solid var(--line); border-radius:8px; padding:1rem; margin-bottom:1rem;">
-            <legend><strong>Komu rozeslat</strong></legend>
+            <legend><strong><?= t('Komu rozeslat') ?></strong></legend>
             <label class="inline"><input type="radio" name="recipients" value="living" checked>
-                Jen žijícím psům <span class="muted">(<?= (int) $livingEmailCount ?> e-mailů z <?= (int) $livingCount ?> psů)</span></label>
+                <?= t('Jen žijícím psům') ?> <span class="muted">(<?= t('{emails} e-mailů z {dogs} psů', ['emails' => (int) $livingEmailCount, 'dogs' => (int) $livingCount]) ?>)</span></label>
             <br>
             <label class="inline"><input type="radio" name="recipients" value="all">
-                Všem psům plemene i uhynulým <span class="muted">(<?= (int) $allEmailCount ?> e-mailů z <?= (int) $allCount ?> psů)</span></label>
+                <?= t('Všem psům plemene i uhynulým') ?> <span class="muted">(<?= t('{emails} e-mailů z {dogs} psů', ['emails' => (int) $allEmailCount, 'dogs' => (int) $allCount]) ?>)</span></label>
         </fieldset>
 
-        <label for="subject">Předmět *</label>
+        <label for="subject"><?= t('Předmět') ?> *</label>
         <input type="text" id="subject" name="subject" required value="<?= e($defaultSubject) ?>">
 
-        <label for="body">Text *</label>
+        <label for="body"><?= t('Text') ?> *</label>
         <textarea id="body" name="body" rows="12" required><?= e($defaultBody) ?></textarea>
 
         <p>
-            <button type="submit" class="btn btn--primary"<?= $allEmailCount === 0 ? ' disabled' : '' ?>>Odeslat majitelům</button>
-            <a class="btn" href="/admin/forms/<?= $defId ?>">Zrušit</a>
+            <button type="submit" class="btn btn--primary"<?= $allEmailCount === 0 ? ' disabled' : '' ?>><?= t('Odeslat majitelům') ?></button>
+            <a class="btn" href="/admin/forms/<?= $defId ?>"><?= t('Zrušit') ?></a>
         </p>
     </form>
 </div>

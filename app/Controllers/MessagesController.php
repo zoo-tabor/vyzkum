@@ -97,7 +97,7 @@ final class MessagesController
         $thread = $repo->thread((int) $id);
         $body = trim((string) input('body'));
         if ($thread === null || $body === '') {
-            Session::flash('msg_notice', 'Zpráva nesmí být prázdná.');
+            Session::flash('msg_notice', t('Zpráva nesmí být prázdná.'));
             redirect('/admin/messages/' . $id);
         }
         $repo->addMessage((int) $id, Auth::id(), Auth::role(), $body, 'waiting_owner');
@@ -110,7 +110,7 @@ final class MessagesController
         $status = (string) input('status');
         if (in_array($status, self::STATUSES, true)) {
             (new MessageRepository())->setStatus((int) $id, $status);
-            Session::flash('msg_notice', 'Stav vlákna změněn.');
+            Session::flash('msg_notice', t('Stav vlákna změněn.'));
         }
         redirect('/admin/messages/' . $id);
     }

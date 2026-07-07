@@ -5,15 +5,15 @@
 /** @var array<int, array{normalized_code:string, c:int}> $examinations */
 /** @var array<int, array<string, mixed>> $recent */
 ?>
-<div class="page-head"><h1>Zdraví</h1></div>
+<div class="page-head"><h1><?= t('Zdraví') ?></h1></div>
 
 <?php if ($breedId === null): ?>
-    <div class="card"><p class="muted">Vyberte plemeno v přepínači nahoře pro zobrazení zdravotních statistik.</p></div>
+    <div class="card"><p class="muted"><?= t('Vyberte plemeno v přepínači nahoře pro zobrazení zdravotních statistik.') ?></p></div>
 <?php else: ?>
     <div class="card">
-        <h2>Četnost typů událostí</h2>
-        <?php if ($byType === []): ?><p class="muted">Žádné zdravotní události.</p><?php else: ?>
-            <table class="table"><thead><tr><th>Typ</th><th>Počet</th></tr></thead><tbody>
+        <h2><?= t('Četnost typů událostí') ?></h2>
+        <?php if ($byType === []): ?><p class="muted"><?= t('Žádné zdravotní události.') ?></p><?php else: ?>
+            <table class="table"><thead><tr><th><?= t('Typ') ?></th><th><?= t('Počet') ?></th></tr></thead><tbody>
                 <?php foreach ($byType as $r): ?><tr><td><?= e($r['event_type']) ?></td><td><?= (int) $r['c'] ?></td></tr><?php endforeach; ?>
             </tbody></table>
         <?php endif; ?>
@@ -21,7 +21,7 @@
 
     <div class="cards">
         <div class="card">
-            <h2>Nemoci</h2>
+            <h2><?= t('Nemoci') ?></h2>
             <?php if ($diseases === []): ?><p class="muted">-</p><?php else: ?>
                 <table class="table"><tbody>
                     <?php foreach ($diseases as $r): ?><tr><td><?= e($r['normalized_code']) ?></td><td><?= (int) $r['c'] ?></td></tr><?php endforeach; ?>
@@ -29,7 +29,7 @@
             <?php endif; ?>
         </div>
         <div class="card">
-            <h2>Vyšetření</h2>
+            <h2><?= t('Vyšetření') ?></h2>
             <?php if ($examinations === []): ?><p class="muted">-</p><?php else: ?>
                 <table class="table"><tbody>
                     <?php foreach ($examinations as $r): ?><tr><td><?= e($r['normalized_code']) ?></td><td><?= (int) $r['c'] ?></td></tr><?php endforeach; ?>
@@ -39,10 +39,10 @@
     </div>
 
     <div class="card">
-        <h2>Poslední události</h2>
-        <?php if ($recent === []): ?><p class="muted">Žádné.</p><?php else: ?>
+        <h2><?= t('Poslední události') ?></h2>
+        <?php if ($recent === []): ?><p class="muted"><?= t('Žádné.') ?></p><?php else: ?>
             <table class="table">
-                <thead><tr><th>Pes</th><th>Typ</th><th>Kód</th><th>Datum</th><th>Zdroj</th></tr></thead>
+                <thead><tr><th><?= t('Pes') ?></th><th><?= t('Typ') ?></th><th><?= t('Kód') ?></th><th><?= t('Datum') ?></th><th><?= t('Zdroj') ?></th></tr></thead>
                 <tbody>
                 <?php foreach ($recent as $h): ?>
                     <tr>
