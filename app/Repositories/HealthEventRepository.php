@@ -26,18 +26,20 @@ final class HealthEventRepository
         ?string $normalizedCode,
         ?array $valueJson,
         ?string $note,
-        ?int $createdBy
+        ?int $createdBy,
+        ?string $eventEndDate = null
     ): int {
         $stmt = $this->pdo()->prepare(
             'INSERT INTO health_events
-                (dog_id, breed_id, event_type, event_date, source_type, source_id, normalized_code, value_json, note, created_by_user_id)
-             VALUES (:d, :b, :t, :date, :st, :sid, :code, :json, :note, :by)'
+                (dog_id, breed_id, event_type, event_date, event_end_date, source_type, source_id, normalized_code, value_json, note, created_by_user_id)
+             VALUES (:d, :b, :t, :date, :end, :st, :sid, :code, :json, :note, :by)'
         );
         $stmt->execute([
             'd' => $dogId,
             'b' => $breedId,
             't' => $eventType,
             'date' => $eventDate ?: null,
+            'end' => $eventEndDate ?: null,
             'st' => $sourceType,
             'sid' => $sourceId,
             'code' => $normalizedCode,

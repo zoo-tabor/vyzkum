@@ -3,6 +3,7 @@
 /** @var array<string, mixed> $def */
 /** @var array<int, array<string, mixed>> $questions */
 /** @var array<int, array<int, array<string, mixed>>> $options */
+/** @var array<int, array<string, mixed>> $diseaseTree */
 /** @var string|null $error */
 ?>
 <div class="page-head">
@@ -53,6 +54,41 @@
                     <?php foreach ($qOptions as $o): ?>
                         <div><label><input type="checkbox" name="<?= $field ?>[]" value="<?= e($o['option_key']) ?>"> <?= e($o['label']) ?></label></div>
                     <?php endforeach; ?>
+                <?php elseif ($type === 'disease_history'): ?>
+                    <?php
+                    $renderDisease = function (array $nodes, string $field) use (&$renderDisease): void { ?>
+                        <ul class="dh-list">
+                        <?php foreach ($nodes as $n): ?>
+                            <?php if (empty($n['is_leaf'])): ?>
+                                <li class="dh-cat">
+                                    <label class="dh-cat-label"><input type="checkbox" class="dh-cat-toggle"> <strong><?= e($n['label']) ?></strong></label>
+                                    <div class="dh-children" hidden><?php $renderDisease($n['children'], $field); ?></div>
+                                </li>
+                            <?php else: ?>
+                                <li class="dh-leaf">
+                                    <label><input type="checkbox" class="dh-leaf-check" name="<?= $field ?>_disease[]" value="<?= (int) $n['id'] ?>"> <?= e($n['label']) ?></label>
+                                    <div class="dh-dates" hidden>
+                                        <span class="dh-date"><?= t('od') ?> <input type="date" name="<?= $field ?>_from[<?= (int) $n['id'] ?>]"></span>
+                                        <span class="dh-date"><?= t('do') ?> <input type="date" class="dh-to" name="<?= $field ?>_to[<?= (int) $n['id'] ?>]"></span>
+                                        <label class="inline"><input type="checkbox" class="dh-ongoing" name="<?= $field ?>_ongoing[<?= (int) $n['id'] ?>]" value="1"> <?= t('stále probíhá') ?></label>
+                                        <?php if (!empty($n['has_note'])): ?>
+                                            <input type="text" class="dh-note" name="<?= $field ?>_note[<?= (int) $n['id'] ?>]" placeholder="<?= e(t('upřesnění (nepovinné)')) ?>">
+                                        <?php endif; ?>
+                                    </div>
+                                </li>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                        </ul>
+                    <?php };
+                    ?>
+                    <div class="disease-history" data-dh>
+                        <?php if (($diseaseTree ?? []) === []): ?>
+                            <p class="muted"><?= t('Pro toto plemeno zatím není číselník nemocí.') ?></p>
+                        <?php else: ?>
+                            <p class="muted"><?= t('Zaškrtněte kategorii pro rozbalení nemocí, pak vyberte prodělané nemoci a zadejte období.') ?></p>
+                            <?php $renderDisease($diseaseTree, $field); ?>
+                        <?php endif; ?>
+                    </div>
                 <?php endif; ?>
             </div>
         <?php endforeach; ?>
@@ -64,6 +100,16 @@
     </form>
 </div>
 
+<style>
+.disease-history .dh-list { list-style:none; margin:0; padding:0; }
+.disease-history .dh-children { list-style:none; margin:.25rem 0 .5rem 1.5rem; padding:0; border-left:2px solid var(--line); padding-left:.75rem; }
+.disease-history .dh-cat { margin:.3rem 0; }
+.disease-history .dh-leaf { margin:.35rem 0; }
+.disease-history .dh-dates { margin:.3rem 0 .6rem 1.75rem; display:flex; flex-wrap:wrap; gap:.75rem; align-items:center; }
+.disease-history .dh-dates input[type=date] { max-width:180px; }
+.disease-history .dh-note { max-width:280px; }
+</style>
+<script src="<?= e(asset('assets/disease-history.js')) ?>"></script>
 <script>
 (function () {
     function valueOf(qkey) {

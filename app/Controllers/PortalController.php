@@ -149,12 +149,17 @@ final class PortalController
         $tx->apply(TranslationRepository::FORM_QUESTION, $questions, ['label', 'help_text'], $locale);
         $tx->applyGrouped(TranslationRepository::FORM_OPTION, $options, ['label'], $locale);
 
+        // Strom nemoci (jen kdyz je v dotazniku otazka typu zdravotni historie).
+        $hasDisease = array_filter($questions, static fn ($q): bool => (string) $q['type'] === 'disease_history');
+        $diseaseTree = $hasDisease !== [] ? (new DeathCauseRepository())->diseaseTreeForBreed((int) $dog['breed_id']) : [];
+
         return view('portal/form', [
             'title' => $def['name'],
             'dog' => $dog,
             'def' => $def,
             'questions' => $questions,
             'options' => $options,
+            'diseaseTree' => $diseaseTree,
             'error' => Session::flash('portal_error'),
         ]);
     }
@@ -193,13 +198,18 @@ final class PortalController
         $responses = new FormResponseRepository();
         $responseId = $responses->create((int) $version['id'], (int) $id, (int) $owner['id'], Auth::id(), trim((string) input('note')) ?: null);
 
+        $breedId = $dog['breed_id'] !== null ? (int) $dog['breed_id'] : null;
         foreach ($questions as $q) {
             $config = !empty($q['config_json']) ? (json_decode((string) $q['config_json'], true) ?: []) : [];
             if (!FormConditions::isVisible($config, $answersByKey)) {
                 continue;
             }
+            if ((string) $q['type'] === 'disease_history') {
+                $this->storeDiseaseHistory($responses, $responseId, $q, (int) $id, $breedId);
+                continue;
+            }
             $this->storeAnswer($responses, $responseId, $q, $optionsByQ[(int) $q['id']] ?? [], (string) $dog['breed_slug'], (int) $owner['id'], (int) $id);
-            $this->maybeHealthEvent($q, $config, $answersByKey, (int) $id, $dog['breed_id'] !== null ? (int) $dog['breed_id'] : null, $responseId);
+            $this->maybeHealthEvent($q, $config, $answersByKey, (int) $id, $breedId, $responseId);
         }
 
         // Pokud byl dotaznik rozeslan (existuje otevreny ukol), oznacime ho jako vyplneny.
@@ -642,6 +652,81 @@ final class PortalController
         $messages->addMessage($threadId, Auth::id(), 'owner', $body, 'open');
         Session::flash('portal_notice', t('Zpráva byla odeslána výzkumnému týmu.'));
         redirect($target);
+    }
+
+    /**
+     * Zdravotni historie: vybrane nemoci (listy disease vetve ciselniku) s obdobim od-do.
+     * Kazda nemoc -> radek health_events (typ=disease, kod, datum od, datum do; prazdne do =
+     * stale probiha) + strukturovany zaznam do odpovedi dotazniku (value_json). Zacatek povinny.
+     *
+     * @param array<string, mixed> $q
+     */
+    private function storeDiseaseHistory(FormResponseRepository $responses, int $responseId, array $q, int $dogId, ?int $breedId): void
+    {
+        $field = 'q_' . (int) $q['id'];
+        $ids = array_map('intval', (array) ($_POST[$field . '_disease'] ?? []));
+        if ($ids === []) {
+            return;
+        }
+
+        $from = (array) ($_POST[$field . '_from'] ?? []);
+        $to = (array) ($_POST[$field . '_to'] ?? []);
+        $ongoing = (array) ($_POST[$field . '_ongoing'] ?? []);
+        $notes = (array) ($_POST[$field . '_note'] ?? []);
+
+        $causes = new DeathCauseRepository();
+        $health = new HealthEventRepository();
+        $entries = [];
+        foreach ($ids as $cid) {
+            // Jen konecne nemoci z disease vetve (kod 1.*) v ciselniku plemene.
+            $leaf = $causes->findLeaf($cid, $breedId);
+            if ($leaf === null || !str_starts_with((string) $leaf['code'], '1.')) {
+                continue;
+            }
+            $f = trim((string) ($from[$cid] ?? ''));
+            if (!\App\Services\DogOwnerImporter::isDate($f)) {
+                continue; // zacatek je povinny a musi byt platne datum
+            }
+            $isOngoing = !empty($ongoing[$cid]);
+            $tRaw = trim((string) ($to[$cid] ?? ''));
+            $t = (!$isOngoing && \App\Services\DogOwnerImporter::isDate($tRaw) && $tRaw >= $f) ? $tRaw : null;
+            $note = trim((string) ($notes[$cid] ?? '')) ?: null;
+
+            $entries[] = [
+                'id' => (int) $leaf['id'],
+                'code' => (string) $leaf['code'],
+                'label' => (string) $leaf['label'], // cesky snapshot (kanonicky), preklad az pri zobrazeni
+                'from' => $f,
+                'to' => $t,
+                'ongoing' => $isOngoing,
+                'note' => $note,
+            ];
+
+            $health->create(
+                $dogId,
+                $breedId,
+                'disease',
+                $f,
+                'owner_form',
+                $responseId,
+                (string) $leaf['code'],
+                ['label' => (string) $leaf['label'], 'note' => $note, 'ongoing' => $isOngoing],
+                $note,
+                Auth::id(),
+                $t
+            );
+        }
+        if ($entries === []) {
+            return;
+        }
+
+        // Souhrn (cesky) do value_text jako fallback; strukturovana data do value_json.
+        $summary = implode('; ', array_map(static function (array $e): string {
+            $period = \App\Support\Dates::toCz($e['from']);
+            $period .= ' – ' . ($e['ongoing'] ? '…' : ($e['to'] !== null ? \App\Support\Dates::toCz($e['to']) : '?'));
+            return $e['label'] . ' (' . $period . ')';
+        }, $entries));
+        $responses->addAnswer($responseId, (int) $q['id'], ['text' => $summary, 'json' => $entries]);
     }
 
     /**

@@ -154,6 +154,26 @@ final class FormResponseRepository
                 } elseif ($v === 'ne' || $v === 'no') {
                     $display = I18n::t('Ne');
                 }
+            } elseif ($type === 'disease_history' && is_array($json) && $json !== []) {
+                $lines = [];
+                foreach ($json as $e) {
+                    if (!is_array($e)) {
+                        continue;
+                    }
+                    $label = I18n::td('death_causes', (string) ($e['code'] ?? ''), (string) ($e['label'] ?? ''));
+                    $from = \App\Support\Dates::toCz((string) ($e['from'] ?? ''));
+                    $end = !empty($e['ongoing'])
+                        ? I18n::t('stále probíhá')
+                        : (!empty($e['to']) ? \App\Support\Dates::toCz((string) $e['to']) : '?');
+                    $line = $label . ' (' . $from . ' – ' . $end . ')';
+                    if (!empty($e['note'])) {
+                        $line .= ' – ' . (string) $e['note'];
+                    }
+                    $lines[] = $line;
+                }
+                if ($lines !== []) {
+                    $display = implode("\n", $lines);
+                }
             }
             $a['display_value'] = $display;
         }

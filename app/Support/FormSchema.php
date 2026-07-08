@@ -15,11 +15,21 @@ final class FormSchema
         'date' => 'Datum',
         'yes_no' => 'Ano / Ne',
         'file' => 'Soubor',
+        'disease_history' => 'Zdravotní historie (nemoci s obdobím)',
     ];
 
     public static function isValidType(string $type): bool
     {
         return isset(self::TYPES[$type]);
+    }
+
+    /**
+     * Typ, ktery nema vlastni moznosti ani volny vstup, ale strukturovanou zdravotni
+     * historii z ciselniku nemoci (disease vetev death_causes) + obdobi od-do.
+     */
+    public static function isDiseaseHistory(string $type): bool
+    {
+        return $type === 'disease_history';
     }
 
     /** Stitek typu otazky v jazyce diveka (fallback = cesky zdroj z TYPES). */

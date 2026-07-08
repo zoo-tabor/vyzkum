@@ -71,6 +71,48 @@ final class DeathCauseRepository
     }
 
     /**
+     * Podstrom NEMOCI (vetev s korenem code='1') pro zdravotni historii v dotazniku.
+     * Vraci kategorie (1.1..) s vnorenymi listy nemoci; labely prelozene, u kazdeho uzlu
+     * code + is_leaf + has_note. Vynechava Stari/Nehoda/Jine (koreny 2/3/4).
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function diseaseTreeForBreed(?int $breedId): array
+    {
+        $rows = $this->rowsForBreed($breedId);
+        $rootId = null;
+        $childrenMap = [];
+        foreach ($rows as $r) {
+            if ((string) $r['code'] === '1') {
+                $rootId = (int) $r['id'];
+            }
+            $pid = $r['parent_id'] !== null ? (int) $r['parent_id'] : 0;
+            $childrenMap[$pid][] = $r;
+        }
+        if ($rootId === null) {
+            return [];
+        }
+
+        $build = static function (int $parentId) use (&$build, $childrenMap): array {
+            $out = [];
+            foreach ($childrenMap[$parentId] ?? [] as $r) {
+                $children = $build((int) $r['id']);
+                $out[] = [
+                    'id' => (int) $r['id'],
+                    'code' => (string) $r['code'],
+                    'label' => I18n::td('death_causes', (string) $r['code'], (string) $r['label']),
+                    'has_note' => (int) $r['has_note'] === 1,
+                    'is_leaf' => $children === [],
+                    'children' => $children,
+                ];
+            }
+            return $out;
+        };
+
+        return $build($rootId);
+    }
+
+    /**
      * Prelozeny label pro dane id (napric plemeny) - pro zobrazeni ulozene priciny
      * v aktualnim jazyce. Vraci cesky zdroj jako fallback, nebo null kdyz id neexistuje.
      */
