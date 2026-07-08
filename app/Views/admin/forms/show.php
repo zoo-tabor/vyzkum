@@ -149,8 +149,13 @@ $defId = (int) $def['id'];
                 </div>
             </div>
 
-            <label for="options"><?= t('Možnosti (jen pro "volby") - jedna na řádek, volitelně {format}', ['format' => '<code>klíč|popisek</code>']) ?></label>
-            <textarea id="options" name="options" rows="3" placeholder="Ano&#10;Ne"></textarea>
+            <div data-qtypes="single_choice,multiple_choice">
+                <label for="options"><?= t('Možnosti (jedna na řádek, volitelně {format})', ['format' => '<code>klíč|popisek</code>']) ?></label>
+                <textarea id="options" name="options" rows="3" placeholder="Ano&#10;Ne"></textarea>
+            </div>
+            <div data-qtypes="disease_history">
+                <p class="muted"><?= t('Použije se číselník nemocí plemene (větev nemocí z příčin úmrtí). Možnosti se nevyplňují - majitel vybere prodělané nemoci a jejich období.') ?></p>
+            </div>
 
             <div class="form-row">
                 <div>
@@ -166,7 +171,7 @@ $defId = (int) $def['id'];
                     <label for="visible_if_value"><?= t('má hodnotu (klíč možnosti / "yes" / "no")') ?></label>
                     <input type="text" id="visible_if_value" name="visible_if_value">
                 </div>
-                <div>
+                <div data-qhide="disease_history">
                     <label for="health_event_type"><?= t('Zaznamenat jako zdravotní událost') ?></label>
                     <select id="health_event_type" name="health_event_type">
                         <option value=""><?= t('- ne -') ?></option>
@@ -179,6 +184,7 @@ $defId = (int) $def['id'];
 
             <button type="submit" class="btn btn--primary"><?= t('Přidat otázku') ?></button>
         </form>
+        <script src="<?= e(asset('assets/form-builder.js')) ?>"></script>
         <p class="muted"><?= t('Příklad podmíněné otázky: "datum úmrtí" se zobrazí jen když otázka {q} = {v}.', ['q' => '<code>je_pes_nazivu</code>', 'v' => '<code>no</code>']) ?></p>
     </div>
 <?php endif; ?>

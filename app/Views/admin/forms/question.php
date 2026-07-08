@@ -47,8 +47,13 @@ $optionsText = implode("\n", array_map(static fn ($o) => $o['option_key'] . '|' 
             </div>
         </div>
 
-        <label for="options"><?= t('Možnosti (jen pro "volby") - jedna na řádek, {format}', ['format' => '<code>klíč|popisek</code>']) ?></label>
-        <textarea id="options" name="options" rows="3"><?= e($optionsText) ?></textarea>
+        <div data-qtypes="single_choice,multiple_choice">
+            <label for="options"><?= t('Možnosti (jedna na řádek, volitelně {format})', ['format' => '<code>klíč|popisek</code>']) ?></label>
+            <textarea id="options" name="options" rows="3"><?= e($optionsText) ?></textarea>
+        </div>
+        <div data-qtypes="disease_history">
+            <p class="muted"><?= t('Použije se číselník nemocí plemene (větev nemocí z příčin úmrtí). Možnosti se nevyplňují - majitel vybere prodělané nemoci a jejich období.') ?></p>
+        </div>
 
         <div class="form-row">
             <div>
@@ -66,7 +71,7 @@ $optionsText = implode("\n", array_map(static fn ($o) => $o['option_key'] . '|' 
                 <label for="visible_if_value"><?= t('má hodnotu') ?></label>
                 <input type="text" id="visible_if_value" name="visible_if_value" value="<?= e($visibleIf['eq'] ?? '') ?>">
             </div>
-            <div>
+            <div data-qhide="disease_history">
                 <label for="health_event_type"><?= t('Zaznamenat jako zdravotní událost') ?></label>
                 <select id="health_event_type" name="health_event_type">
                     <option value=""><?= t('- ne -') ?></option>
@@ -80,4 +85,5 @@ $optionsText = implode("\n", array_map(static fn ($o) => $o['option_key'] . '|' 
         <button type="submit" class="btn btn--primary"><?= t('Uložit otázku') ?></button>
         <a class="btn" href="/admin/forms/<?= $defId ?>"><?= t('Zrušit') ?></a>
     </form>
+    <script src="<?= e(asset('assets/form-builder.js')) ?>"></script>
 </div>
