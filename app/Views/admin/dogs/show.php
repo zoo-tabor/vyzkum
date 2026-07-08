@@ -99,13 +99,28 @@ $age = \App\Support\Age::years($dog['birth_date'] ?? null, $ageRef);
         <p class="muted"><?= t('Žádné zdravotní události.') ?></p>
     <?php else: ?>
         <table class="table">
-            <thead><tr><th><?= t('Typ') ?></th><th><?= t('Kód') ?></th><th><?= t('Datum') ?></th><th><?= t('Zdroj') ?></th><th><?= t('Poznámka') ?></th></tr></thead>
+            <thead><tr><th><?= t('Typ') ?></th><th><?= t('Nemoc / kód') ?></th><th><?= t('Období') ?></th><th><?= t('Zdroj') ?></th><th><?= t('Poznámka') ?></th></tr></thead>
             <tbody>
             <?php foreach ($healthEvents as $h): ?>
+                <?php
+                $hType = (string) $h['event_type'];
+                $hCode = (string) ($h['normalized_code'] ?? '');
+                $hj = !empty($h['value_json']) ? (json_decode((string) $h['value_json'], true) ?: []) : [];
+                $isDisease = $hType === 'disease' && $hCode !== '';
+                // U nemoci prelozeny nazev (fallback cesky snapshot z value_json, jinak kod).
+                $hLabel = $isDisease ? td('death_causes', $hCode, (string) ($hj['label'] ?? $hCode)) : $hCode;
+                // Obdobi: od (- do / stale probiha).
+                $period = \App\Support\Dates::toCz($h['event_date'] ?? null);
+                if (!empty($h['event_end_date'])) {
+                    $period .= ' – ' . \App\Support\Dates::toCz($h['event_end_date']);
+                } elseif ($isDisease && !empty($hj['ongoing'])) {
+                    $period .= ' – ' . t('stále probíhá');
+                }
+                ?>
                 <tr>
-                    <td><?= e(\App\Support\HealthEventType::label($h['event_type'])) ?></td>
-                    <td><?= e($h['normalized_code'] ?? '') ?></td>
-                    <td><?= e(\App\Support\Dates::toCz($h['event_date'] ?? null)) ?></td>
+                    <td><?= e(\App\Support\HealthEventType::label($hType)) ?></td>
+                    <td><?= e($hLabel) ?><?php if ($isDisease): ?><br><span class="muted"><code><?= e($hCode) ?></code></span><?php endif; ?></td>
+                    <td><?= e($period) ?></td>
                     <td><?= e($h['source_type']) ?></td>
                     <td><?= e($h['note'] ?? '') ?></td>
                 </tr>
