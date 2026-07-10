@@ -193,6 +193,13 @@ final class SampleRepository
         $stmt->execute(['s' => $status, 'sid' => $sampleId]);
     }
 
+    /** Smaze vzorek (navazane consents odpadnou pres FK ON DELETE CASCADE). */
+    public function delete(string $sampleId): void
+    {
+        $stmt = $this->pdo()->prepare('DELETE FROM samples WHERE sample_id = :sid');
+        $stmt->execute(['sid' => $sampleId]);
+    }
+
     /** @return array<string, mixed>|null */
     public function findForToken(string $sampleId, string $token, string $role): ?array
     {

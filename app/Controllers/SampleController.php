@@ -228,6 +228,19 @@ final class SampleController
         redirect('/admin/samples/' . $sampleId);
     }
 
+    public function destroy(string $sampleId): string
+    {
+        Csrf::verify();
+        $repo = new SampleRepository();
+        if ($repo->detail($sampleId) === null) {
+            redirect('/admin/samples');
+        }
+        $repo->delete($sampleId);
+        AuditService::log(Auth::id(), Auth::role(), 'sample_deleted', 'sample', $sampleId);
+        Session::flash('sample_notice', t('Vzorek {id} byl smazán.', ['id' => $sampleId]));
+        redirect('/admin/samples');
+    }
+
     public function vets(): string
     {
         return view('admin/samples/vets', [

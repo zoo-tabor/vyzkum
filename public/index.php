@@ -168,6 +168,7 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $router->post('/admin/samples/manual', [$samples, 'addSample']);
         $router->get('/admin/samples/dog-suggest', [$samples, 'dogSuggest']);
         $router->post('/admin/samples/{sampleId}/status', [$samples, 'updateStatus']);
+        $router->post('/admin/samples/{sampleId}/delete', [$samples, 'destroy']);
         $router->get('/admin/samples/{sampleId}/edit', [$samples, 'edit']);
         $router->post('/admin/samples/{sampleId}/edit', [$samples, 'update']);
         $router->get('/admin/samples/{sampleId}', [$samples, 'detail']);

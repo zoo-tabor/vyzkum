@@ -12,10 +12,10 @@ Serazeno od nejjednodussich/nizkorizikovych po slozite (nektere maji designove r
       (klic sidebarCollapsed), early-apply skript v <head> (bez FOUC), collapse jen desktop
       (>860px); mobil ma dal off-canvas. CSS+JS inline v layout.php. Bez migrace.
 
-### Faze 2 - admin/samples/{} smazani vzorku  [jednoduche]
-- [ ] Tlacitko Smazat vzorek na detailu + potvrzeni + SampleController::destroy + routa.
-- [ ] Osetrit vazby (genotypy/health_events/soubory ze vzorku) - zkontrolovat FK a bezpecne smazat.
-- [ ] Audit log. Bez migrace.
+### Faze 2 - admin/samples/{} smazani vzorku  [HOTOVO]
+- [x] Danger card na detailu vzorku + potvrzeni; SampleController::destroy + routa
+      POST /admin/samples/{sampleId}/delete; SampleRepository::delete. Audit. Bez migrace.
+      Jedina prichozi FK je consents (ON DELETE CASCADE); genotypy/dog nejsou FK na vzorek.
 
 ### Faze 3 - admin/genetics sloupec Vzorky (jen nejnovejsi)  [stredni]
 - [ ] Do seznamu genetiky pridat sloupec Vzorky; kdyz ma pes vice vzorku, ZOBRAZIT POUZE NEJNOVEJSI.

@@ -54,3 +54,13 @@ $row = static function (string $label, mixed $value): void {
         <button type="submit" class="btn btn--primary"><?= t('Uložit stav') ?></button>
     </form>
 </div>
+
+<div class="card">
+    <h2><?= t('Smazat vzorek') ?></h2>
+    <form method="post" action="/admin/samples/<?= e(rawurlencode($sample['sample_id'])) ?>/delete"
+          onsubmit="return confirm(<?= e(json_encode(t('Opravdu nevratně smazat vzorek {id}?', ['id' => $sample['sample_id']]), JSON_UNESCAPED_UNICODE)) ?>);">
+        <?= \App\Core\Csrf::field() ?>
+        <button type="submit" class="btn btn--danger"><?= t('Smazat vzorek') ?></button>
+        <span class="muted"><?= t('Odstraní vzorek natrvalo. Genetická data psa zůstávají.') ?></span>
+    </form>
+</div>
