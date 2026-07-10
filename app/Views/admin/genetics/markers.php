@@ -22,10 +22,11 @@
         <div class="form-row__action"><button type="submit" class="btn btn--primary"><?= t('Přidat gen') ?></button></div>
     </form>
     <table class="table">
-        <thead><tr><th><?= t('Symbol') ?></th><th><?= t('Název') ?></th><th><?= t('Poznámka') ?></th><th><?= t('Markerů') ?></th></tr></thead>
+        <thead><tr><th><?= t('Symbol') ?></th><th><?= t('Název') ?></th><th><?= t('Poznámka') ?></th><th><?= t('Markerů') ?></th><th></th></tr></thead>
         <tbody>
         <?php foreach ($genes as $g): ?>
-            <tr><td><code><?= e($g['symbol']) ?></code></td><td><?= e($g['name'] ?? '') ?></td><td><?= e($g['note'] ?? '') ?></td><td><?= (int) $g['marker_count'] ?></td></tr>
+            <tr><td><code><?= e($g['symbol']) ?></code></td><td><?= e($g['name'] ?? '') ?></td><td><?= e($g['note'] ?? '') ?></td><td><?= (int) $g['marker_count'] ?></td>
+                <td><a class="btn btn--ghost" href="/admin/genetics/genes/<?= (int) $g['id'] ?>/edit"><?= t('Upravit') ?></a></td></tr>
         <?php endforeach; ?>
         </tbody>
     </table>
@@ -60,7 +61,7 @@
     <?php endif; ?>
 
     <table class="table" style="margin-top:1rem">
-        <thead><tr><th><?= t('Marker') ?></th><th><?= t('Gen') ?></th><th><?= t('Lokus') ?></th><th><?= t('Ref/Alt') ?></th><th><?= t('Povolené') ?></th></tr></thead>
+        <thead><tr><th><?= t('Marker') ?></th><th><?= t('Gen') ?></th><th><?= t('Lokus') ?></th><th><?= t('Ref/Alt') ?></th><th><?= t('Povolené') ?></th><th></th></tr></thead>
         <tbody>
         <?php foreach ($markers as $m): ?>
             <tr>
@@ -69,6 +70,7 @@
                 <td><?= e($m['locus'] ?? '') ?></td>
                 <td><?= e(trim(($m['reference_allele'] ?? '') . ' / ' . ($m['alternate_allele'] ?? ''), ' /')) ?></td>
                 <td><?= e($m['allowed_values'] ?? '') ?></td>
+                <td><a class="btn btn--ghost" href="/admin/genetics/markers/<?= (int) $m['id'] ?>/edit"><?= t('Upravit') ?></a></td>
             </tr>
         <?php endforeach; ?>
         </tbody>

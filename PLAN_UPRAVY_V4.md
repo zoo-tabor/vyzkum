@@ -27,9 +27,10 @@ Serazeno od nejjednodussich/nizkorizikovych po slozite (nektere maji designove r
       Sdileny datalist-id.js (text->hidden dle data-idsync/data-idattr). Zeme prefill na editaci
       (Countries::name = all()[code]). Majitel jen u noveho psa. Bez migrace, bez endpointu.
 
-### Faze 5 - admin/genetics/markers editace genu z UI  [stredni, CRUD]
-- [ ] V UI menit gen: symbol, nazev, poznamka + markery (dnes read-only).
-- [ ] GeneticsController + repo update; validace. Pripadna migrace jen kdyz chybi sloupce.
+### Faze 5 - admin/genetics/markers editace genu z UI  [HOTOVO]
+- [x] Edit stranky pro gen (symbol/nazev/popis/poznamka) i marker (gen/kod/lokus/alely/hodnoty).
+      GeneRepository find/update Gene+Marker, GeneticsController edit/update + routy, odkazy Upravit
+      v obou tabulkach markers.php. Bez migrace.
 
 ### Faze 6 - admin/dogs/{} zmena majitele z UI  [design HOTOV]
 ROZHODNUTI: PRIMY prehod na EXISTUJICIHO majitele (bez potvrzovaciho e-mailu - admin dela

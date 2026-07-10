@@ -39,6 +39,21 @@ final class GeneRepository
         return (int) $this->pdo()->lastInsertId();
     }
 
+    /** @return array<string, mixed>|null */
+    public function findGene(int $id): ?array
+    {
+        $stmt = $this->pdo()->prepare('SELECT * FROM genes WHERE id = :id LIMIT 1');
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch();
+        return $row ?: null;
+    }
+
+    public function updateGene(int $id, string $symbol, ?string $name, ?string $description, ?string $note): void
+    {
+        $stmt = $this->pdo()->prepare('UPDATE genes SET symbol = :s, name = :n, description = :d, note = :note WHERE id = :id');
+        $stmt->execute(['id' => $id, 's' => $symbol, 'n' => $name, 'd' => $description, 'note' => $note]);
+    }
+
     /** @return array<int, array<string, mixed>> */
     public function markers(): array
     {
@@ -57,6 +72,28 @@ final class GeneRepository
         );
         $stmt->execute(['g' => $geneId, 'c' => $code, 'l' => $locus, 'r' => $ref, 'a' => $alt, 'av' => $allowed]);
         return (int) $this->pdo()->lastInsertId();
+    }
+
+    /** @return array<string, mixed>|null */
+    public function findMarker(int $id): ?array
+    {
+        $stmt = $this->pdo()->prepare(
+            'SELECT m.*, ge.symbol AS gene_symbol FROM genetic_markers m
+             JOIN genes ge ON ge.id = m.gene_id WHERE m.id = :id LIMIT 1'
+        );
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch();
+        return $row ?: null;
+    }
+
+    public function updateMarker(int $id, int $geneId, string $code, ?string $locus, ?string $ref, ?string $alt, ?string $allowed): void
+    {
+        $stmt = $this->pdo()->prepare(
+            'UPDATE genetic_markers SET gene_id = :g, marker_code = :c, locus = :l,
+                    reference_allele = :r, alternate_allele = :a, allowed_values = :av
+             WHERE id = :id'
+        );
+        $stmt->execute(['id' => $id, 'g' => $geneId, 'c' => $code, 'l' => $locus, 'r' => $ref, 'a' => $alt, 'av' => $allowed]);
     }
 
     public function findMarkerByCode(string $code): ?int

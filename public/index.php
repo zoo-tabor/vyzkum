@@ -214,6 +214,10 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $router->get('/admin/genetics/markers', [$genetics, 'markers']);
         $router->post('/admin/genetics/genes', [$genetics, 'createGene']);
         $router->post('/admin/genetics/markers', [$genetics, 'createMarker']);
+        $router->get('/admin/genetics/genes/{id}/edit', [$genetics, 'editGene']);
+        $router->post('/admin/genetics/genes/{id}', [$genetics, 'updateGene']);
+        $router->get('/admin/genetics/markers/{id}/edit', [$genetics, 'editMarker']);
+        $router->post('/admin/genetics/markers/{id}', [$genetics, 'updateMarker']);
         $router->get('/admin/genetics/import', [$genetics, 'importForm']);
         $router->get('/admin/genetics/import/template.csv', [$genetics, 'template']);
         $router->post('/admin/genetics/import', [$genetics, 'importPreview']);

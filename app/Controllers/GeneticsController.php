@@ -284,6 +284,79 @@ final class GeneticsController
         redirect('/admin/genetics/markers');
     }
 
+    public function editGene(string $id): string
+    {
+        $gene = (new GeneRepository())->findGene((int) $id);
+        if ($gene === null) {
+            http_response_code(404);
+            return view('errors/404', ['title' => 'Gen nenalezen']);
+        }
+        return view('admin/genetics/gene_edit', [
+            'title' => 'Upravit gen',
+            'gene' => $gene,
+            'error' => Session::flash('genetics_error'),
+        ]);
+    }
+
+    public function updateGene(string $id): string
+    {
+        Csrf::verify();
+        $symbol = trim((string) input('symbol'));
+        if ($symbol === '') {
+            Session::flash('genetics_error', t('Zadejte symbol genu.'));
+            redirect('/admin/genetics/genes/' . $id . '/edit');
+        }
+        (new GeneRepository())->updateGene(
+            (int) $id,
+            $symbol,
+            trim((string) input('name')) ?: null,
+            trim((string) input('description')) ?: null,
+            trim((string) input('note')) ?: null
+        );
+        AuditService::log(Auth::id(), Auth::role(), 'gene_updated', 'gene', $id);
+        Session::flash('genetics_notice', t('Gen uložen.'));
+        redirect('/admin/genetics/markers');
+    }
+
+    public function editMarker(string $id): string
+    {
+        $repo = new GeneRepository();
+        $marker = $repo->findMarker((int) $id);
+        if ($marker === null) {
+            http_response_code(404);
+            return view('errors/404', ['title' => 'Marker nenalezen']);
+        }
+        return view('admin/genetics/marker_edit', [
+            'title' => 'Upravit marker',
+            'marker' => $marker,
+            'genes' => $repo->genes(),
+            'error' => Session::flash('genetics_error'),
+        ]);
+    }
+
+    public function updateMarker(string $id): string
+    {
+        Csrf::verify();
+        $code = trim((string) input('marker_code'));
+        $geneId = (int) input('gene_id');
+        if ($code === '' || $geneId <= 0) {
+            Session::flash('genetics_error', t('Vyberte gen a zadejte kód markeru.'));
+            redirect('/admin/genetics/markers/' . $id . '/edit');
+        }
+        (new GeneRepository())->updateMarker(
+            (int) $id,
+            $geneId,
+            $code,
+            trim((string) input('locus')) ?: null,
+            trim((string) input('reference_allele')) ?: null,
+            trim((string) input('alternate_allele')) ?: null,
+            trim((string) input('allowed_values')) ?: null
+        );
+        AuditService::log(Auth::id(), Auth::role(), 'marker_updated', 'genetic_marker', $id);
+        Session::flash('genetics_notice', t('Marker uložen.'));
+        redirect('/admin/genetics/markers');
+    }
+
     public function importForm(): string
     {
         return view('admin/genetics/import', [
