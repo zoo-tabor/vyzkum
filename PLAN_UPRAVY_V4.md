@@ -22,10 +22,10 @@ Serazeno od nejjednodussich/nizkorizikovych po slozite (nektere maji designove r
       SampleRepository::newestByDogIds (ORDER received_at DESC, id DESC; prvni=nejnovejsi, bez N+1).
       Bez migrace.
 
-### Faze 4 - admin/dogs/new naseptavac (zeme + majitel)  [stredni, frontend]
-- [ ] Zeme puvodu: naseptavac (fulltext zuzeni) z Countries.
-- [ ] Majitel: naseptavac z existujicich majitelu (OwnerRepository::allForSelect uz je).
-- [ ] Reseni bez zavislosti (nativni <datalist> nebo lehky JS typeahead). Bez migrace.
+### Faze 4 - admin/dogs/new naseptavac (zeme + majitel)  [HOTOVO]
+- [x] Zeme a majitel = naseptavac pres nativni <datalist> + skryte pole s kodem/id.
+      Sdileny datalist-id.js (text->hidden dle data-idsync/data-idattr). Zeme prefill na editaci
+      (Countries::name = all()[code]). Majitel jen u noveho psa. Bez migrace, bez endpointu.
 
 ### Faze 5 - admin/genetics/markers editace genu z UI  [stredni, CRUD]
 - [ ] V UI menit gen: symbol, nazev, poznamka + markery (dnes read-only).

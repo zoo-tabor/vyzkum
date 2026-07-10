@@ -50,13 +50,19 @@ $breedSel = $isEdit ? (int) $dog['breed_id'] : (int) ($defaultBreedId ?? 0);
                 <input type="text" id="chip_number" name="chip_number" value="<?= $v('chip_number') ?>"></div>
             <div><label for="pedigree_number"><?= t('Číslo průkazu') ?></label>
                 <input type="text" id="pedigree_number" name="pedigree_number" value="<?= $v('pedigree_number') ?>"></div>
-            <div><label for="country"><?= t('Země původu') ?></label>
-                <select id="country" name="country">
-                    <option value=""><?= t('- neuvedeno -') ?></option>
+            <div><label for="country_search"><?= t('Země původu') ?></label>
+                <?php
+                $curCountry = (string) ($dog['country'] ?? '');
+                $curCountryLabel = $curCountry !== '' ? (Countries::name($curCountry) ?? $curCountry) . ' (' . $curCountry . ')' : '';
+                ?>
+                <input type="text" id="country_search" list="countries-list" data-idsync="country" data-idattr="code"
+                       value="<?= e($curCountryLabel) ?>" placeholder="<?= e(t('začněte psát...')) ?>" autocomplete="off">
+                <input type="hidden" name="country" id="country" value="<?= e($curCountry) ?>">
+                <datalist id="countries-list">
                     <?php foreach (Countries::all() as $code => $name): ?>
-                        <option value="<?= e($code) ?>"<?= ($dog['country'] ?? '') === $code ? ' selected' : '' ?>><?= e($name) ?> (<?= e($code) ?>)</option>
+                        <option value="<?= e($name) ?> (<?= e($code) ?>)" data-code="<?= e($code) ?>"></option>
                     <?php endforeach; ?>
-                </select></div>
+                </datalist></div>
         </div>
 
         <div class="form-row">
@@ -120,13 +126,15 @@ $breedSel = $isEdit ? (int) $dog['breed_id'] : (int) ($defaultBreedId ?? 0);
             </div>
         <?php else: ?>
             <div class="form-row">
-                <div><label for="owner_id"><?= t('Majitel (nepovinné)') ?></label>
-                    <select id="owner_id" name="owner_id">
-                        <option value=""><?= t('- bez majitele -') ?></option>
+                <div><label for="owner_search"><?= t('Majitel (nepovinné)') ?></label>
+                    <input type="text" id="owner_search" list="owners-list" data-idsync="owner_id" data-idattr="id"
+                           placeholder="<?= e(t('začněte psát jméno...')) ?>" autocomplete="off">
+                    <input type="hidden" name="owner_id" id="owner_id" value="">
+                    <datalist id="owners-list">
                         <?php foreach ($owners as $o): ?>
-                            <option value="<?= (int) $o['id'] ?>"><?= e($o['display_name']) ?></option>
+                            <option value="<?= e($o['display_name']) ?>" data-id="<?= (int) $o['id'] ?>"></option>
                         <?php endforeach; ?>
-                    </select></div>
+                    </datalist></div>
                 <div></div>
                 <div></div>
             </div>
@@ -152,6 +160,7 @@ $breedSel = $isEdit ? (int) $dog['breed_id'] : (int) ($defaultBreedId ?? 0);
     </form>
 </div>
 
+<script src="<?= e(asset('assets/datalist-id.js')) ?>"></script>
 <?php if ($isEdit && ($causeTree ?? []) !== []): ?>
 <script type="application/json" id="cause-tree"><?= json_encode($causeTree, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?></script>
 <script src="<?= e(asset('assets/cause-picker.js')) ?>"></script>

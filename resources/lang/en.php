@@ -796,6 +796,8 @@ return [
     'volný text' => '',
     'vyberte' => '',
     'vznést námitku proti zpracování,' => '',
+    'začněte psát jméno...' => '',
+    'začněte psát...' => '',
     'zdroj' => '',
     'zobrazit když {q} = {v}' => '',
     'zpracováním osobních a genetických údajů' => '',
