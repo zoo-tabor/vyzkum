@@ -8,6 +8,7 @@ use App\Core\Session;
 use App\Repositories\DogRepository;
 use App\Repositories\GeneRepository;
 use App\Repositories\GenotypeRepository;
+use App\Repositories\SampleRepository;
 use App\Services\Auth;
 use App\Services\AuditService;
 use App\Services\BreedContext;
@@ -37,6 +38,7 @@ final class GeneticsController
             'genes' => $genes,
             'dogs' => $dogs,
             'genotypes' => $repo->genotypesByDogGene($dogIds),
+            'newestSample' => (new SampleRepository())->newestByDogIds($dogIds),
             'meta' => $repo->dashboardMetaByDog($breedId),
             'currentBreedId' => $breedId,
             'genePanel' => (new GeneRepository())->genesWithMarker(),

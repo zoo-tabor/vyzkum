@@ -200,6 +200,38 @@ final class SampleRepository
         $stmt->execute(['sid' => $sampleId]);
     }
 
+    /**
+     * Nejnovejsi vzorek pro kazdeho psa (dle received_at, pak id) - bez N+1.
+     *
+     * @param array<int, int> $dogIds
+     * @return array<int, array{sample_id:string, received_at:?string}> dog_id => nejnovejsi vzorek
+     */
+    public function newestByDogIds(array $dogIds): array
+    {
+        $ids = array_values(array_unique(array_map('intval', $dogIds)));
+        if ($ids === []) {
+            return [];
+        }
+        $ph = implode(',', array_fill(0, count($ids), '?'));
+        $stmt = $this->pdo()->prepare(
+            "SELECT dog_id, sample_id, received_at, collection_date
+             FROM samples WHERE dog_id IN ({$ph})
+             ORDER BY (received_at IS NULL), received_at DESC, id DESC"
+        );
+        $stmt->execute($ids);
+
+        $out = [];
+        foreach ($stmt->fetchAll() as $r) {
+            $did = (int) $r['dog_id'];
+            if (isset($out[$did])) {
+                continue; // diky ORDER je prvni vyskyt nejnovejsi
+            }
+            $date = $r['received_at'] ?? ($r['collection_date'] ?? null);
+            $out[$did] = ['sample_id' => (string) $r['sample_id'], 'received_at' => $date !== null ? (string) $date : null];
+        }
+        return $out;
+    }
+
     /** @return array<string, mixed>|null */
     public function findForToken(string $sampleId, string $token, string $role): ?array
     {

@@ -17,9 +17,10 @@ Serazeno od nejjednodussich/nizkorizikovych po slozite (nektere maji designove r
       POST /admin/samples/{sampleId}/delete; SampleRepository::delete. Audit. Bez migrace.
       Jedina prichozi FK je consents (ON DELETE CASCADE); genotypy/dog nejsou FK na vzorek.
 
-### Faze 3 - admin/genetics sloupec Vzorky (jen nejnovejsi)  [stredni]
-- [ ] Do seznamu genetiky pridat sloupec Vzorky; kdyz ma pes vice vzorku, ZOBRAZIT POUZE NEJNOVEJSI.
-- [ ] Rozsirit dotaz (nejnovejsi sample_id + datum) - bez N+1. Bez migrace.
+### Faze 3 - admin/genetics sloupec Vzorky (jen nejnovejsi)  [HOTOVO]
+- [x] Sloupec Vzorky v dashboardu genetiky = nejnovejsi vzorek na psa (sample_id + datum).
+      SampleRepository::newestByDogIds (ORDER received_at DESC, id DESC; prvni=nejnovejsi, bez N+1).
+      Bez migrace.
 
 ### Faze 4 - admin/dogs/new naseptavac (zeme + majitel)  [stredni, frontend]
 - [ ] Zeme puvodu: naseptavac (fulltext zuzeni) z Countries.
