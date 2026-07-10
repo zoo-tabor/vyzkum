@@ -137,6 +137,7 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $router->post('/admin/dogs', [$dogs, 'store']);
         $router->get('/admin/dogs/{id}/edit', [$dogs, 'edit']);
         $router->post('/admin/dogs/{id}/delete', [$dogs, 'destroy']);
+        $router->post('/admin/dogs/{id}/owner', [$dogs, 'changeOwner']);
         $router->post('/admin/dogs/{id}', [$dogs, 'update']);
         $router->get('/admin/dogs/{id}', [$dogs, 'show']);
 

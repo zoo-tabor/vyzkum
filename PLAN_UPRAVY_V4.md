@@ -32,7 +32,7 @@ Serazeno od nejjednodussich/nizkorizikovych po slozite (nektere maji designove r
       GeneRepository find/update Gene+Marker, GeneticsController edit/update + routy, odkazy Upravit
       v obou tabulkach markers.php. Bez migrace.
 
-### Faze 6 - admin/dogs/{} zmena majitele z UI  [design HOTOV]
+### Faze 6 - admin/dogs/{} zmena majitele z UI  [HOTOVO]
 ROZHODNUTI: PRIMY prehod na EXISTUJICIHO majitele (bez potvrzovaciho e-mailu - admin dela
 prevod az po domluve se starym i novym majitelem). Kdyz novy majitel jeste neni v systemu,
 zalozi se zvlast (admin/owners/new) a posle se mu pozvanka (existujici tlacitko).

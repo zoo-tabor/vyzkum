@@ -2,7 +2,9 @@
 /** @var array<string, mixed> $dog */
 /** @var array<string, mixed>|null $currentOwner */
 /** @var array<int, array<string, mixed>> $history */
+/** @var array<int, array<string, mixed>> $owners */
 /** @var string|null $notice */
+/** @var string|null $error */
 
 $row = static function (string $label, mixed $value): void {
     echo '<tr><th style="width:200px">' . e($label) . '</th><td>' . e((string) ($value ?? '')) . '</td></tr>';
@@ -23,6 +25,7 @@ $age = \App\Support\Age::years($dog['birth_date'] ?? null, $ageRef);
 </div>
 
 <?php if (!empty($notice)): ?><div class="alert alert--ok"><?= e($notice) ?></div><?php endif; ?>
+<?php if (!empty($error)): ?><div class="alert alert--error"><?= e($error) ?></div><?php endif; ?>
 
 <div class="card">
     <h2><?= t('Základní údaje') ?></h2>
@@ -69,6 +72,25 @@ $age = \App\Support\Age::years($dog['birth_date'] ?? null, $ageRef);
     <?php else: ?>
         <p class="muted"><?= t('Pes nemá přiřazeného majitele.') ?></p>
     <?php endif; ?>
+
+    <form method="post" action="/admin/dogs/<?= (int) $dog['id'] ?>/owner" style="margin-top:.75rem"
+          onsubmit="return confirm(<?= e(json_encode(t('Opravdu přehodit psa na vybraného majitele?'), JSON_UNESCAPED_UNICODE)) ?>);">
+        <?= \App\Core\Csrf::field() ?>
+        <label for="owner_search"><?= t('Změnit majitele na') ?></label>
+        <input type="text" id="owner_search" list="dog-owners-list" data-idsync="owner_id" data-idattr="id"
+               placeholder="<?= e(t('začněte psát jméno...')) ?>" autocomplete="off">
+        <input type="hidden" name="owner_id" id="owner_id" value="">
+        <datalist id="dog-owners-list">
+            <?php foreach ($owners as $o): ?>
+                <option value="<?= e($o['display_name']) ?>" data-id="<?= (int) $o['id'] ?>"></option>
+            <?php endforeach; ?>
+        </datalist>
+        <div style="margin-top:.5rem">
+            <button type="submit" class="btn btn--primary"><?= t('Přehodit psa') ?></button>
+            <span class="muted"><?= t('Přehodí psa na vybraného majitele (bez potvrzovacího e-mailu). Předchozí zůstane v historii. Pokud nový majitel ještě nemá účet, pošlete mu pozvánku z jeho detailu.') ?></span>
+        </div>
+    </form>
+    <script src="<?= e(asset('assets/datalist-id.js')) ?>"></script>
 </div>
 
 <div class="card">

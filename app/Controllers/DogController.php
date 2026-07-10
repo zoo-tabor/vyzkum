@@ -128,11 +128,41 @@ final class DogController
             'dog' => $dog,
             'currentOwner' => $repo->currentOwner((int) $id),
             'history' => $repo->ownersHistory((int) $id),
+            'owners' => (new OwnerRepository())->allForSelect(),
             'responses' => (new FormResponseRepository())->responsesForDog((int) $id),
             'genotypes' => (new GenotypeRepository())->byDog((int) $id),
             'healthEvents' => (new HealthEventRepository())->byDog((int) $id),
             'notice' => Session::flash('dog_notice'),
+            'error' => Session::flash('dog_error'),
         ]);
+    }
+
+    /** Primy prehod psa na existujiciho majitele (bez potvrzovaciho e-mailu). */
+    public function changeOwner(string $id): string
+    {
+        Csrf::verify();
+        $repo = new DogRepository();
+        $dog = $repo->find((int) $id);
+        if ($dog === null) {
+            redirect('/admin/dogs');
+        }
+
+        $ownerId = (int) input('owner_id');
+        if ($ownerId <= 0 || (new OwnerRepository())->find($ownerId) === null) {
+            Session::flash('dog_error', t('Vyberte platného majitele ze seznamu.'));
+            redirect('/admin/dogs/' . $id);
+        }
+
+        $current = $repo->currentOwner((int) $id);
+        if ($current !== null && (int) $current['id'] === $ownerId) {
+            Session::flash('dog_notice', t('Tento majitel už je aktuální.'));
+            redirect('/admin/dogs/' . $id);
+        }
+
+        $repo->setCurrentOwner((int) $id, $ownerId, 'admin');
+        AuditService::log(Auth::id(), Auth::role(), 'dog_owner_changed', 'dog', $id, null, ['owner_id' => $ownerId]);
+        Session::flash('dog_notice', t('Majitel psa byl změněn.'));
+        redirect('/admin/dogs/' . $id);
     }
 
     public function create(): string
