@@ -476,6 +476,7 @@ return [
     'Sad' => '',
     'Seznam' => '',
     'Seznam plemen' => '',
+    'Skrýt / zobrazit menu' => '',
     'Sloupce dle šablony (pořadí nerozhoduje, hlavička podle názvu). {link}. Plemena musí existovat předem (založte je v sekci Plemena). Více e-mailů/telefonů oddělte středníkem. Datumy ve formátu YYYY-MM-DD. Sloupce sample_* se zatím neimportují (modul vzorků přijde později), sample_received_at se uloží u psa.' => '',
     'Slug' => '',
     'Slug (nepovinné)' => '',

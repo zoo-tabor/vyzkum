@@ -7,9 +7,10 @@ Po fazi commit + push. Vse prizpusobit prekladum (t()/tc()/td()).
 ## Prehled ukolu (8)
 Serazeno od nejjednodussich/nizkorizikovych po slozite (nektere maji designove rozhodnuti).
 
-### Faze 1 - Schovani sidebaru  [jednoduche, frontend]
-- [ ] Tlacitko pro sbaleni/rozbaleni bocniho menu (admin, pripadne portal/klub).
-- [ ] Stav zapamatovat (localStorage), CSS pro sbaleny stav. Bez migrace.
+### Faze 1 - Schovani sidebaru  [HOTOVO]
+- [x] Tlacitko (◫) v topbaru sbali/rozbali bocni menu (owner/klub/admin). Stav v localStorage
+      (klic sidebarCollapsed), early-apply skript v <head> (bez FOUC), collapse jen desktop
+      (>860px); mobil ma dal off-canvas. CSS+JS inline v layout.php. Bez migrace.
 
 ### Faze 2 - admin/samples/{} smazani vzorku  [jednoduche]
 - [ ] Tlacitko Smazat vzorek na detailu + potvrzeni + SampleController::destroy + routa.

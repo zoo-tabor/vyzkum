@@ -37,9 +37,6 @@ use App\Support\Dates;
                 <th data-type="num"><?= t('Věk') ?></th>
                 <th><?= t('Země') ?></th>
                 <th data-nofilter><?= t('Vzorky') ?></th>
-                <?php foreach ($genes as $g): ?>
-                    <th><?= e($g['symbol']) ?></th>
-                <?php endforeach; ?>
                 <th><?= t('Majitel') ?></th>
                 <th><?= t('Stav') ?></th>
             </tr>
@@ -69,9 +66,6 @@ use App\Support\Dates;
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </td>
-                    <?php foreach ($genes as $g): ?>
-                        <td><?= e($dogGenos[$g['id']] ?? '') ?: '-' ?></td>
-                    <?php endforeach; ?>
                     <td>
                         <?php if (!empty($d['owner_id'])): ?>
                             <a href="/admin/owners/<?= (int) $d['owner_id'] ?>"><?= e($d['owner_name']) ?></a>

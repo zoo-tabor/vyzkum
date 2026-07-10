@@ -54,11 +54,19 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
     <link rel="manifest" href="/favicon/site.webmanifest">
     <link rel="stylesheet" href="<?= e(asset('assets/app.css')) ?>">
+    <script>try{if(localStorage.getItem('sidebarCollapsed')==='1')document.documentElement.classList.add('sidebar-collapsed');}catch(e){}</script>
+    <style>
+    .sidebar-toggle{background:none;border:1px solid var(--line);border-radius:6px;font-size:1.05rem;line-height:1;padding:.3rem .55rem;cursor:pointer;color:var(--ink);}
+    .sidebar-toggle:hover{background:var(--bg);}
+    @media (min-width:861px){ html.sidebar-collapsed .sidebar{display:none;} }
+    @media (max-width:860px){ .sidebar-toggle{display:none;} }
+    </style>
 </head>
 <body>
 <?php if ($user !== null && $isOwner): ?>
     <header class="topbar">
         <button type="button" class="nav-toggle" aria-label="Menu" aria-controls="sidebar" aria-expanded="false">&#9776;</button>
+        <button type="button" class="sidebar-toggle" data-sidebar-toggle aria-label="<?= e(t('Skrýt / zobrazit menu')) ?>" title="<?= e(t('Skrýt / zobrazit menu')) ?>">&#9707;</button>
         <div class="topbar__brand"><a href="/portal"><img class="topbar__logo" src="/favicon/favicon.svg" width="28" height="28" alt=""> <?= t('Výzkum <span>ZOO Tábor</span>') ?></a></div>
         <div class="topbar__user">
             <?php include ROOT_PATH . '/app/Views/partials/lang_switch.php'; ?>
@@ -90,6 +98,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
 <?php elseif ($user !== null && $isClub): ?>
     <header class="topbar">
         <button type="button" class="nav-toggle" aria-label="Menu" aria-controls="sidebar" aria-expanded="false">&#9776;</button>
+        <button type="button" class="sidebar-toggle" data-sidebar-toggle aria-label="<?= e(t('Skrýt / zobrazit menu')) ?>" title="<?= e(t('Skrýt / zobrazit menu')) ?>">&#9707;</button>
         <div class="topbar__brand"><a href="/club"><img class="topbar__logo" src="/favicon/favicon.svg" width="28" height="28" alt=""> <?= t('Výzkum <span>ZOO Tábor</span>') ?></a></div>
         <div class="topbar__user">
             <?php include ROOT_PATH . '/app/Views/partials/lang_switch.php'; ?>
@@ -113,6 +122,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
 <?php elseif ($user !== null): ?>
     <header class="topbar">
         <button type="button" class="nav-toggle" aria-label="Menu" aria-controls="sidebar" aria-expanded="false">&#9776;</button>
+        <button type="button" class="sidebar-toggle" data-sidebar-toggle aria-label="<?= e(t('Skrýt / zobrazit menu')) ?>" title="<?= e(t('Skrýt / zobrazit menu')) ?>">&#9707;</button>
         <div class="topbar__brand">
             <a href="/admin"><img class="topbar__logo" src="/favicon/favicon.svg" width="28" height="28" alt=""> <?= t('Výzkum <span>ZOO Tábor</span>') ?></a>
         </div>
@@ -206,6 +216,15 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
     window.addEventListener('resize', function () {
         if (window.innerWidth > 860) { setOpen(false); }
     });
+
+    // Sbaleni bocniho menu (desktop) - stav v localStorage.
+    var collapse = document.querySelector('[data-sidebar-toggle]');
+    if (collapse) {
+        collapse.addEventListener('click', function () {
+            var on = document.documentElement.classList.toggle('sidebar-collapsed');
+            try { localStorage.setItem('sidebarCollapsed', on ? '1' : '0'); } catch (e) {}
+        });
+    }
 })();
 </script>
 <?php endif; ?>
