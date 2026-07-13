@@ -40,6 +40,15 @@ if (PHP_SAPI !== 'cli') {
 
 Database::configure($config);
 
+// Trvale prihlaseni: kdyz neni session, ale je platny remember cookie, auto-login
+// (token se rotuje; 2FA se preskoci - byla overena pri vydani tokenu).
+if (PHP_SAPI !== 'cli' && \App\Services\Auth::user() === null) {
+    $rememberedUser = \App\Services\RememberService::attempt();
+    if ($rememberedUser !== null) {
+        \App\Services\Auth::login($rememberedUser);
+    }
+}
+
 // Urceni jazyka rozhrani (session/cookie/owner/Accept-Language). Jen ve web kontextu.
 if (PHP_SAPI !== 'cli') {
     \App\Services\LocaleService::boot();

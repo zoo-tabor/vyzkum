@@ -39,7 +39,7 @@ zalozi se zvlast (admin/owners/new) a posle se mu pozvanka (existujici tlacitko)
 - [ ] Detail psa: sekce "Zmenit majitele" - naseptavac existujicich majitelu -> setCurrentOwner
       (uz existuje: stary is_current=0, novy=1, historie zachovana), source='admin'. Audit. Bez migrace.
 
-### Faze 7 - /login "zapamatovat uzivatele" (3 mesice)  [design HOTOV]
+### Faze 7 - /login "zapamatovat uzivatele" (3 mesice)  [HOTOVO - security-review OK]
 ROZHODNUTI: BEZPECNY TOKEN V DB. Migrace remember_tokens (user_id, token_hash, expires_at,
 created_at, pripadne selector/last_used). httponly cookie 90 dni, v DB jen hash, rotace pri
 pouziti, logout + expiry revokuje. Na tom zarizeni PRESKOCI 2FA (uz probehla pri vytvoreni tokenu).

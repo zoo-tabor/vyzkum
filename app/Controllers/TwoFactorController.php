@@ -5,10 +5,12 @@ namespace App\Controllers;
 
 use App\Core\Csrf;
 use App\Core\Session;
+use App\Repositories\RememberTokenRepository;
 use App\Repositories\UserRepository;
 use App\Services\Auth;
 use App\Services\AuditService;
 use App\Services\RateLimiter;
+use App\Services\RememberService;
 use App\Services\Totp;
 
 final class TwoFactorController
@@ -56,6 +58,11 @@ final class TwoFactorController
         RateLimiter::clear($key);
         Session::forget('2fa_pending_user_id');
         Auth::login($user);
+        // Remember-me se vydava az po overeni 2FA (zamer prenesen ze login formulare).
+        if (Session::get('2fa_remember') === true) {
+            RememberService::issue((int) $user['id']);
+        }
+        Session::forget('2fa_remember');
         AuditService::log($pendingId, (string) $user['role'], 'login_2fa', 'user', (string) $pendingId);
 
         redirect(home_for((string) $user['role']));
@@ -154,6 +161,9 @@ final class TwoFactorController
         }
 
         (new UserRepository())->updatePasswordHash((int) Auth::id(), Auth::hash($new));
+        // Zmena hesla zrusi vsechna trvala prihlaseni (i pripadne odcizene cookie).
+        (new RememberTokenRepository())->deleteForUser((int) Auth::id());
+        RememberService::clear();
         AuditService::log(Auth::id(), Auth::role(), 'password_changed', 'user', (string) Auth::id());
         Auth::flush();
 

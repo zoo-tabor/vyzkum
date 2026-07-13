@@ -857,6 +857,19 @@ Předem děkujeme za spolupráci.
 S pozdravem
 Výzkumný tým ZOO Tábor', '{dotaznik}, {pes}, {majitel}, {odkaz}');
 
+-- Trvale prihlaseni (remember-me): v DB jen hash tokenu.
+CREATE TABLE IF NOT EXISTS remember_tokens (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id INT UNSIGNED NOT NULL,
+  token_hash CHAR(64) NOT NULL,
+  expires_at DATETIME NOT NULL,
+  last_used_at DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY remember_tokens_hash_uq (token_hash),
+  INDEX remember_tokens_user_idx (user_id),
+  CONSTRAINT remember_tokens_user_fk FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Oznaceni migraci jako provedenych (bez chyby, kdyz uz tam jsou).
 INSERT IGNORE INTO schema_migrations (version)
 VALUES ('001_core.sql'), ('002_dogs_owners.sql'), ('003_invites_mail.sql'),
@@ -867,4 +880,5 @@ VALUES ('001_core.sql'), ('002_dogs_owners.sql'), ('003_invites_mail.sql'),
        ('014_genotype_gene.sql'), ('015_message_reads.sql'),
        ('016_death_causes.sql'), ('017_sample_dna_gwas.sql'),
        ('018_genotype_source_note.sql'), ('019_owners_language.sql'),
-       ('020_translations.sql'), ('021_email_templates.sql');
+       ('020_translations.sql'), ('021_email_templates.sql'),
+       ('022_remember_tokens.sql');

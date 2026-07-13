@@ -8,6 +8,7 @@ use App\Core\Session;
 use App\Services\Auth;
 use App\Services\AuditService;
 use App\Services\RateLimiter;
+use App\Services\RememberService;
 
 final class AuthController
 {
@@ -51,13 +52,19 @@ final class AuthController
 
         RateLimiter::clear($key);
 
+        $remember = (bool) input('remember');
+
         // If 2FA is enabled, defer the actual login until the TOTP code is verified.
         if (!empty($user['totp_secret'])) {
             Session::put('2fa_pending_user_id', (int) $user['id']);
+            Session::put('2fa_remember', $remember);
             redirect('/2fa');
         }
 
         Auth::login($user);
+        if ($remember) {
+            RememberService::issue((int) $user['id']);
+        }
         // Preference jazyka uctu (majitel) prebije anonymni volbu z login page.
         \App\Services\LocaleService::applyForUser((int) $user['id']);
         AuditService::log((int) $user['id'], (string) $user['role'], 'login', 'user', (string) $user['id']);
@@ -71,6 +78,7 @@ final class AuthController
 
         $id = Auth::id();
         $role = Auth::role();
+        RememberService::clear();
         Auth::logout();
 
         if ($id !== null) {

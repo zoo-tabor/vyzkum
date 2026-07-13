@@ -21,6 +21,8 @@
         <label for="password"><?= t('Heslo') ?></label>
         <input type="password" id="password" name="password" required autocomplete="current-password">
 
+        <label class="inline" style="margin:.5rem 0 1rem"><input type="checkbox" name="remember" value="1"> <?= t('Zapamatovat si mě na tomto zařízení (3 měsíce)') ?></label>
+
         <button type="submit" class="btn btn--primary"><?= t('Přihlásit se') ?></button>
     </form>
     <p class="muted" style="margin-top:1rem"><a href="/forgot-password"><?= t('Zapomněli jste heslo?') ?></a></p>
