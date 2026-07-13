@@ -233,6 +233,17 @@ $router->group([RequireAuth::class, EnforceAdminTwoFactor::class], function (Rou
         $router->post('/admin/colours', [$colours, 'create']);
         $router->post('/admin/colours/{id}/delete', [$colours, 'delete']);
 
+        // Ciselnik pricin umrti per plemeno (staticke routy pred {id})
+        $deathCauses = new \App\Controllers\DeathCauseController();
+        $router->get('/admin/death-causes', [$deathCauses, 'index']);
+        $router->post('/admin/death-causes', [$deathCauses, 'store']);
+        $router->get('/admin/death-causes/translations', [$deathCauses, 'translations']);
+        $router->post('/admin/death-causes/translations', [$deathCauses, 'saveTranslations']);
+        $router->get('/admin/death-causes/{id}/edit', [$deathCauses, 'edit']);
+        $router->post('/admin/death-causes/{id}/delete', [$deathCauses, 'destroy']);
+        $router->post('/admin/death-causes/{id}/move', [$deathCauses, 'move']);
+        $router->post('/admin/death-causes/{id}', [$deathCauses, 'update']);
+
         // Klubove ucty + pristup k plemenum
         $clubAdmin = new ClubAdminController();
         $router->get('/admin/clubs', [$clubAdmin, 'index']);

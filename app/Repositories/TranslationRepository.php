@@ -18,6 +18,7 @@ final class TranslationRepository
     public const FORM_DEFINITION = 'form_definition'; // name, description
     public const FORM_QUESTION = 'form_question';     // label, help_text
     public const FORM_OPTION = 'form_option';         // label
+    public const DEATH_CAUSE = 'death_cause';         // label
 
     /** @var bool|null cache existence tabulky (deploy kodu muze predbehnout SQL migraci) */
     private static ?bool $enabled = null;
@@ -214,6 +215,16 @@ final class TranslationRepository
              ON DUPLICATE KEY UPDATE text = VALUES(text), updated_at = NOW()'
         );
         $stmt->execute(['e' => $entityType, 'i' => $entityId, 'f' => $field, 'l' => $locale, 't' => $text]);
+    }
+
+    /** Smaze vsechny preklady jedne entity (vsechny jazyky i pole) - napr. po smazani radku. */
+    public function deleteEntity(string $entityType, int $entityId): void
+    {
+        if (!$this->enabled()) {
+            return;
+        }
+        $stmt = $this->pdo()->prepare('DELETE FROM translations WHERE entity_type = :e AND entity_id = :i');
+        $stmt->execute(['e' => $entityType, 'i' => $entityId]);
     }
 
     /**

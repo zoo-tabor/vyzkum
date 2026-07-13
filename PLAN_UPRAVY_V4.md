@@ -47,13 +47,18 @@ pouziti, logout + expiry revokuje. Na tom zarizeni PRESKOCI 2FA (uz probehla pri
 - [ ] Auto-login v bootstrapu kdyz neni session ale je platny remember cookie. Logout revokuje.
 - [ ] Migrace remember_tokens + ensure_schema. Zvazit security-review.
 
-### Faze 8 - Nastaveni: editor ciselniku pricin umrti (death_causes) per plemeno  [design HOTOV]
-ROZHODNUTI: 'code' = NEMENNY STABILNI KLIC (pri pridani uzlu unikatni code, presun/mazani ho
-nemeni; poradi=position, hierarchie=parent_id). Nerozbije preklady (td death_causes) ani reference
-(health_events/umrti). UX = odsazeny strom + pridat/upravit/smazat/nahoru-dolu (jako builder otazek),
-per plemeno (vyber plemene). Migrace zadna (death_causes uz existuje).
-- [ ] DeathCauseRepository CRUD (create/update/delete/move) + editor view v Nastaveni.
-- [ ] Provazani: preklady labelu (td), disease vetev pro zdravotni historii, has_note.
+### Faze 8 - Nastaveni: editor ciselniku pricin umrti (death_causes) per plemeno  [HOTOVO]
+ROZHODNUTI: 'code' = NEMENNY STABILNI KLIC (pri pridani uzlu unikatni code 'kodRodice.k', presun/
+mazani ho nemeni; poradi=position mezi sourozenci, hierarchie=parent_id). UX = odsazeny strom +
+pridat/upravit/smazat/nahoru-dolu (jako builder otazek), per plemeno (vyber plemene).
+ROZHODNUTI (preklady): PRESUNUTY do DB translations (entity 'death_cause', pole 'label', klic=id) -
+admin edituje strukturu i preklady z UI (konzistentni s plemeny/dotazniky/e-maily). Souborovy katalog
+resources/lang/death_causes/* + generator bin/i18n_death_causes.php ZRUSENY (katalogy byly prazdne =>
+nulova migrace). Migrace schematu zadna (death_causes existuje; translations uz z drivejsi faze).
+- [x] DeathCauseRepository: overlay labelu pres TranslationRepository + CRUD (create/update/delete/
+      move/editorTree, auto kod, guardy childrenCount/dogUsageCount). TranslationRepository::deleteEntity.
+- [x] DeathCauseController + views index/edit/translations, routy /admin/death-causes/*, nav v Nastaveni.
+- [x] Klubovy agregat pricin (StatsRepository::deathCauses + club/dashboard) prepnut na DB preklady.
 
 ## Poradi a zavislosti
 Faze 1-5 jsou nezavisle, jdou hned (rychle winy). Faze 6-8 maji designova rozhodnuti -

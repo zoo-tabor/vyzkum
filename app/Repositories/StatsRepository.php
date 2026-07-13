@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Repositories;
 
 use App\Core\Database;
+use App\Support\I18n;
 use PDO;
 
 /** Agregovane statistiky pro klubovy dashboard - vse scope-ovane na jedno plemeno. */
@@ -68,8 +69,8 @@ final class StatsRepository
     }
 
     /**
-     * Cetnost pricin umrti. Dojoinuje kod z ciselniku (death_causes), aby UI mohlo
-     * zobrazit stitek v jazyce diveka (td); free-text/neuvedeno ma code = ''.
+     * Cetnost pricin umrti. Label z ciselniku (death_causes) prelozi do jazyka diveka
+     * pres DB translations (klic = id); free-text/neuvedeno ma code = '' a zustava.
      *
      * @return array<int, array{code:string, cause:string, c:int}>
      */
@@ -77,6 +78,7 @@ final class StatsRepository
     {
         $stmt = $this->pdo()->prepare(
             "SELECT COALESCE(dc.code, '') AS code,
+                    MIN(dc.id) AS cause_id,
                     COALESCE(d.death_cause, '') AS cause,
                     COUNT(*) AS c
              FROM dogs d
@@ -85,7 +87,27 @@ final class StatsRepository
              GROUP BY code, cause ORDER BY c DESC LIMIT 20"
         );
         $stmt->execute(['b' => $breedId]);
-        return $stmt->fetchAll();
+        $rows = $stmt->fetchAll();
+
+        if (I18n::locale() !== I18n::defaultLocale()) {
+            $ids = [];
+            foreach ($rows as $r) {
+                if ((int) ($r['cause_id'] ?? 0) > 0) {
+                    $ids[] = (int) $r['cause_id'];
+                }
+            }
+            if ($ids !== []) {
+                $tx = (new TranslationRepository())->allForFields(DeathCauseRepository::ENTITY, ['label'], $ids, I18n::locale());
+                foreach ($rows as &$r) {
+                    $cid = (int) ($r['cause_id'] ?? 0);
+                    if ($cid > 0 && isset($tx[$cid]['label']) && $tx[$cid]['label'] !== '') {
+                        $r['cause'] = $tx[$cid]['label'];
+                    }
+                }
+                unset($r);
+            }
+        }
+        return $rows;
     }
 
     /** @return array<int, array{gene_symbol:string, marker_code:string, genotype:string, c:int}> */

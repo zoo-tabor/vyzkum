@@ -48,11 +48,7 @@
                 <thead><tr><th><?= t('Příčina') ?></th><th><?= t('Počet') ?></th></tr></thead>
                 <tbody>
                 <?php foreach ($deathCauses as $d): ?>
-                    <?php
-                    $causeLabel = (string) $d['code'] !== ''
-                        ? td('death_causes', (string) $d['code'], (string) $d['cause'])
-                        : ((string) $d['cause'] !== '' ? (string) $d['cause'] : t('(neuvedeno)'));
-                    ?>
+                    <?php $causeLabel = (string) $d['cause'] !== '' ? (string) $d['cause'] : t('(neuvedeno)'); ?>
                     <tr><td><?= e($causeLabel) ?></td><td><?= (int) $d['c'] ?></td></tr>
                 <?php endforeach; ?>
                 </tbody>

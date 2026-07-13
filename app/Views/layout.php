@@ -174,6 +174,7 @@ $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
                     <li class="sidebar__section"><?= t('Nastavení') ?></li>
                     <li><a href="/admin/breeds" class="<?= $currentPath === '/admin/breeds' ? 'active' : '' ?>"><?= t('Plemena') ?></a></li>
                     <li><a href="/admin/colours" class="<?= str_starts_with((string) $currentPath, '/admin/colours') ? 'active' : '' ?>"><?= t('Barvy') ?></a></li>
+                    <li><a href="/admin/death-causes" class="<?= str_starts_with((string) $currentPath, '/admin/death-causes') ? 'active' : '' ?>"><?= t('Příčiny úmrtí') ?></a></li>
                     <li><a href="/admin/clubs" class="<?= str_starts_with((string) $currentPath, '/admin/clubs') ? 'active' : '' ?>"><?= t('Kluby') ?></a></li>
                     <li><a href="/admin/import" class="<?= str_starts_with((string) $currentPath, '/admin/import') ? 'active' : '' ?>"><?= t('Import CSV') ?></a></li>
                     <li><a href="/admin/email-templates" class="<?= str_starts_with((string) $currentPath, '/admin/email-templates') ? 'active' : '' ?>"><?= t('Šablony e-mailů') ?></a></li>
