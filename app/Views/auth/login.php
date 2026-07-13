@@ -21,7 +21,10 @@
         <label for="password"><?= t('Heslo') ?></label>
         <input type="password" id="password" name="password" required autocomplete="current-password">
 
-        <label class="inline" style="margin:.5rem 0 1rem"><input type="checkbox" name="remember" value="1"> <?= t('Zapamatovat si mě na tomto zařízení (3 měsíce)') ?></label>
+        <label style="display:flex; align-items:center; gap:.5rem; margin:.65rem 0 1.15rem; font-weight:400; cursor:pointer;">
+            <input type="checkbox" name="remember" value="1" style="width:auto; margin:0; flex:0 0 auto;">
+            <span><?= t('Zapamatovat si mě na tomto zařízení') ?></span>
+        </label>
 
         <button type="submit" class="btn btn--primary"><?= t('Přihlásit se') ?></button>
     </form>
