@@ -29,9 +29,10 @@ test('default locale returns source text and interpolates params', function () {
 
 test('missing translation falls back to Czech source', function () {
     I18n::flush();
-    I18n::setLocale('en'); // katalog en.php je zatim prazdny -> fallback na zdroj
+    I18n::setLocale('en'); // klic mimo katalog -> fallback na cesky zdroj
     assert_same('en', I18n::locale());
-    assert_same('Uložit', I18n::t('Uložit'));
+    // synteticky klic, ktery v zadnem katalogu neni (katalogy uz jsou plnene preklady)
+    assert_same('Neexistující zdrojový text', I18n::t('Neexistující zdrojový text'));
     I18n::flush();
 });
 
