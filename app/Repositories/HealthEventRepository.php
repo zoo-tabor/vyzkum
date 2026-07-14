@@ -50,6 +50,14 @@ final class HealthEventRepository
         return (int) $this->pdo()->lastInsertId();
     }
 
+    /** Smaze vsechny udalosti daneho typu pro psa (napr. death pri oziveni ztraceneho psa). */
+    public function deleteByDogAndType(int $dogId, string $eventType): int
+    {
+        $stmt = $this->pdo()->prepare('DELETE FROM health_events WHERE dog_id = :d AND event_type = :t');
+        $stmt->execute(['d' => $dogId, 't' => $eventType]);
+        return $stmt->rowCount();
+    }
+
     /** @return array<int, array<string, mixed>> */
     public function byDog(int $dogId): array
     {

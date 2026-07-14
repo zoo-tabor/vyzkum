@@ -247,7 +247,38 @@ final class DogController
             redirect('/admin/dogs/' . $id . '/edit');
         }
 
+        $wasDead = !empty($dog['death_date']);
+        $nowDead = $data['death_date'] !== '';
+
         $repo->update((int) $id, $data);
+
+        // Zmenu umrti routovat pres setAliveStatus (report + health_event + alive_confirmed_at),
+        // aby admin edit chodil stejnou cestou jako portal/formular. Jen pri realne zmene, aby
+        // opakovane ulozeni editu nevytvarelo dalsi hlaseni.
+        $deathChanged = $nowDead && (
+            !$wasDead
+            || (string) ($dog['death_date'] ?? '') !== (string) $data['death_date']
+            || (int) ($dog['death_cause_id'] ?? 0) !== (int) ($data['death_cause_id'] ?? 0)
+            || (string) ($dog['death_cause_note'] ?? '') !== (string) ($data['death_cause_note'] ?? '')
+        );
+        if ($deathChanged) {
+            $ownerRow = $repo->currentOwner((int) $id);
+            $repo->setAliveStatus(
+                (int) $id,
+                $ownerRow !== null ? (int) $ownerRow['id'] : null,
+                false,
+                (string) $data['death_date'],
+                $data['death_cause_note'] !== null ? (string) $data['death_cause_note'] : null,
+                'admin',
+                $data['death_cause_id'] !== null ? (int) $data['death_cause_id'] : null,
+                $data['death_cause'] !== null ? (string) $data['death_cause'] : null
+            );
+            AuditService::log(Auth::id(), Auth::role(), 'dog_death_reported', 'dog', (string) $id, null, ['death_date' => $data['death_date'], 'cause_id' => $data['death_cause_id'], 'source' => 'admin']);
+        } elseif ($wasDead && !$nowDead) {
+            $repo->setAliveStatus((int) $id, null, true, null, null, 'admin');
+            AuditService::log(Auth::id(), Auth::role(), 'dog_revived', 'dog', (string) $id, null, ['source' => 'admin']);
+        }
+
         AuditService::log(Auth::id(), Auth::role(), 'dog_updated', 'dog', (string) $id, null, ['name' => $data['name']]);
         Session::flash('dog_notice', t('Změny byly uloženy.'));
         redirect('/admin/dogs/' . $id);

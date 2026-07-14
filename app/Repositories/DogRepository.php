@@ -459,6 +459,9 @@ final class DogRepository
                 // Potvrzeni "pes zije" - ulozime datum (vstup pro vypocet veku).
                 $stmt = $pdo->prepare('UPDATE dogs SET death_date = NULL, death_cause = NULL, death_cause_id = NULL, death_cause_note = NULL, alive_confirmed_at = CURDATE(), updated_at = NOW() WHERE id = :d');
                 $stmt->execute(['d' => $dogId]);
+                // Ozivení (ztraceny pes se nasel): death udalost uz neplati -> pryc ze statistik.
+                // Historie hlaseni (dog_death_reports) zustava jako audit.
+                (new HealthEventRepository())->deleteByDogAndType($dogId, 'death');
             } else {
                 $report = $pdo->prepare(
                     'INSERT INTO dog_death_reports (dog_id, owner_id, death_date, death_cause, note, source)
@@ -466,7 +469,8 @@ final class DogRepository
                 );
                 $report->execute(['d' => $dogId, 'o' => $ownerId, 'dd' => $deathDateIso, 'dc' => $causeLabel, 'note' => $note, 'src' => $source]);
 
-                $stmt = $pdo->prepare('UPDATE dogs SET death_date = :dd, death_cause = :dc, death_cause_id = :ci, death_cause_note = :note, updated_at = NOW() WHERE id = :d');
+                // alive_confirmed_at = NULL: mrtvy pes nemuze mit pozdejsi potvrzeni "zije" (rozbilo vypocet veku).
+                $stmt = $pdo->prepare('UPDATE dogs SET death_date = :dd, death_cause = :dc, death_cause_id = :ci, death_cause_note = :note, alive_confirmed_at = NULL, updated_at = NOW() WHERE id = :d');
                 $stmt->execute(['dd' => $deathDateIso, 'dc' => $causeLabel, 'ci' => $causeId, 'note' => $note, 'd' => $dogId]);
 
                 // Strukturovana zdravotni udalost (umrti).
