@@ -703,7 +703,6 @@ return [
     'Zadejte texty dotazníku v dalších jazycích (portál je majiteli ukáže dle jeho jazyka).' => 'Enter the questionnaire texts in other languages (the portal shows them to the owner according to their language).',
     'Zadejte číslo vzorku.' => 'Enter the sample number.',
     'Zapamatovat si mě na tomto zařízení' => 'Remember me on this device',
-    'Zapamatovat si mě na tomto zařízení (3 měsíce)' => 'Remember me on this device (3 months)',
     'Zapomněli jste heslo?' => 'Forgot your password?',
     'Zatím bez záznamu.' => 'No records yet.',
     'Zatím nejsou žádná plemena.' => 'There are no breeds yet.',

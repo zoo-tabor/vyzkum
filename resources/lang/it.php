@@ -703,7 +703,6 @@ return [
     'Zadejte texty dotazníku v dalších jazycích (portál je majiteli ukáže dle jeho jazyka).' => '',
     'Zadejte číslo vzorku.' => '',
     'Zapamatovat si mě na tomto zařízení' => '',
-    'Zapamatovat si mě na tomto zařízení (3 měsíce)' => '',
     'Zapomněli jste heslo?' => '',
     'Zatím bez záznamu.' => '',
     'Zatím nejsou žádná plemena.' => '',
