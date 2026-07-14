@@ -167,9 +167,10 @@ $defId = (int) $def['id'];
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div>
-                    <label for="visible_if_value"><?= t('má hodnotu (klíč možnosti / "yes" / "no")') ?></label>
-                    <input type="text" id="visible_if_value" name="visible_if_value">
+                <div data-cond-map="<?= e(json_encode($conditionValues ?? [], JSON_UNESCAPED_UNICODE)) ?>">
+                    <label for="visible_if_value"><?= t('má hodnotu') ?></label>
+                    <select id="visible_if_value" name="visible_if_value" data-cond-value data-cond-current="" hidden disabled></select>
+                    <input type="text" name="visible_if_value" data-cond-text placeholder="<?= e(t('klíč možnosti / yes / no')) ?>">
                 </div>
                 <div data-qhide="disease_history">
                     <label for="health_event_type"><?= t('Zaznamenat jako zdravotní událost') ?></label>

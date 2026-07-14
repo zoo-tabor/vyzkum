@@ -67,9 +67,10 @@ $optionsText = implode("\n", array_map(static fn ($o) => $o['option_key'] . '|' 
                     <?php endforeach; ?>
                 </select>
             </div>
-            <div>
+            <div data-cond-map="<?= e(json_encode($conditionValues ?? [], JSON_UNESCAPED_UNICODE)) ?>">
                 <label for="visible_if_value"><?= t('má hodnotu') ?></label>
-                <input type="text" id="visible_if_value" name="visible_if_value" value="<?= e($visibleIf['eq'] ?? '') ?>">
+                <select id="visible_if_value" name="visible_if_value" data-cond-value data-cond-current="<?= e($visibleIf['eq'] ?? '') ?>" hidden disabled></select>
+                <input type="text" name="visible_if_value" data-cond-text value="<?= e($visibleIf['eq'] ?? '') ?>" placeholder="<?= e(t('klíč možnosti / yes / no')) ?>">
             </div>
             <div data-qhide="disease_history">
                 <label for="health_event_type"><?= t('Zaznamenat jako zdravotní událost') ?></label>

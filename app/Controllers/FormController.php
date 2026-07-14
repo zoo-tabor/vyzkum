@@ -81,6 +81,7 @@ final class FormController
             'canEdit' => $draft !== null && $editing !== null && (int) $editing['id'] === (int) $draft['id'],
             'questions' => $questions,
             'options' => $options,
+            'conditionValues' => $editing !== null ? $this->conditionValues($questions, $options) : [],
             'assignmentStats' => (new FormAssignmentRepository())->statsForDefinition((int) $id),
             'notice' => Session::flash('form_notice'),
             'error' => Session::flash('form_error'),
@@ -204,12 +205,14 @@ final class FormController
             redirect('/admin/forms/' . $id);
         }
 
+        $otherQuestions = array_filter($repo->questions((int) $q['form_version_id']), static fn ($x) => (int) $x['id'] !== (int) $qid);
         return view('admin/forms/question', [
             'title' => 'Upravit otázku',
             'defId' => (int) $id,
             'question' => $q,
             'options' => $repo->optionsFor((int) $qid),
-            'otherQuestions' => array_filter($repo->questions((int) $q['form_version_id']), static fn ($x) => (int) $x['id'] !== (int) $qid),
+            'otherQuestions' => $otherQuestions,
+            'conditionValues' => $this->conditionValues($otherQuestions, $repo->optionsByQuestion((int) $q['form_version_id'])),
             'error' => Session::flash('form_error'),
         ]);
     }
@@ -420,6 +423,38 @@ final class FormController
             $i++;
         }
         return substr($key, 0, 64);
+    }
+
+    /**
+     * Mapa povolenych hodnot pro visible_if picker: question_key => [[hodnota, popisek], ...].
+     * Jen typy, u kterych ma podminka smysl (yes_no, single/multiple_choice); ostatni -> volny text.
+     *
+     * @param array<int, array<string, mixed>>                    $questions
+     * @param array<int, array<int, array<string, mixed>>>        $optionsByQuestion
+     * @return array<string, array<int, array{0:string,1:string}>>
+     */
+    private function conditionValues(array $questions, array $optionsByQuestion): array
+    {
+        $out = [];
+        foreach ($questions as $q) {
+            $key = (string) ($q['question_key'] ?? '');
+            if ($key === '') {
+                continue;
+            }
+            $type = (string) ($q['type'] ?? '');
+            if ($type === 'yes_no') {
+                $out[$key] = [['yes', t('Ano')], ['no', t('Ne')]];
+            } elseif ($type === 'single_choice' || $type === 'multiple_choice') {
+                $vals = [];
+                foreach ($optionsByQuestion[(int) $q['id']] ?? [] as $o) {
+                    $vals[] = [(string) $o['option_key'], (string) $o['label']];
+                }
+                if ($vals !== []) {
+                    $out[$key] = $vals;
+                }
+            }
+        }
+        return $out;
     }
 
     private function buildConfig(): ?string

@@ -17,7 +17,14 @@ v resources/lang/*; behem vyvoje fallback na cestinu).
       majitel), jen pri realne zmene. Nova metoda HealthEventRepository::deleteByDogAndType.
       => setAliveStatus je JEDINY "death primitiv" (ISO in) - pouzije ho i F3 (formular).
 
-- [ ] **F2 - BUG: podminene otazky (visible_if) nefunguji** v portal/dogs/{}/forms/{}.
+- [x] **F2 - BUG: podminene otazky (visible_if) nefunguji** v portal/dogs/{}/forms/{}.
+      Root cause: mechanismus (JS portal/form.php + server FormConditions) byl OK, ale builder ukladal
+      do visible_if.eq volny text - admin napsal label ("Ne"), skutecna hodnota je "no" (yes_no) /
+      option_key -> nikdy nesedelo. Fix (varianta A): misto volneho pole rozbalovaci picker hodnot dle
+      typu ovladajici otazky (yes_no -> yes/no, single/multiple_choice -> klice moznosti, jinak volny
+      text). FormController::conditionValues -> mapa do show.php i question.php (data-cond-map),
+      form-builder.js populuje picker (disabled trik: submitne se jen aktivni control). Overeno JS
+      harnessem v prohlizeci. Stare konfigurace (eq=label) admin preklikne pres novy picker.
 
 - [ ] **F3 - novy typ otazky "pricina umrti"** v admin/forms builderu (cause-picker, analogicky
       disease_history). UKLADA (dle usera). Pozor: umrti zakladat pres setAliveStatus a NE zaroven pres
