@@ -5,12 +5,13 @@ declare(strict_types=1);
 // Prazdna hodnota = fallback na cesky zdroj (uvedeny v komentari za klicem).
 // Generovano bin/i18n_enums.php - hodnoty doplnujte, kody nechte.
 return [
-    'short_text'       => '', // Krátká odpověď
-    'long_text'        => '', // Dlouhá odpověď
-    'single_choice'    => '', // Jedna volba (radio)
-    'multiple_choice'  => '', // Více voleb (checkbox)
-    'number'           => '', // Číslo
-    'date'             => '', // Datum
-    'yes_no'           => '', // Ano / Ne
-    'file'             => '', // Soubor
+    'short_text'       => 'Réponse courte', // Krátká odpověď
+    'long_text'        => 'Réponse longue', // Dlouhá odpověď
+    'single_choice'    => 'Choix unique (radio)', // Jedna volba (radio)
+    'multiple_choice'  => 'Choix multiple (case à cocher)', // Více voleb (checkbox)
+    'number'           => 'Nombre', // Číslo
+    'date'             => 'Date', // Datum
+    'yes_no'           => 'Oui / Non', // Ano / Ne
+    'file'             => 'Fichier', // Soubor
+    'disease_history'  => 'Antécédents de santé (maladies avec période)', // Zdravotní historie (nemoci s obdobím)
 ];

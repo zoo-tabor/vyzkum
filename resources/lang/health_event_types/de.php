@@ -5,9 +5,9 @@ declare(strict_types=1);
 // Prazdna hodnota = fallback na cesky zdroj (uvedeny v komentari za klicem).
 // Generovano bin/i18n_enums.php - hodnoty doplnujte, kody nechte.
 return [
-    'disease'          => '', // Nemoc
-    'examination'      => '', // Vyšetření
-    'castration'       => '', // Kastrace
-    'death'            => '', // Úmrtí
-    'other'            => '', // Jiné
+    'disease'          => 'Krankheit', // Nemoc
+    'examination'      => 'Untersuchung', // Vyšetření
+    'castration'       => 'Kastration', // Kastrace
+    'death'            => 'Tod', // Úmrtí
+    'other'            => 'Sonstiges', // Jiné
 ];
