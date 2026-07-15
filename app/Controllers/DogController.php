@@ -132,6 +132,8 @@ final class DogController
             'responses' => (new FormResponseRepository())->responsesForDog((int) $id),
             'genotypes' => (new GenotypeRepository())->byDog((int) $id),
             'healthEvents' => (new HealthEventRepository())->byDog((int) $id),
+            // Kod nemoci (health_events.normalized_code) -> prelozeny nazev z ciselniku plemene.
+            'causeLabels' => (new DeathCauseRepository())->labelsByCodeForBreed($dog['breed_id'] !== null ? (int) $dog['breed_id'] : null),
             'notice' => Session::flash('dog_notice'),
             'error' => Session::flash('dog_error'),
         ]);

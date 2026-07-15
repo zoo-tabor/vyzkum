@@ -14,4 +14,5 @@ return [
     'yes_no'           => 'Igen / Nem', // Ano / Ne
     'file'             => 'Fájl', // Soubor
     'disease_history'  => 'Egészségügyi előzmények (betegségek időszakkal)', // Zdravotní historie (nemoci s obdobím)
+    'death_cause'      => 'Elpusztulás oka (dátum + katalógus)', // Příčina úmrtí (datum + číselník)
 ];

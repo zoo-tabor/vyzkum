@@ -14,4 +14,5 @@ return [
     'yes_no'           => 'Да / Нет', // Ano / Ne
     'file'             => 'Файл', // Soubor
     'disease_history'  => 'История здоровья (болезни с периодом)', // Zdravotní historie (nemoci s obdobím)
+    'death_cause'      => 'Причина смерти (дата + справочник)', // Příčina úmrtí (datum + číselník)
 ];

@@ -59,7 +59,21 @@ v resources/lang/*; behem vyvoje fallback na cestinu).
       "Nazev <kod muted>" (nenamapovany kod, napr. "(neuvedeno)", zustava jak byl) + hlavicka tabulky.
       Pozn.: card "Vysetreni" ma v normalized_code hodnoty odpovedi (ne kody ciselniku) -> nemapuje se.
 
-- [ ] **F7 - preklady** novych/zmenenych stringu do 8 jazyku (finalni konsolidace).
+- [x] **F7 - preklady** novych/zmenenych stringu do 8 jazyku (finalni konsolidace) + pribaleno:
+      (A) karta psa /admin/dogs/{} - tabulka zdravotnich udalosti pouzivala td('death_causes', ...),
+          coz je po v4 MRTVA cesta (souborovy katalog zrusen, preklady jsou v DB) -> nazev nemoci se
+          vzdy zobrazoval cesky. Fix: DogController predava causeLabels (labelsByCodeForBreed z F6),
+          view bere DB preklad dle kodu (fallback: cesky snapshot z value_json -> holy kod).
+          Pozn.: nazev + obdobi (event_end_date, "stale probiha") uz tam byly - poznamka o "nedodelanem"
+          byla zastarala.
+      (B) preklady: 7 novych UI klicu (z F2-F5) x 8 jazyku + novy enum kod form_types 'death_cause'
+          x 8. Dohledani pres prazdne hodnoty (grep "=> ''"), hotovych 883 klicu netknuto -> potvrdilo
+          se, ze batch na konci je levny. Po fillu extract+i18n_enums idempotentni, 0 prazdnych.
+
+## Zbyva (mimo zadani v5, k rozhodnuti)
+- FormResponseRepository::answersLocalized (~ř. 163) ma stejnou mrtvou cestu td('death_causes', ...)
+  -> nazvy nemoci v odpovedich dotazniku se zobrazuji cesky i cizojazycnemu majiteli. Fix by sel pres
+  leaf id ve value_json + batch TranslationRepository::allForFields (bez N+1).
 
 ## Poznamky
 - Server nema CLI ani lokalni DB -> DB toky se overuji az na zivem webu (vyzkum.zootabor.eu) po deployi.

@@ -129,8 +129,9 @@ $age = \App\Support\Age::years($dog['birth_date'] ?? null, $ageRef);
                 $hCode = (string) ($h['normalized_code'] ?? '');
                 $hj = !empty($h['value_json']) ? (json_decode((string) $h['value_json'], true) ?: []) : [];
                 $isDisease = $hType === 'disease' && $hCode !== '';
-                // U nemoci prelozeny nazev (fallback cesky snapshot z value_json, jinak kod).
-                $hLabel = $isDisease ? td('death_causes', $hCode, (string) ($hj['label'] ?? $hCode)) : $hCode;
+                // U nemoci prelozeny nazev z ciselniku (DB preklady dle kodu), fallback cesky
+                // snapshot z value_json, jinak holy kod.
+                $hLabel = $isDisease ? ($causeLabels[$hCode] ?? (string) ($hj['label'] ?? $hCode)) : $hCode;
                 // Obdobi: od (- do / stale probiha).
                 $period = \App\Support\Dates::toCz($h['event_date'] ?? null);
                 if (!empty($h['event_end_date'])) {
