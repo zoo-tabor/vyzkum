@@ -70,10 +70,14 @@ v resources/lang/*; behem vyvoje fallback na cestinu).
           x 8. Dohledani pres prazdne hodnoty (grep "=> ''"), hotovych 883 klicu netknuto -> potvrdilo
           se, ze batch na konci je levny. Po fillu extract+i18n_enums idempotentni, 0 prazdnych.
 
-## Zbyva (mimo zadani v5, k rozhodnuti)
-- FormResponseRepository::answersLocalized (~ř. 163) ma stejnou mrtvou cestu td('death_causes', ...)
-  -> nazvy nemoci v odpovedich dotazniku se zobrazuji cesky i cizojazycnemu majiteli. Fix by sel pres
-  leaf id ve value_json + batch TranslationRepository::allForFields (bez N+1).
+- [x] **F7+ (dodatek na zadost usera): nazvy nemoci/pricin v odpovedich dotazniku v jazyce majitele.**
+      FormResponseRepository::answersLocalized mela stejnou mrtvou cestu td('death_causes', ...).
+      Fix: davkove nacteni DB prekladu pres id uzlu ulozene ve value_json (disease_history: polozky[].id,
+      death_cause: cause_id) -> TranslationRepository::allForFields(DEATH_CAUSE, ['label'], ids, locale),
+      bez N+1; pro cestinu se nedotazujeme (snapshot uz je cesky). Fallback: cesky snapshot -> kod.
+      Nove i vetev pro odpoved typu death_cause (prelozena pricina + datum, prefix pres
+      HealthEventType::label('death') = uz prelozeny enum, zadny novy klic).
+      => td('death_causes', ...) uz NENI nikde v app/ - mrtva cesta je zcela odstranena.
 
 ## Poznamky
 - Server nema CLI ani lokalni DB -> DB toky se overuji az na zivem webu (vyzkum.zootabor.eu) po deployi.

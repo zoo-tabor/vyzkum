@@ -133,6 +133,30 @@ final class FormResponseRepository
             $byQKey[(int) $o['question_id']][(string) $o['option_key']] = (string) $o['label'];
         }
 
+        // Preklady nemoci/pricin z ciselniku death_causes. Klicujeme id uzlu, ktere je
+        // ulozene ve value_json (disease_history: polozky[].id, death_cause: cause_id).
+        // Davkove (bez N+1); pro cestinu (zdroj) se nedotazujeme - snapshot uz je cesky.
+        $causeIds = [];
+        foreach ($answers as $row) {
+            $t = (string) $row['type'];
+            if ($t !== 'disease_history' && $t !== 'death_cause') {
+                continue;
+            }
+            $j = !empty($row['value_json']) ? (json_decode((string) $row['value_json'], true) ?: []) : [];
+            if ($t === 'disease_history' && is_array($j)) {
+                foreach ($j as $e) {
+                    if (is_array($e) && !empty($e['id'])) {
+                        $causeIds[] = (int) $e['id'];
+                    }
+                }
+            } elseif ($t === 'death_cause' && is_array($j) && !empty($j['cause_id'])) {
+                $causeIds[] = (int) $j['cause_id'];
+            }
+        }
+        $causeTx = ($causeIds !== [] && $locale !== I18n::defaultLocale())
+            ? $tx->allForFields(TranslationRepository::DEATH_CAUSE, ['label'], $causeIds, $locale)
+            : [];
+
         foreach ($answers as &$a) {
             $type = (string) $a['type'];
             $json = !empty($a['value_json']) ? (json_decode((string) $a['value_json'], true) ?: []) : [];
@@ -160,7 +184,9 @@ final class FormResponseRepository
                     if (!is_array($e)) {
                         continue;
                     }
-                    $label = I18n::td('death_causes', (string) ($e['code'] ?? ''), (string) ($e['label'] ?? ''));
+                    // Prelozeny nazev z DB dle id uzlu; fallback cesky snapshot, pak kod.
+                    $label = $causeTx[(int) ($e['id'] ?? 0)]['label']
+                        ?? (string) ($e['label'] ?? ($e['code'] ?? ''));
                     $from = \App\Support\Dates::toCz((string) ($e['from'] ?? ''));
                     $end = !empty($e['ongoing'])
                         ? I18n::t('stále probíhá')
@@ -174,6 +200,15 @@ final class FormResponseRepository
                 if ($lines !== []) {
                     $display = implode("\n", $lines);
                 }
+            } elseif ($type === 'death_cause' && is_array($json) && $json !== []) {
+                // Prelozena pricina dle id uzlu; fallback cesky snapshot z value_json.
+                $snapshot = isset($json['cause_label']) && $json['cause_label'] !== null
+                    ? (string) $json['cause_label']
+                    : null;
+                $cause = $causeTx[(int) ($json['cause_id'] ?? 0)]['label'] ?? $snapshot;
+                $when = \App\Support\Dates::toCz((string) ($json['death_date'] ?? ''));
+                $display = \App\Support\HealthEventType::label('death') . ' ' . $when
+                    . ($cause !== null && $cause !== '' ? ' – ' . $cause : '');
             }
             $a['display_value'] = $display;
         }
