@@ -3,6 +3,7 @@
 /** @var array<int, array{event_type:string, c:int}> $byType */
 /** @var array<int, array{normalized_code:string, c:int}> $diseases */
 /** @var array<int, array{normalized_code:string, c:int}> $examinations */
+/** @var array<string, string> $causeLabels kod => nazev nemoci (prelozeny) */
 /** @var array<int, array<string, mixed>> $recent */
 ?>
 <div class="page-head"><h1><?= t('Zdraví') ?></h1></div>
@@ -23,8 +24,14 @@
         <div class="card">
             <h2><?= t('Nemoci') ?></h2>
             <?php if ($diseases === []): ?><p class="muted">-</p><?php else: ?>
-                <table class="table"><tbody>
-                    <?php foreach ($diseases as $r): ?><tr><td><?= e($r['normalized_code']) ?></td><td><?= (int) $r['c'] ?></td></tr><?php endforeach; ?>
+                <table class="table"><thead><tr><th><?= t('Nemoc / kód') ?></th><th><?= t('Počet') ?></th></tr></thead><tbody>
+                    <?php foreach ($diseases as $r): ?>
+                        <?php $code = (string) $r['normalized_code']; $lbl = $causeLabels[$code] ?? null; ?>
+                        <tr>
+                            <td><?php if ($lbl !== null): ?><?= e($lbl) ?> <span class="muted"><?= e($code) ?></span><?php else: ?><?= e($code) ?><?php endif; ?></td>
+                            <td><?= (int) $r['c'] ?></td>
+                        </tr>
+                    <?php endforeach; ?>
                 </tbody></table>
             <?php endif; ?>
         </div>

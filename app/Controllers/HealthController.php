@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Repositories\DeathCauseRepository;
 use App\Repositories\HealthEventRepository;
 use App\Services\BreedContext;
 
@@ -19,6 +20,8 @@ final class HealthController
             'byType' => $breedId !== null ? $repo->frequencyByType($breedId) : [],
             'diseases' => $breedId !== null ? $repo->frequencyByCode($breedId, 'disease') : [],
             'examinations' => $breedId !== null ? $repo->frequencyByCode($breedId, 'examination') : [],
+            // Kod z health_events (napr. "1.10.2") -> nazev nemoci z ciselniku plemene.
+            'causeLabels' => $breedId !== null ? (new DeathCauseRepository())->labelsByCodeForBreed($breedId) : [],
             'recent' => $breedId !== null ? $repo->recentForBreed($breedId, 100) : [],
         ]);
     }

@@ -57,6 +57,23 @@ final class DeathCauseRepository
     }
 
     /**
+     * Mapa kod => nazev (prelozeny do aktualniho jazyka) pro plemeno. Slouzi k lidsky
+     * citelnemu zobrazeni kodu z health_events.normalized_code (napr. "1.10.2").
+     *
+     * @return array<string, string>
+     */
+    public function labelsByCodeForBreed(?int $breedId): array
+    {
+        $rows = $this->rowsForBreed($breedId);
+        $this->translate($rows);
+        $out = [];
+        foreach ($rows as $r) {
+            $out[(string) $r['code']] = (string) $r['label'];
+        }
+        return $out;
+    }
+
+    /**
      * Vnoreny strom pro JS (uzly s children a has_note). Labely prelozene do
      * aktualniho jazyka, kanonicka data zustavaji.
      *

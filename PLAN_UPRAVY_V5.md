@@ -52,7 +52,12 @@ v resources/lang/*; behem vyvoje fallback na cestinu).
       do upsertGenotype (misto natvrdo null). Pozn.: GenotypeSource labely nejsou v td enum katalozich
       (admin-only, cesky) - konzistentni se stavajicim Sekvenace/GWAS.
 
-- [ ] **F6 - admin/health card "Nemoci":** vypis nazvu vazaneho na kod (ne jen kod).
+- [x] **F6 - admin/health card "Nemoci":** vypis nazvu vazaneho na kod (ne jen kod).
+      Disease health_events maji normalized_code = kod z ciselniku death_causes (napr. "1.10.2"),
+      card ukazovala jen kod. Nova DeathCauseRepository::labelsByCodeForBreed() (rowsForBreed +
+      translate -> mapa kod => prelozeny nazev); HealthController predava causeLabels; card ukazuje
+      "Nazev <kod muted>" (nenamapovany kod, napr. "(neuvedeno)", zustava jak byl) + hlavicka tabulky.
+      Pozn.: card "Vysetreni" ma v normalized_code hodnoty odpovedi (ne kody ciselniku) -> nemapuje se.
 
 - [ ] **F7 - preklady** novych/zmenenych stringu do 8 jazyku (finalni konsolidace).
 
