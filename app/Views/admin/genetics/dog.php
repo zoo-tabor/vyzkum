@@ -54,10 +54,18 @@ $dogId = (int) $dog['id'];
                     <label for="tested_at"><?= t('Datum testu (nepovinné)') ?></label>
                     <input type="date" id="tested_at" name="tested_at">
                 </div>
-                <div></div>
+                <div>
+                    <label for="geno-source"><?= t('Zdroj') ?></label>
+                    <select id="geno-source" name="source">
+                        <option value=""><?= t('- beze změny -') ?></option>
+                        <?php foreach (\App\Support\GenotypeSource::options() as $k => $lbl): ?>
+                            <option value="<?= e($k) ?>"><?= e($lbl) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
                 <div></div>
             </div>
-            <p class="muted"><?= t('Datum se uloží k právě ukládaným genotypům.') ?></p>
+            <p class="muted"><?= t('Datum se uloží k právě ukládaným genotypům.') ?> <?= t('Zdroj se přepíše jen když ho vyberete (jinak zůstane stávající).') ?></p>
 
             <button type="submit" class="btn btn--primary"><?= t('Uložit genetiku') ?></button>
         </form>

@@ -86,6 +86,8 @@ final class GeneticsController
         // Volitelne datum testu (plati pro ukladane genotypy). Laborator se uz nevede.
         $testedAt = trim((string) input('tested_at'));
         $testId = $testedAt !== '' ? $genotypes->createTest($dogId, null, $testedAt, 'manual', null, null) : null;
+        // Volitelny zdroj: prazdne/neplatne = "beze zmeny" (null -> upsert zachova stavajici).
+        $source = \App\Support\GenotypeSource::normalize((string) input('source'));
 
         $values = (array) ($_POST['g'] ?? []);
         $notes = (array) ($_POST['n'] ?? []);
@@ -111,8 +113,8 @@ final class GeneticsController
                 $invalid[] = $value;
                 continue;
             }
-            // Zdroj se pri editaci nemeni (source = null -> zachova stavajici).
-            $genotypes->upsertGenotype($dogId, $breedId, $markerId, $split['allele_1'], $split['allele_2'], $split['genotype'], $testId, 'manual');
+            // Zdroj: prepis jen kdyz je vybran (source != null), jinak zachova stavajici.
+            $genotypes->upsertGenotype($dogId, $breedId, $markerId, $split['allele_1'], $split['allele_2'], $split['genotype'], $testId, 'manual', null, $source);
             $genotypes->setGenotypeNote($dogId, $markerId, trim((string) ($notes[$markerId] ?? '')) ?: null);
             $saved++;
         }

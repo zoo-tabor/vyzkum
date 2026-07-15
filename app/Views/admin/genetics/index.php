@@ -46,7 +46,7 @@
                     <td class="col-name"><a href="/admin/genetics/<?= (int) $d['id'] ?>"><?= e($d['name']) ?></a></td>
                     <td><?= e(\App\Support\Breeds::translate($d['breed_name'] ?? '')) ?></td>
                     <?php $ns = $newestSample[(int) $d['id']] ?? null; ?>
-                    <td><?php if ($ns !== null): ?><code><?= e($ns['sample_id']) ?></code><?php if (!empty($ns['received_at'])): ?> <span class="muted">(<?= e(\App\Support\Dates::toCz(substr((string) $ns['received_at'], 0, 10))) ?>)</span><?php endif; ?><?php else: ?>-<?php endif; ?></td>
+                    <td data-sort="<?= e($ns !== null && !empty($ns['received_at']) ? substr((string) $ns['received_at'], 0, 10) : '') ?>"><?php if ($ns !== null): ?><code><?= e($ns['sample_id']) ?></code><?php if (!empty($ns['received_at'])): ?> <span class="muted">(<?= e(\App\Support\Dates::toCz(substr((string) $ns['received_at'], 0, 10))) ?>)</span><?php endif; ?><?php else: ?>-<?php endif; ?></td>
                     <?php foreach ($genes as $g): ?>
                         <td><?= e($dogGenos[$g['id']] ?? '') ?: '-' ?></td>
                     <?php endforeach; ?>

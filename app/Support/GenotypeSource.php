@@ -15,6 +15,7 @@ final class GenotypeSource
     public const LABELS = [
         'sekvenace' => 'Sekvenace',
         'GWAS' => 'GWAS',
+        'sekvenace_GWAS' => 'Sekvenace + GWAS',
     ];
 
     /** Vrati validni hodnotu, jinak null. */

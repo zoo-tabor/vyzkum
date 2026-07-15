@@ -44,8 +44,13 @@ v resources/lang/*; behem vyvoje fallback na cestinu).
       (OwnerRepository::find), posle pro vsechny psy plemene daneho majitele (i uhynule, livingOnly=false).
       Chybove hlasky per mode. Onfocus na naseptavaci zaskrtne radio.
 
-- [ ] **F5 - genetika (3v1):** (a) vzorky radit dle data misto nazvu/cisla; (b) pri pridani vzorku volba
-      "Sekvenace + GWAS"; (c) editace zdroje na /admin/genetics/{}.
+- [x] **F5 - genetika (3v1):** (a) sloupec "Vzorky" v dashboard datatable radi dle DATA (pridan
+      data-sort=ISO na bunku; drive se radilo alfabeticky dle sample_id); (b) nova hodnota zdroje
+      genotypu 'sekvenace_GWAS' => 'Sekvenace + GWAS' v GenotypeSource::LABELS (auto ve vsech source
+      selectech pres options()); (c) detail /admin/genetics/{} dostal select "Zdroj" (default
+      "- beze zmeny -" = null zachova; jinak prepise) -> GeneticsController::update predava normalize(source)
+      do upsertGenotype (misto natvrdo null). Pozn.: GenotypeSource labely nejsou v td enum katalozich
+      (admin-only, cesky) - konzistentni se stavajicim Sekvenace/GWAS.
 
 - [ ] **F6 - admin/health card "Nemoci":** vypis nazvu vazaneho na kod (ne jen kod).
 
