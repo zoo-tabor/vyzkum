@@ -109,6 +109,13 @@ final class FormController
         $living = $dogsRepo->recipientsForBreed($breedId, true);
         $all = $dogsRepo->recipientsForBreed($breedId, false);
 
+        // Unikatni majitele psu tohoto plemene pro naseptavac (poslat konkretnimu).
+        $ownersForBreed = [];
+        foreach ($all as $r) {
+            $oid = (int) $r['owner_id'];
+            $ownersForBreed[$oid] ??= ['owner_id' => $oid, 'owner_name' => (string) $r['owner_name']];
+        }
+
         return view('admin/forms/broadcast', [
             'title' => 'Rozeslat dotazník',
             'def' => $def,
@@ -116,6 +123,7 @@ final class FormController
             'livingEmailCount' => count(array_filter($living, $hasEmail)),
             'allCount' => count($all),
             'allEmailCount' => count(array_filter($all, $hasEmail)),
+            'ownersForBreed' => array_values($ownersForBreed),
             'error' => Session::flash('form_error'),
         ]);
     }
@@ -134,13 +142,24 @@ final class FormController
             redirect('/admin/forms/' . $id);
         }
 
-        $livingOnly = (string) input('recipients') !== 'all';
-        $result = (new FormBroadcastService())->send($def, $published, Auth::id(), $livingOnly);
+        $mode = (string) input('recipients');
+        $ownerId = null;
+        if ($mode === 'owner') {
+            $ownerId = (int) input('owner_id');
+            if ($ownerId <= 0 || (new \App\Repositories\OwnerRepository())->find($ownerId) === null) {
+                Session::flash('form_error', t('Vyberte platného majitele ze seznamu.'));
+                redirect('/admin/forms/' . $id . '/send');
+            }
+        }
+        $livingOnly = $mode === 'living'; // 'all' i 'owner' -> vcetne uhynulych
+        $result = (new FormBroadcastService())->send($def, $published, Auth::id(), $livingOnly, $ownerId);
 
         if ($result['total'] === 0) {
-            Session::flash('form_error', $livingOnly
-                ? t('Pro toto plemeno nejsou žádní majitelé žijících psů.')
-                : t('Pro toto plemeno nejsou žádní majitelé psů.'));
+            Session::flash('form_error', match ($mode) {
+                'owner' => t('Tento majitel nemá žádné psy.'),
+                'all' => t('Pro toto plemeno nejsou žádní majitelé psů.'),
+                default => t('Pro toto plemeno nejsou žádní majitelé žijících psů.'),
+            });
         } else {
             $msg = t('Rozesláno: {sent} e-mailů', ['sent' => $result['sent']]);
             if ($result['skipped'] > 0) {

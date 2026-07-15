@@ -37,8 +37,12 @@ v resources/lang/*; behem vyvoje fallback na cestinu).
       (data-qhide=disease_history,death_cause). Odpoved: value_text cesky snapshot + value_json
       (answersLocalized fallback). Overeno JS harnessem (prefix izolace, top-level i vnorene listy, note).
 
-- [ ] **F4 - admin/forms/{}/send: moznost 3 = poslat konkretnimu jednomu majiteli** (nasep­tavac dle
-      jmena z tabulky owners).
+- [x] **F4 - admin/forms/{}/send: moznost 3 = poslat konkretnimu jednomu majiteli** (naseptavac dle
+      jmena). Treti radio "Konkretnimu majiteli" + <datalist> unikatnich majitelu psu plemene +
+      datalist-id.js (jmeno -> hidden owner_id). recipientsForBreed dostal ?ownerId filtr;
+      FormBroadcastService::send dostal ?ownerId; sendBroadcast: mode 'owner' validuje owner_id
+      (OwnerRepository::find), posle pro vsechny psy plemene daneho majitele (i uhynule, livingOnly=false).
+      Chybove hlasky per mode. Onfocus na naseptavaci zaskrtne radio.
 
 - [ ] **F5 - genetika (3v1):** (a) vzorky radit dle data misto nazvu/cisla; (b) pri pridani vzorku volba
       "Sekvenace + GWAS"; (c) editace zdroje na /admin/genetics/{}.

@@ -4,6 +4,7 @@
 /** @var int $livingEmailCount */
 /** @var int $allCount */
 /** @var int $allEmailCount */
+/** @var array<int, array{owner_id:int, owner_name:string}> $ownersForBreed */
 /** @var string|null $error */
 $defId = (int) $def['id'];
 ?>
@@ -41,6 +42,21 @@ $defId = (int) $def['id'];
             <br>
             <label class="inline"><input type="radio" name="recipients" value="all">
                 <?= t('Všem psům plemene i uhynulým') ?> <span class="muted">(<?= t('{emails} e-mailů z {dogs} psů', ['emails' => (int) $allEmailCount, 'dogs' => (int) $allCount]) ?>)</span></label>
+            <br>
+            <label class="inline"><input type="radio" name="recipients" value="owner" id="rcpt-owner">
+                <?= t('Konkrétnímu majiteli') ?></label>
+            <div style="margin:.5rem 0 0 1.6rem; max-width:360px;">
+                <input type="text" id="owner_search" list="broadcast-owners" data-idsync="owner_id" data-idattr="id"
+                       placeholder="<?= e(t('začněte psát jméno...')) ?>" autocomplete="off"
+                       onfocus="var r=document.getElementById('rcpt-owner'); if(r){r.checked=true;}">
+                <input type="hidden" name="owner_id" id="owner_id" value="">
+                <datalist id="broadcast-owners">
+                    <?php foreach ($ownersForBreed as $o): ?>
+                        <option value="<?= e($o['owner_name']) ?>" data-id="<?= (int) $o['owner_id'] ?>"></option>
+                    <?php endforeach; ?>
+                </datalist>
+                <p class="muted" style="margin:.35rem 0 0"><?= t('Odešle se pro všechny psy tohoto plemene daného majitele (i uhynulé).') ?></p>
+            </div>
         </fieldset>
 
         <p>
@@ -49,3 +65,4 @@ $defId = (int) $def['id'];
         </p>
     </form>
 </div>
+<script src="<?= e(asset('assets/datalist-id.js')) ?>"></script>

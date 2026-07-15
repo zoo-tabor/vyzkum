@@ -28,7 +28,7 @@ final class FormBroadcastService
      * @param array<string, mixed> $version publikovana verze
      * @return array{total:int, sent:int, failed:int, skipped:int}
      */
-    public function send(array $def, array $version, ?int $userId, bool $livingOnly = true): array
+    public function send(array $def, array $version, ?int $userId, bool $livingOnly = true, ?int $ownerId = null): array
     {
         $defId = (int) $def['id'];
         $versionId = (int) $version['id'];
@@ -38,7 +38,7 @@ final class FormBroadcastService
         // Prelozene nazvy dotazniku (pro {dotaznik} v jazyce prijemce), fallback cs.
         $nameByLocale = (new TranslationRepository())->localesFor(TranslationRepository::FORM_DEFINITION, $defId, 'name');
 
-        $recipients = $this->dogs->recipientsForBreed((int) $def['breed_id'], $livingOnly);
+        $recipients = $this->dogs->recipientsForBreed((int) $def['breed_id'], $livingOnly, $ownerId);
         $result = ['total' => count($recipients), 'sent' => 0, 'failed' => 0, 'skipped' => 0];
 
         foreach ($recipients as $r) {

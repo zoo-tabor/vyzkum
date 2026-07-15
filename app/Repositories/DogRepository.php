@@ -429,7 +429,7 @@ final class DogRepository
      *
      * @return array<int, array{dog_id:int, dog_name:string, owner_id:int, owner_name:string, owner_language:?string, email:?string}>
      */
-    public function recipientsForBreed(int $breedId, bool $livingOnly = true): array
+    public function recipientsForBreed(int $breedId, bool $livingOnly = true, ?int $ownerId = null): array
     {
         $sql = 'SELECT d.id AS dog_id, d.name AS dog_name,
                     o.id AS owner_id, o.display_name AS owner_name, o.language AS owner_language,
@@ -440,9 +440,14 @@ final class DogRepository
              JOIN owners o ON o.id = do2.owner_id
              WHERE d.breed_id = :b'
             . ($livingOnly ? ' AND d.death_date IS NULL' : '')
+            . ($ownerId !== null ? ' AND o.id = :o' : '')
             . ' ORDER BY o.display_name ASC, d.name ASC';
+        $params = ['b' => $breedId];
+        if ($ownerId !== null) {
+            $params['o'] = $ownerId;
+        }
         $stmt = $this->pdo()->prepare($sql);
-        $stmt->execute(['b' => $breedId]);
+        $stmt->execute($params);
         return $stmt->fetchAll();
     }
 
