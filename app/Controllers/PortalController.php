@@ -152,6 +152,9 @@ final class PortalController
         // Strom nemoci (jen kdyz je v dotazniku otazka typu zdravotni historie).
         $hasDisease = array_filter($questions, static fn ($q): bool => (string) $q['type'] === 'disease_history');
         $diseaseTree = $hasDisease !== [] ? (new DeathCauseRepository())->diseaseTreeForBreed((int) $dog['breed_id']) : [];
+        // Cely strom pricin (jen kdyz je otazka typu pricina umrti).
+        $hasDeathCause = array_filter($questions, static fn ($q): bool => (string) $q['type'] === 'death_cause');
+        $causeTree = $hasDeathCause !== [] ? (new DeathCauseRepository())->treeForBreed((int) $dog['breed_id']) : [];
 
         return view('portal/form', [
             'title' => $def['name'],
@@ -160,6 +163,7 @@ final class PortalController
             'questions' => $questions,
             'options' => $options,
             'diseaseTree' => $diseaseTree,
+            'causeTree' => $causeTree,
             'error' => Session::flash('portal_error'),
         ]);
     }
@@ -206,6 +210,11 @@ final class PortalController
             }
             if ((string) $q['type'] === 'disease_history') {
                 $this->storeDiseaseHistory($responses, $responseId, $q, (int) $id, $breedId);
+                continue;
+            }
+            if ((string) $q['type'] === 'death_cause') {
+                // Umrti zaklada setAliveStatus (jediny death primitiv) -> NE maybeHealthEvent (dvojity event).
+                $this->storeDeathCause($responses, $responseId, $q, (int) $id, (int) $owner['id'], $breedId);
                 continue;
             }
             $this->storeAnswer($responses, $responseId, $q, $optionsByQ[(int) $q['id']] ?? [], (string) $dog['breed_slug'], (int) $owner['id'], (int) $id);
@@ -727,6 +736,42 @@ final class PortalController
             return $e['label'] . ' (' . $period . ')';
         }, $entries));
         $responses->addAnswer($responseId, (int) $q['id'], ['text' => $summary, 'json' => $entries]);
+    }
+
+    /**
+     * Vestavena otazka "pricina umrti": datum umrti + kaskadovy vyber pricin z ciselniku.
+     * Prazdne/neplatne datum = pes zije / nevyplneno (nic nehlasime). Jinak zaklada umrti
+     * pres setAliveStatus (dogs + dog_death_reports + health_event death) - stejne jako
+     * hlaseni z karty psa; proto se NEvola maybeHealthEvent (jinak dvojity death event).
+     *
+     * @param array<string, mixed> $q
+     */
+    private function storeDeathCause(FormResponseRepository $responses, int $responseId, array $q, int $dogId, int $ownerId, ?int $breedId): void
+    {
+        $field = 'q_' . (int) $q['id'];
+        $deathIso = trim((string) input($field . '_death_date')); // <input type=date> => ISO YYYY-MM-DD
+        if (!\App\Services\DogOwnerImporter::isDate($deathIso)) {
+            return;
+        }
+
+        $causeId = (int) input($field . '_death_cause_id');
+        $leaf = $causeId > 0 ? (new DeathCauseRepository())->findLeaf($causeId, $breedId) : null;
+        $realCauseId = $leaf !== null ? (int) $leaf['id'] : null;
+        $causeLabel = $leaf !== null ? (string) $leaf['label'] : null;
+        $note = ($leaf !== null && (int) $leaf['has_note'] === 1)
+            ? (trim((string) input($field . '_death_cause_note')) ?: null)
+            : null;
+
+        (new DogRepository())->setAliveStatus($dogId, $ownerId, false, $deathIso, $note, 'owner_form', $realCauseId, $causeLabel);
+
+        // Cesky snapshot do odpovedi (fallback k zobrazeni) + strukturovana data.
+        $summary = 'Úmrtí ' . \App\Support\Dates::toCz($deathIso) . ($causeLabel !== null ? ' – ' . $causeLabel : '');
+        $responses->addAnswer($responseId, (int) $q['id'], ['text' => $summary, 'json' => [
+            'death_date' => $deathIso,
+            'cause_id' => $realCauseId,
+            'cause_label' => $causeLabel,
+            'note' => $note,
+        ]]);
     }
 
     /**

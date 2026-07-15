@@ -16,6 +16,7 @@ final class FormSchema
         'yes_no' => 'Ano / Ne',
         'file' => 'Soubor',
         'disease_history' => 'Zdravotní historie (nemoci s obdobím)',
+        'death_cause' => 'Příčina úmrtí (datum + číselník)',
     ];
 
     public static function isValidType(string $type): bool
@@ -30,6 +31,16 @@ final class FormSchema
     public static function isDiseaseHistory(string $type): bool
     {
         return $type === 'disease_history';
+    }
+
+    /**
+     * Vestavena otazka "pricina umrti": datum umrti + kaskadovy vyber z ciselniku
+     * death_causes. Pri odeslani zaklada umrti pres DogRepository::setAliveStatus
+     * (dogs + dog_death_reports + health_event death) - jediny "death primitiv".
+     */
+    public static function isDeathCause(string $type): bool
+    {
+        return $type === 'death_cause';
     }
 
     /** Stitek typu otazky v jazyce diveka (fallback = cesky zdroj z TYPES). */

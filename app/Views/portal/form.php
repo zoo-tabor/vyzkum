@@ -4,6 +4,7 @@
 /** @var array<int, array<string, mixed>> $questions */
 /** @var array<int, array<int, array<string, mixed>>> $options */
 /** @var array<int, array<string, mixed>> $diseaseTree */
+/** @var array<int, array<string, mixed>> $causeTree */
 /** @var string|null $error */
 ?>
 <div class="page-head">
@@ -89,6 +90,25 @@
                             <?php $renderDisease($diseaseTree, $field); ?>
                         <?php endif; ?>
                     </div>
+                <?php elseif ($type === 'death_cause'): ?>
+                    <?php if (($causeTree ?? []) === []): ?>
+                        <p class="muted"><?= t('Pro toto plemeno zatím není žádný číselník.') ?></p>
+                    <?php else: ?>
+                        <div class="death-cause-q">
+                            <div><label><?= t('Datum úmrtí (DD.MM.RRRR)') ?></label>
+                                <input type="date" name="<?= $field ?>_death_date" style="max-width:200px"></div>
+                            <div class="cause-picker" data-cause-picker data-cause-prefix="<?= $field ?>_" data-placeholder="<?= e(t('– vyberte –')) ?>">
+                                <label><?= t('Příčina úmrtí') ?></label>
+                                <div class="cause-levels"></div>
+                                <input type="hidden" name="<?= $field ?>_death_cause_id" value="">
+                                <div class="cause-note" hidden>
+                                    <label><?= t('Poznámka (nepovinné)') ?></label>
+                                    <textarea name="<?= $field ?>_death_cause_note" rows="2"></textarea>
+                                </div>
+                            </div>
+                            <p class="muted"><?= t('Vyplňte jen když pes uhynul.') ?></p>
+                        </div>
+                    <?php endif; ?>
                 <?php endif; ?>
             </div>
         <?php endforeach; ?>
@@ -110,6 +130,10 @@
 .disease-history .dh-note { max-width:280px; }
 </style>
 <script src="<?= e(asset('assets/disease-history.js')) ?>"></script>
+<?php if (($causeTree ?? []) !== []): ?>
+<script type="application/json" id="cause-tree"><?= json_encode($causeTree, JSON_UNESCAPED_UNICODE) ?></script>
+<script src="<?= e(asset('assets/cause-picker.js')) ?>"></script>
+<?php endif; ?>
 <script>
 (function () {
     function valueOf(qkey) {

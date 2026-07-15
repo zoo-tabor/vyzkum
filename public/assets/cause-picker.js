@@ -33,7 +33,8 @@
             });
             sel.addEventListener('change', function () {
                 while (sel.nextSibling) { levels.removeChild(sel.nextSibling); }
-                var hidden = picker.querySelector('input[name=death_cause_id]');
+                var prefix = picker.getAttribute('data-cause-prefix') || '';
+                var hidden = picker.querySelector('input[name="' + prefix + 'death_cause_id"]');
                 var noteBox = picker.querySelector('.cause-note');
                 hidden.value = '';
                 if (noteBox) { noteBox.hidden = true; }

@@ -156,6 +156,9 @@ $defId = (int) $def['id'];
             <div data-qtypes="disease_history">
                 <p class="muted"><?= t('Použije se číselník nemocí plemene (větev nemocí z příčin úmrtí). Možnosti se nevyplňují - majitel vybere prodělané nemoci a jejich období.') ?></p>
             </div>
+            <div data-qtypes="death_cause">
+                <p class="muted"><?= t('Majitel zadá datum úmrtí a příčinu z číselníku plemene. Uloží se jako úmrtí psa (report + zdravotní událost), stejně jako hlášení z karty psa. Možnosti se nevyplňují.') ?></p>
+            </div>
 
             <div class="form-row">
                 <div>
@@ -172,7 +175,7 @@ $defId = (int) $def['id'];
                     <select id="visible_if_value" name="visible_if_value" data-cond-value data-cond-current="" hidden disabled></select>
                     <input type="text" name="visible_if_value" data-cond-text placeholder="<?= e(t('klíč možnosti / yes / no')) ?>">
                 </div>
-                <div data-qhide="disease_history">
+                <div data-qhide="disease_history,death_cause">
                     <label for="health_event_type"><?= t('Zaznamenat jako zdravotní událost') ?></label>
                     <select id="health_event_type" name="health_event_type">
                         <option value=""><?= t('- ne -') ?></option>

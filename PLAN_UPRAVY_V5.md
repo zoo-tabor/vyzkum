@@ -26,9 +26,16 @@ v resources/lang/*; behem vyvoje fallback na cestinu).
       form-builder.js populuje picker (disabled trik: submitne se jen aktivni control). Overeno JS
       harnessem v prohlizeci. Stare konfigurace (eq=label) admin preklikne pres novy picker.
 
-- [ ] **F3 - novy typ otazky "pricina umrti"** v admin/forms builderu (cause-picker, analogicky
-      disease_history). UKLADA (dle usera). Pozor: umrti zakladat pres setAliveStatus a NE zaroven pres
-      obecne "health_event: death" -> jinak dvojity death event.
+- [x] **F3 - novy typ otazky "pricina umrti"** v admin/forms builderu (cause-picker, analogicky
+      disease_history). UKLADA. Umrti zakladano pres setAliveStatus (NE dvojity event).
+      Implementace: FormSchema::TYPES + isDeathCause; portal fillForm predava causeTree (treeForBreed);
+      submitForm -> storeDeathCause (datum <input type=date> ISO + cause-picker; prazdne datum = nic
+      nehlasi; jinak setAliveStatus source 'owner_form', continue = preskoci maybeHealthEvent).
+      portal/form.php render death_cause (datum + cause-picker s data-cause-prefix q_<id>_) + emise
+      #cause-tree + cause-picker.js. cause-picker.js generalizovan (data-cause-prefix, zpetne
+      kompatibilni). Builder: data-qtypes=death_cause poznamka, health_event tagging skryt
+      (data-qhide=disease_history,death_cause). Odpoved: value_text cesky snapshot + value_json
+      (answersLocalized fallback). Overeno JS harnessem (prefix izolace, top-level i vnorene listy, note).
 
 - [ ] **F4 - admin/forms/{}/send: moznost 3 = poslat konkretnimu jednomu majiteli** (nasep­tavac dle
       jmena z tabulky owners).
