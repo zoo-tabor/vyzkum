@@ -65,6 +65,9 @@ $router->post('/dog/{sampleId}/{token}', [$publicSamples, 'dogSubmit']);
 // Verejne zasady zpracovani osobnich udaju (GDPR) - odkaz ze souhlasu.
 $router->get('/gdpr', fn () => view('legal/gdpr', ['title' => 'Informovaný souhlas se zpracováním osobních údajů', '_layout' => 'public']));
 
+// Verejna PR stranka (reference vyzkumu) - poutac k zapojeni, bez prihlaseni.
+$router->get('/reference', fn () => view('legal/reference', ['title' => 'Reference výzkumu', '_layout' => 'public']));
+
 // Verejne potvrzeni prevodu psa novym majitelem.
 $transfer = new \App\Controllers\TransferController();
 $router->get('/transfer/{token}', [$transfer, 'show']);
