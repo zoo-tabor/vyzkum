@@ -30,11 +30,11 @@
         <li><?= t('poskytnutý souhlas kdykoli odvolat.') ?></li>
     </ul>
 
-    <p><?= t('Dále prohlašuji, že jsem byl poučen o tom, že poskytnutí osobních údajů prostřednictvím tohoto formuláře je zcela dobrovolné, a že výše uvedené údaje budou předány Ústavu molekulární genetiky AV ČR, v. v. i., a dále chovatelskému klubu zastřešujícímu chov plemene mého psa.') ?></p>
+    <p><?= t('Dále prohlašuji, že jsem byl poučen o tom, že poskytnutí osobních údajů prostřednictvím tohoto formuláře je zcela dobrovolné, a že výše uvedené údaje budou předány Ústavu molekulární genetiky AV ČR, v. v. i., a dále chovatelskému klubu zastřešujícímu chov plemene mého psa, eventuelně dalším subjektům.') ?></p>
 
     <p><?= t('Dále uděluji bezúplatně správci souhlas, aby zveřejnil jméno a věk mého psa, název chovatelské stanice a všechny další jemu poskytnuté údaje o mém psovi, včetně fotografií, v publikacích o výzkumu dlouhověkosti psů, a i v dalších publikacích, článcích i jiných prezentacích, jejichž autorem je správce či předseda představenstva správce RNDr. Evžen Korec, CSc., a to ve všech jazycích.') ?></p>
 
-    <p><?= t('Tento souhlas je udělen dle zákona č. 110/2019 Sb., o zpracování osobních údajů a Nařízení Evropského parlamentu a Rady (EU) 2016/679 ze dne 27. dubna 2016 o ochraně fyzických osob v souvislosti se zpracováním osobních údajů a o volném pohybu těchto údajů a o zrušení směrnice 95/46/ES (obecné nařízení o ochraně osobních údajů), a to na dobu trvání výše uvedeného výzkumu, a dále po dobu ….. let od zveřejnění výsledků výzkumu za účelem revize zjištěných poznatků, příp. do odvolání tohoto souhlasu.') ?></p>
+    <p><?= t('Tento souhlas je udělen dle zákona č. 110/2019 Sb., o zpracování osobních údajů a Nařízení Evropského parlamentu a Rady (EU) 2016/679 ze dne 27. dubna 2016 o ochraně fyzických osob v souvislosti se zpracováním osobních údajů a o volném pohybu těchto údajů a o zrušení směrnice 95/46/ES (obecné nařízení o ochraně osobních údajů), a to na dobu trvání výše uvedeného výzkumu, a dále po dobu 5 let od zveřejnění výsledků výzkumu za účelem revize zjištěných poznatků, příp. do odvolání tohoto souhlasu.') ?></p>
 
     <p><?= t('Právním základem zpracování osobních údajů je tento souhlas.') ?></p>
 
